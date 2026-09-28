@@ -1,0 +1,10 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# Original unoptimized frames (large, not needed for production)
+public/frames/hero/
+public/frames/hero-1080/
+
+

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>Bulevar.IT — Digitalna agencija iz Novog Sada | Web, Marketing, Automatizacija</title>
+  <meta name="description" content="Bulevar.IT je digitalna agencija iz Novog Sada. Pravimo profesionalne web sajtove, web aplikacije, automatizaciju, marketing kampanje i brendiranje za lokalne biznise." />
+  <meta name="keywords" content="web dizajn Novi Sad, digitalna agencija, izrada sajta, SEO, marketing, automatizacija, brending" />
+  <meta name="author" content="Bulevar.IT" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://bulevar.it" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bulevar.IT — Digitalna agencija iz Novog Sada" />
+  <meta property="og:description" content="Profesionalni web sajtovi, aplikacije, automatizacija i marketing za vaš biznis." />
+  <meta property="og:url" content="https://bulevar.it" />
+  <meta property="og:site_name" content="Bulevar.IT" />
+  <meta property="og:locale" content="sr_RS" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bulevar.IT — Digitalna agencija iz Novog Sada" />
+  <meta name="twitter:description" content="Profesionalni web sajtovi, aplikacije, automatizacija i marketing za vaš biznis." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- NAVIGATION                                          -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <nav id="main-nav" class="nav">
+    <div class="nav__inner">
+      <button id="nav-toggle" class="nav__toggle" aria-label="Otvori meni" aria-expanded="false">
+        <span class="nav__toggle-bar"></span>
+        <span class="nav__toggle-bar"></span>
+        <span class="nav__toggle-bar"></span>
+      </button>
+      <ul id="nav-links" class="nav__links">
+        <li><a href="#o-nama" class="nav__link">O nama</a></li>
+        <li><a href="#services" class="nav__link">Usluge</a></li>
+        <li><a href="#devices" class="nav__link">Responzivnost</a></li>
+        <li><a href="#portfolio" class="nav__link">Portfolio</a></li>
+        <li><a href="#contact" class="nav__link nav__link--cta">Kontakt</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 1. HERO / INTRO — Frame-sequence scroll video       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section id="hero" class="hero">
+    <canvas id="hero-video" class="hero__canvas"></canvas>
+
+    <!-- Scanline / glitch overlay -->
+    <div class="hero__overlay" aria-hidden="true"></div>
+
+    <!-- Headline (animated per-letter on scroll) -->
+    <div class="hero__content">
+      <h1 id="hero-headline" class="hero__headline" aria-label="Gradimo digitalni bulevar vašeg biznisa">
+        <span class="hero__headline-line">Gradimo digitalni</span>
+        <span class="hero__headline-line hero__headline-line--accent">bulevar</span>
+        <span class="hero__headline-line">vašeg biznisa</span>
+      </h1>
+      <p class="hero__sub">Web sajtovi · Aplikacije · Automatizacija · Marketing</p>
+      <a href="#contact" class="btn btn--primary hero__cta">Započnite projekat</a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 2. O NAMA — Boon-Style Pinned Parallax Scroll       -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section id="o-nama" class="section section--dark about">
+    <!-- Anchor alias for #about URLs / legacy links -->
+    <span id="about" class="about-anchor" aria-hidden="true"></span>
+
+    <!-- Content in Background (z-index: 1, Pure Deep Black #080C14) -->
+    <div class="about__bg-content">
+      <div class="container about__container">
+        <div class="about__header">
+          <div class="section__label about__section-label"><span class="section__label-number">01</span> O nama</div>
+          <h2 class="about__heading">Tim koji stoji iza <span class="text-accent">rezultata</span></h2>
+          <p class="about__description">
+            Bulevar.IT je tim mladih stručnjaka iz Novog Sada koji već više od 3 godine pomaže
+            lokalnim biznisima da izgledaju ozbiljno online i privuku više klijenata. Radili smo
+            sa restoranima, salonima, teretanama, e-commerce brendovima — i svima im je zajedničko
+            jedno: hteli su više od lepog sajta. Hteli su rezultate. I to isporučujemo.
+          </p>
+        </div>
+
+        <div class="about__values">
+          <div class="value-card">
+            <div class="value-card__icon-wrap">
+              <span class="value-card__radar-ring" aria-hidden="true"></span>
+              <div class="value-card__icon">⚡</div>
+            </div>
+            <h3 class="value-card__title">Brzina</h3>
+            <p class="value-card__text">Poštujemo rokove. Uvek.</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-card__icon-wrap">
+              <span class="value-card__radar-ring" aria-hidden="true"></span>
+              <div class="value-card__icon">◆</div>
+            </div>
+            <h3 class="value-card__title">Kvalitet</h3>
+            <p class="value-card__text">Svaki detalj prolazi kroz naše oči pre nego što prođe kroz vaše.</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-card__icon-wrap">
+              <span class="value-card__radar-ring" aria-hidden="true"></span>
+              <div class="value-card__icon">📊</div>
+            </div>
+            <h3 class="value-card__title">Rezultati</h3>
+            <p class="value-card__text">Merimo uspeh brojevima, ne lepim rečima.</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-card__icon-wrap">
+              <span class="value-card__radar-ring" aria-hidden="true"></span>
+              <div class="value-card__icon">🤝</div>
+            </div>
+            <h3 class="value-card__title">Podrška</h3>
+            <p class="value-card__text">Tu smo i kad je sajt gotov — ne samo dok traje projekat.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parallax Image Composition Stage (z-index: 10, covers entire viewport) -->
+    <div class="about-parallax" aria-hidden="true">
+      <!-- Soft top fade from hero navy -->
+      <div class="about-parallax__top-fade"></div>
+
+      <!-- Large clean white bold title "O NAMA" on the left side of the image -->
+      <div class="about-parallax__title-wrap">
+        <span class="about-parallax__title">O NAMA</span>
+      </div>
+
+      <!-- Unified 2528x1696 Master Coordinate Stage (100% seamless, perfectly centered) -->
+      <div class="about-parallax__stage">
+        <!-- Sloj 1: Gornja osnova (y: 0 to 1131, x: 0 to 2528) -->
+        <div class="about-parallax__layer about-parallax__layer--1">
+          <img src="/01-osnova-gornja.jpg" alt="Bulevar IT - Gornja osnova" class="about-parallax__img about-parallax__img--1" />
+        </div>
+
+        <!-- Sloj 3: Donji levi blok (y: 1131 to 1696, x: 0 to 1517) -->
+        <div class="about-parallax__layer about-parallax__layer--3">
+          <img src="/02-donji-levi.jpg" alt="Bulevar IT - Donji levi blok" class="about-parallax__img about-parallax__img--3" />
+        </div>
+
+        <!-- Sloj 4: Donji desni blok (y: 1131 to 1696, x: 1116 to 2528) -->
+        <div class="about-parallax__layer about-parallax__layer--4">
+          <img src="/04-donji-desni.jpg" alt="Bulevar IT - Donji desni blok" class="about-parallax__img about-parallax__img--4" />
+        </div>
+
+        <!-- Sloj 2: Srednji levi prozor (y: 848 to 1413, x: 0 to 1116) -->
+        <div class="about-parallax__layer about-parallax__layer--2">
+          <img src="/03-srednji-levi.jpg" alt="Bulevar IT - Srednji levi blok" class="about-parallax__img about-parallax__img--2" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 3. USLUGE & GALAXY SWIRL STAGE                      -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="services-stage" class="services-stage">
+    <!-- Dot-grid canvas (pozadina, iza blokova i transition sekcije) -->
+    <canvas id="services-dots" class="services__dots-canvas" aria-hidden="true"></canvas>
+
+    <!-- 2.5 PRE-SERVICES TRANSITION (Prazan prostor gde se pozadina pretvara u crnu i tačkice pale pre usluga) -->
+    <div id="services-pre-transition" class="services-pre-transition" aria-hidden="true"></div>
+
+    <section id="services" class="section services">
+      <div class="container services__container">
+        <div class="services__header">
+          <div class="section__label"><span class="section__label-number">02</span> Usluge</div>
+          <h2 class="section__heading">Šta radimo za <span class="text-accent">vaš biznis</span></h2>
+        </div>
+
+        <div class="services__layout">
+          <!-- Leva kolona: 3 bloka -->
+          <div class="services__column services__column--left">
+            <article class="glass-block" data-service="web" tabindex="0">
+              <div class="glass-block__glow"></div>
+              <div class="glass-block__header">
+                <h3 class="glass-block__title">Web & Development</h3>
+              </div>
+              <p class="glass-block__desc">Profesionalna izrada modernih, ultra brzih i responzivnih sajtova i aplikacija.</p>
+              <ul class="glass-block__tags">
+                <li>Web sajtovi</li>
+                <li>Web apps</li>
+                <li>E-commerce</li>
+              </ul>
+            </article>
+
+            <article class="glass-block" data-service="marketing" tabindex="0">
+              <div class="glass-block__glow"></div>
+              <div class="glass-block__header">
+                <h3 class="glass-block__title">Marketing & Growth</h3>
+              </div>
+              <p class="glass-block__desc">Ciljane Google i Meta kampanje sa merljivim ROI i konstantnim rastom novih klijenata.</p>
+              <ul class="glass-block__tags">
+                <li>Google Ads</li>
+                <li>Meta Ads</li>
+                <li>SEO optimizacija</li>
+              </ul>
+            </article>
+
+            <article class="glass-block" data-service="social" tabindex="0">
+              <div class="glass-block__glow"></div>
+              <div class="glass-block__header">
+                <h3 class="glass-block__title">Social Media</h3>
+              </div>
+              <p class="glass-block__desc">Kreiranje atraktivnog sadržaja i strateško vođenje društvenih mreža koje gradi zajednicu.</p>
+              <ul class="glass-block__tags">
+                <li>Instagram</li>
+                <li>TikTok</li>
+                <li>Content kreacija</li>
+              </ul>
+            </article>
+          </div>
+
+          <!-- Centralni prostor (za rotirajuće 3D simbole pri hoveru) -->
+          <div class="services__center" aria-hidden="true"></div>
+
+          <!-- Desna kolona: 3 bloka -->
+          <div class="services__column services__column--right">
+            <article class="glass-block" data-service="automation" tabindex="0">
+              <div class="glass-block__glow"></div>
+              <div class="glass-block__header">
+                <h3 class="glass-block__title">Automation & Systems</h3>
+              </div>
+              <p class="glass-block__desc">Automatizacija procesa, AI chatbotovi i pametni CRM sistemi koji drastično štede vreme.</p>
+              <ul class="glass-block__tags">
+                <li>AI automatizacija</li>
+                <li>Chatbotovi</li>
+                <li>Workflows</li>
+              </ul>
+            </article>
+
+            <article class="glass-block" data-service="branding" tabindex="0">
+              <div class="glass-block__glow"></div>
+              <div class="glass-block__header">
+                <h3 class="glass-block__title">Branding & Design</h3>
+              </div>
+              <p class="glass-block__desc">Autentičan vizuelni identitet, upečatljiv logo i dizajn koji ostavlja dugotrajan utisak.</p>
+              <ul class="glass-block__tags">
+                <li>Izrada logotipa</li>
+                <li>Vizuelni identitet</li>
+                <li>UI/UX dizajn</li>
+              </ul>
+            </article>
+
+            <article class="glass-block" data-service="support" tabindex="0">
+              <div class="glass-block__glow"></div>
+              <div class="glass-block__header">
+                <h3 class="glass-block__title">Održavanje & Podrška</h3>
+              </div>
+              <p class="glass-block__desc">Pouzdana tehnička podrška, sigurnosni backup, stabilan hosting i redovna optimizacija.</p>
+              <ul class="glass-block__tags">
+                <li>Hosting & backup</li>
+                <li>Sigurnost sajta</li>
+                <li>24/7 podrška</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Post-transition spacer to allow background color to return to navy before Portfolio -->
+    <div id="services-post-transition" class="services-post-transition" aria-hidden="true"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 4. 3D UREĐAJI — IGLOO.INC STYLE CENTERED SHOWCASE   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 4. 3D UREĐAJI & SELECTED WORK — UNIFIED CONTINUOUS STAGE -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section id="devices" class="unified-showcase-stage">
+    <div id="portfolio" class="portfolio-anchor"></div>
+    <div class="unified-showcase__pin-container">
+
+      <!-- Top Section Header -->
+      <div class="unified-showcase__header">
+        <div class="section__label"><span class="section__label-number">03</span> Responzivnost</div>
+        <h2 class="unified-showcase__title">Savršenstvo na <span class="text-accent">svakom ekranu</span></h2>
+        <p class="unified-showcase__subtitle">Besprikorno korisničko iskustvo od 4K desktop radnih stanica do mobilnih telefona</p>
+      </div>
+
+      <!-- Floating Pointer Hint pointing at devices (Click for details) -->
+      <button id="device-click-hint" class="device-click-hint" aria-label="Kliknite za više detalja">
+        <span class="hint-arrow">↖</span>
+        <span class="hint-text">KLIKNITE ZA VIŠE DETALJA</span>
+      </button>
+
+      <!-- Continuous Motion Track: 3D Dual Devices on Left, Curtis Nguyen Horizontal Projects on Right -->
+      <div id="unified-motion-track" class="unified-motion-track">
+
+        <!-- 1. Dual 3D Devices Pane (Laptop on top, Telefon below) -->
+        <div id="devices-3d-container" class="devices-3d-pane">
+          <canvas id="devices-3d-canvas" class="devices-3d-canvas"></canvas>
+          <div class="devices-3d-glow" aria-hidden="true"></div>
+        </div>
+
+        <!-- 2. Curtis Nguyen Horizontal Portfolio Track -->
+        <div class="portfolio-pane">
+          <!-- 2. Portfolio Intro Header ("Naši projekti") -->
+          <div id="portfolio-intro-header" class="portfolio-intro-header">
+            <div class="section__label"><span class="section__label-number">04</span> Portfolio</div>
+            <h2 class="portfolio-intro__title">Naši projekti <span class="portfolio-curtis__counter">(09)</span></h2>
+            <p class="portfolio-intro__subtitle">Izdvojeni radovi i digitalne platforme sa merljivim rezultatima</p>
+          </div>
+
+          <!-- SVG Circuit lines behind cards -->
+          <svg class="portfolio-circuit-svg" aria-hidden="true" preserveAspectRatio="none"></svg>
+
+          <!-- Horizontal scroll track with 9 project cards in iOS27 Liquid Glass style -->
+          <div id="portfolio-cards-track" class="portfolio-cards-track">
+            <!-- Injected dynamically by renderHorizontalPortfolio() -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Prozorčić za Detalje (Modal: 3D model on the LEFT with live scrolling site, specs on the RIGHT) -->
+    <div id="device-modal" class="device-modal" aria-hidden="true">
+      <div class="device-modal__backdrop"></div>
+      <div class="device-modal__content">
+        <button id="device-modal-close" class="device-modal__close" aria-label="Zatvori">
+          <span class="close-label">ZATVORI [ ✕ ]</span>
+        </button>
+
+        <!-- Inside-Modal Switcher between Laptop & Phone -->
+        <div class="modal-switcher">
+          <button id="modal-switch-laptop" class="igloo-switcher__btn is-active" aria-label="Prikaži Laptop">
+            <span class="switcher-dot"></span>
+            <span class="switcher-label">01 // LAPTOP</span>
+          </button>
+          <button id="modal-switch-phone" class="igloo-switcher__btn" aria-label="Prikaži Telefon">
+            <span class="switcher-dot"></span>
+            <span class="switcher-label">02 // TELEFON</span>
+          </button>
+        </div>
+
+        <div class="device-modal__body">
+          <span class="device-modal__category" id="modal-category">////// SUMMARY: DESKTOP PERFORMANCE</span>
+          <h3 class="device-modal__title" id="modal-title">100% Optimizovano za <span class="text-accent">Desktop i 4K ekrane</span></h3>
+          <p class="device-modal__lead" id="modal-lead">
+            Kreiramo desktop sajtove koji ostavljaju bez daha na prvom ekranu — od standardnih laptopa do gigantskih 4K i UltraWide monitora.
+          </p>
+          <div class="device-modal__specs" id="modal-specs">
+            <!-- Dynamic specs inserted by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 5. KONTAKT                                          -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section id="contact" class="section section--dark contact">
+    <div class="container">
+      <div class="section__label"><span class="section__label-number">04</span> Kontakt</div>
+      <h2 class="section__heading">Započnimo <span class="text-accent">saradnju</span></h2>
+
+      <div class="contact__grid">
+        <form id="contact-form" class="contact__form" action="https://formspree.io/f/placeholder" method="POST">
+          <div class="form-group">
+            <label for="contact-name" class="form-label">Ime</label>
+            <input type="text" id="contact-name" name="name" class="form-input" placeholder="Vaše ime" required />
+          </div>
+          <div class="form-group">
+            <label for="contact-email" class="form-label">Email</label>
+            <input type="email" id="contact-email" name="email" class="form-input" placeholder="vas@email.com" required />
+          </div>
+          <div class="form-group">
+            <label for="contact-phone" class="form-label">Telefon</label>
+            <input type="tel" id="contact-phone" name="phone" class="form-input" placeholder="+381 ..." />
+          </div>
+          <div class="form-group form-group--full">
+            <label for="contact-message" class="form-label">Poruka</label>
+            <textarea id="contact-message" name="message" class="form-input form-textarea" placeholder="Opišite vaš projekat..." rows="5" required></textarea>
+          </div>
+          <button type="submit" id="contact-submit" class="btn btn--primary contact__submit">
+            Pošalji upit
+            <svg class="btn__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+
+        <div class="contact__info">
+          <h3 class="contact__info-title">Ili nas kontaktirajte direktno</h3>
+          <ul class="contact__info-list">
+            <li class="contact__info-item">
+              <span class="contact__info-icon">📧</span>
+              <a href="mailto:bulevarit@gmail.com">bulevarit@gmail.com</a>
+            </li>
+            <li class="contact__info-item">
+              <span class="contact__info-icon">📱</span>
+              <a href="tel:+381665852052">+381 66 5852 052</a>
+            </li>
+            <li class="contact__info-item">
+              <span class="contact__info-icon">💬</span>
+              <a href="https://wa.me/381665852052" target="_blank" rel="noopener">WhatsApp</a>
+            </li>
+            <li class="contact__info-item">
+              <span class="contact__info-icon">📸</span>
+              <a href="https://instagram.com/bulevar.it" target="_blank" rel="noopener">@bulevar.it</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- FOOTER                                              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <footer id="footer" class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <span class="nav__logo-text">Bulevar<span class="nav__logo-dot">.IT</span></span>
+          <p class="footer__tagline">Digitalna agencija iz Novog Sada</p>
+        </div>
+        <div class="footer__links">
+          <h4 class="footer__heading">Brzi linkovi</h4>
+          <ul>
+            <li><a href="#about">O nama</a></li>
+            <li><a href="#services">Usluge</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#contact">Kontakt</a></li>
+          </ul>
+        </div>
+        <div class="footer__social">
+          <h4 class="footer__heading">Pratite nas</h4>
+          <ul>
+            <li><a href="https://instagram.com/bulevar.it" target="_blank" rel="noopener">Instagram</a></li>
+            <li><a href="mailto:bulevarit@gmail.com">Email</a></li>
+            <li><a href="https://wa.me/381665852052" target="_blank" rel="noopener">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>&copy; 2026 Bulevar.IT — Sva prava zadržana.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JS entry point -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
