@@ -46,6 +46,7 @@ const lenis = new Lenis({
 
 // Connect Lenis to GSAP ScrollTrigger
 window.lenis = lenis;
+window.ScrollTrigger = ScrollTrigger;
 lenis.on('scroll', ScrollTrigger.update);
 
 gsap.ticker.add((time) => {

@@ -33,6 +33,8 @@ export class DeviceShowcase {
     this.laptopLidPivot = null;
     this.laptopScreenMesh = null;
     this.phoneScreenMesh = null;
+    this.isLaptopLoaded = false;
+    this.isPhoneLoaded = false;
 
     // Website Screen Canvases & Textures
     this.desktopMasterCanvas = null;
@@ -59,9 +61,18 @@ export class DeviceShowcase {
     this.activeModal = null;
     this.activeDevice = 'laptop';
     this.scrollProgress = 0;
+    this.currentDevProg = 0;
     this.phoneBaseRotY = Math.PI;
-    this.phoneBaseRotX = 0.05;
+    this.phoneBaseRotX = 0.04;
     this.keyboardTexture = null;
+
+    this.laptopBaseScale = 0.864; // Increased by 20% (from 0.72) for imposing desktop presence
+    this.phoneBaseScale = 23.0;
+    this.laptopRestY = -0.22;
+    this.phoneRestY = -0.55;
+    this.deviceSeparation = 7.8;
+    this.targetLaptopY = this.laptopRestY;
+    this.targetPhoneY = this.phoneRestY - this.deviceSeparation;
 
     this.init();
   }
@@ -81,9 +92,9 @@ export class DeviceShowcase {
 
     this.scene = new THREE.Scene();
 
-    // Perspective camera positioned to frame both devices vertically stacked with generous breathing space
+    // Perspective camera positioned to frame devices centered with generous breathing space
     this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-    this.camera.position.set(0, -0.10, 8.2);
+    this.camera.position.set(0, 0, 8.2);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
@@ -94,37 +105,44 @@ export class DeviceShowcase {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.35;
+    this.renderer.toneMappingExposure = 1.15;
 
     this.scene.add(this.laptopGroup);
     this.scene.add(this.phoneGroup);
 
-    // Initial dual positions with generous gap between laptop and phone (~180px separation)
-    this.laptopGroup.position.set(0, 0.75, 0);
-    this.laptopGroup.scale.set(0.48, 0.48, 0.48);
+    // Initial Dual Device positions: Laptop on top, Phone below with reduced gap
+    this.laptopGroup.position.set(0, this.targetLaptopY, 0);
+    this.laptopGroup.scale.set(this.laptopBaseScale, this.laptopBaseScale, this.laptopBaseScale);
+    this.laptopGroup.visible = true;
 
-    this.phoneGroup.position.set(0, -1.25, 0.4);
-    this.phoneGroup.scale.set(11.5, 11.5, 11.5);
+    this.phoneGroup.position.set(0, this.targetPhoneY, 0.4);
+    this.phoneGroup.scale.set(this.phoneBaseScale, this.phoneBaseScale, this.phoneBaseScale);
+    this.phoneGroup.visible = true;
   }
 
   setupLights() {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     this.scene.add(ambientLight);
 
-    // Key light
-    const keyLight = new THREE.DirectionalLight(0xf5f8ff, 2.8);
-    keyLight.position.set(5, 6, 7);
+    // Key studio light (from high above, highlighting sleek black form without glare)
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    keyLight.position.set(3, 9, 2);
     this.scene.add(keyLight);
 
-    // Fill light
-    const fillLight = new THREE.DirectionalLight(0x6380ff, 2.0);
-    fillLight.position.set(-6, -2, 5);
+    // Soft neutral fill light (eliminates harsh shadows, zero blue cast!)
+    const fillLight = new THREE.DirectionalLight(0x71717a, 0.6);
+    fillLight.position.set(-6, 2, 4);
     this.scene.add(fillLight);
 
-    // Rim light
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.4);
-    rimLight.position.set(0, 5, -6);
-    this.scene.add(rimLight);
+    // Luxurious warm gold rim light from behind/top to catch the black chamfer edges
+    const goldRimLight = new THREE.DirectionalLight(0xf0d9a0, 1.2);
+    goldRimLight.position.set(0, 8, -4);
+    this.scene.add(goldRimLight);
+
+    // Subtle warm golden accent light from bottom-right to harmonize with gold branding
+    const goldAccentLight = new THREE.DirectionalLight(0xf0d9a0, 0.6);
+    goldAccentLight.position.set(4, -4, 4);
+    this.scene.add(goldAccentLight);
   }
 
   createScreenTextures() {
@@ -176,78 +194,77 @@ export class DeviceShowcase {
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
 
-    // Base chassis: deep anodized obsidian titanium
-    ctx.fillStyle = '#0f141f';
+    // Base chassis: deep pitch matte space black deck (matches chassis aluminum)
+    ctx.fillStyle = '#050608';
     ctx.fillRect(0, 0, 1024, 512);
 
-    // Subtle brushed metal gradient
-    const grad = ctx.createLinearGradient(0, 0, 1024, 512);
-    grad.addColorStop(0, 'rgba(255, 255, 255, 0.04)');
-    grad.addColorStop(0.5, 'rgba(0, 0, 0, 0.12)');
-    grad.addColorStop(1, 'rgba(255, 255, 255, 0.03)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1024, 512);
+    // ─── 1. Centered Precision Glass Trackpad (Touchpad BELOW Keyboard towards front edge) ───
+    // In Three.js CanvasTexture (flipY=true), Y=0..170 is FRONT (closest to user/palms)
+    const tpW = 380, tpH = 145;
+    const tpX = (1024 - tpW) / 2;
+    const tpY = 22;
 
-    // Recessed keyboard well
-    const kX = 64, kY = 28, kW = 896, kH = 260, kR = 10;
-    ctx.fillStyle = '#090c13';
-    this.roundRect(ctx, kX, kY, kW, kH, kR, true, false);
+    ctx.fillStyle = '#090a0e';
+    this.roundRect(ctx, tpX, tpY, tpW, tpH, 12, true, false);
+
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.lineWidth = 1;
+    this.roundRect(ctx, tpX, tpY, tpW, tpH, 12, false, true);
+
+    // ─── 2. Recessed Keyboard Well (ABOVE Touchpad, extending towards screen hinge) ───
+    // Y=190..490 is BACK (towards hinge and screen)
+    const kX = 54, kY = 190, kW = 916, kH = 295, kR = 10;
+    ctx.fillStyle = '#020304';
+    this.roundRect(ctx, kX, kY, kW, kH, kR, true, false);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1;
     this.roundRect(ctx, kX, kY, kW, kH, kR, false, true);
 
-    // Keyboard rows
-    const rows = [
-      { count: 14, h: 26, gap: 5 },
-      { count: 14, h: 34, gap: 5 },
-      { count: 14, h: 34, gap: 5 },
-      { count: 13, h: 34, gap: 5 },
-      { count: 12, h: 34, gap: 5 },
-      { count: 7,  h: 38, gap: 6, isBottom: true },
+    // Key rows arranged from touchpad (front) to hinge (screen):
+    const keyRows = [
+      { type: 'space', h: 40 },
+      { count: 12, h: 36, gap: 6 },
+      { count: 13, h: 36, gap: 6 },
+      { count: 14, h: 36, gap: 6 },
+      { count: 14, h: 36, gap: 6 },
+      { count: 14, h: 26, gap: 6, isFn: true },
     ];
 
-    let curY = kY + 10;
-    rows.forEach((row) => {
+    let curY = kY + 12;
+    keyRows.forEach((row) => {
       const availW = kW - 20;
-      if (row.isBottom) {
-        const keyWidths = [65, 65, 75, 360, 75, 65, 65];
+      if (row.type === 'space') {
+        const keyWidths = [65, 65, 75, 386, 75, 65, 65];
         let curX = kX + 10;
         keyWidths.forEach((kw) => {
-          ctx.fillStyle = '#141824';
+          ctx.fillStyle = '#0d0f14';
           this.roundRect(ctx, curX, curY, kw, row.h, 4, true, false);
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
           ctx.lineWidth = 1;
           this.roundRect(ctx, curX, curY, kw, row.h, 4, false, true);
-          curX += kw + row.gap;
+          curX += kw + 7;
         });
+        curY += row.h + 8;
       } else {
         const keyW = (availW - (row.count - 1) * row.gap) / row.count;
         for (let i = 0; i < row.count; i++) {
           const kx = kX + 10 + i * (keyW + row.gap);
-          ctx.fillStyle = '#141824';
+          ctx.fillStyle = row.isFn ? '#080a0e' : '#0d0f14';
           this.roundRect(ctx, kx, curY, keyW, row.h, 4, true, false);
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
           ctx.lineWidth = 1;
           this.roundRect(ctx, kx, curY, keyW, row.h, 4, false, true);
 
-          ctx.fillStyle = 'rgba(245, 240, 230, 0.25)';
+          // Subtle backlit golden key indicator
+          ctx.fillStyle = 'rgba(240, 217, 160, 0.38)';
           ctx.fillRect(kx + keyW * 0.35, curY + row.h * 0.42, keyW * 0.3, 2);
         }
+        curY += row.h + row.gap;
       }
-      curY += row.h + row.gap;
     });
 
-    // Centered Precision Glass Trackpad
-    const tpW = 340, tpH = 180;
-    const tpX = (1024 - tpW) / 2;
-    const tpY = 305;
-    ctx.fillStyle = '#0d111a';
-    this.roundRect(ctx, tpX, tpY, tpW, tpH, 14, true, false);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 1.2;
-    this.roundRect(ctx, tpX, tpY, tpW, tpH, 14, false, true);
-
     const kTexture = new THREE.CanvasTexture(canvas);
+    kTexture.colorSpace = THREE.SRGBColorSpace;
     kTexture.minFilter = THREE.LinearFilter;
     kTexture.magFilter = THREE.LinearFilter;
     return kTexture;
@@ -274,19 +291,19 @@ export class DeviceShowcase {
       ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     };
 
-    addGlow(320, 380, 500, 'rgba(56, 189, 248, 0.14)');
+    addGlow(320, 380, 500, 'rgba(201, 160, 99, 0.16)');
     addGlow(1020, 750, 540, 'rgba(99, 102, 241, 0.15)');
-    addGlow(280, 1400, 480, 'rgba(56, 189, 248, 0.12)');
+    addGlow(280, 1400, 480, 'rgba(201, 160, 99, 0.14)');
     addGlow(980, 2050, 520, 'rgba(129, 140, 248, 0.14)');
-    addGlow(350, 2750, 480, 'rgba(56, 189, 248, 0.12)');
+    addGlow(350, 2750, 480, 'rgba(201, 160, 99, 0.14)');
     addGlow(900, 3250, 500, 'rgba(99, 102, 241, 0.15)');
 
     // ─── SECTION 1: HERO (y: 110 - 580) ───
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+    ctx.fillStyle = 'rgba(201, 160, 99, 0.14)';
     this.roundRect(ctx, 48, 120, 300, 34, 17, true, false);
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.38)';
+    ctx.strokeStyle = 'rgba(240, 217, 160, 0.45)';
     this.roundRect(ctx, 48, 120, 300, 34, 17, false, true);
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#F0D9A0';
     ctx.font = 'bold 12px "JetBrains Mono", monospace';
     ctx.fillText('● DIGITAL DESIGN & CODE STUDIO 2026', 66, 142);
 
@@ -337,7 +354,7 @@ export class DeviceShowcase {
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
       this.roundRect(ctx, sx, 620, 276, 116, 18, false, true);
 
-      ctx.fillStyle = '#38bdf8';
+      ctx.fillStyle = '#F0D9A0';
       ctx.font = 'bold 36px "Space Grotesk", sans-serif';
       ctx.fillText(st.num, sx + 22, 674);
 
@@ -347,7 +364,7 @@ export class DeviceShowcase {
     });
 
     // ─── SECTION 3: SERVICES BENTO GRID (y: 840 - 1500) ───
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#C9A063';
     ctx.font = 'bold 13px "JetBrains Mono", monospace';
     ctx.fillText('////// NAŠE USLUGE', 48, 860);
 
@@ -360,7 +377,7 @@ export class DeviceShowcase {
         tag: 'WEB DEVELOPMENT & 3D',
         title: 'High-End Web Razvoj & 3D WebGL',
         desc: 'Interaktivna 3D Three.js iskustva, fluidna GSAP fizika i 60 FPS performanse na svim platformama.',
-        accent: '#38bdf8',
+        accent: '#F0D9A0',
       },
       {
         tag: 'MOBILE & RESPONSIVE',
@@ -411,7 +428,7 @@ export class DeviceShowcase {
     });
 
     // ─── SECTION 4: SELECTED WORK (y: 1560 - 2280) ───
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#C9A063';
     ctx.font = 'bold 13px "JetBrains Mono", monospace';
     ctx.fillText('////// IZDVOJENI RADOVI', 48, 1580);
 
@@ -420,8 +437,8 @@ export class DeviceShowcase {
     ctx.fillText('Projekti koji donose milione', 48, 1630);
 
     const projs = [
-      { name: "Petra's Stolovi", cat: 'E-COMMERCE & 3D', color: '#38bdf8', stat: '+240% Prodaja', year: '2026' },
-      { name: 'Brookie Nice', cat: 'FASHION STORE', color: '#ec4899', stat: 'Fluid UX', year: '2026' },
+      { name: "Petra's Stolovi", cat: 'PRODAJA STOLOVA', color: '#F0D9A0', stat: '+240% Prodaja', year: '2026' },
+      { name: 'Brookie Nice', cat: 'NYC COOKIES', color: '#ec4899', stat: 'Fluid UX', year: '2026' },
       { name: 'Mango Event App', cat: 'WEB APLIKACIJA', color: '#818cf8', stat: '< 0.6s Load', year: '2025' },
     ];
 
@@ -465,10 +482,10 @@ export class DeviceShowcase {
     // ─── SECTION 5: CLIENT TESTIMONIAL (y: 2240 - 2640) ───
     ctx.fillStyle = 'rgba(17, 24, 39, 0.95)';
     this.roundRect(ctx, 48, 2250, 1184, 280, 24, true, false);
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.strokeStyle = 'rgba(201, 160, 99, 0.38)';
     this.roundRect(ctx, 48, 2250, 1184, 280, 24, false, true);
 
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#F0D9A0';
     ctx.font = 'bold 64px serif';
     ctx.fillText('“', 90, 2330);
 
@@ -477,12 +494,12 @@ export class DeviceShowcase {
     ctx.fillText('Bulevar.IT je transformisao naš brend. Prodaja je skočila za 240% u prva dva meseca,', 140, 2330);
     ctx.fillText('a sajt radi besprekorno brzo na svim ekranima bez ijednog tehničkog zastoja.', 140, 2375);
 
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#F0D9A0';
     ctx.font = 'bold 16px "Inter", sans-serif';
     ctx.fillText('Marko Petrović — Osnivač & CEO, Petra Design Group', 140, 2440);
 
     // ─── SECTION 6: TECH STACK BADGES (y: 2680 - 2960) ───
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#C9A063';
     ctx.font = 'bold 13px "JetBrains Mono", monospace';
     ctx.fillText('////// TEHNOLOŠKI EKOSISTEM', 48, 2690);
 
@@ -552,7 +569,7 @@ export class DeviceShowcase {
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 26px "Space Grotesk", sans-serif';
     ctx.fillText('Bulevar', 48, 48);
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#F0D9A0';
     ctx.fillText('.IT', 146, 48);
 
     // Nav Links
@@ -584,17 +601,17 @@ export class DeviceShowcase {
 
     // Ambient glow
     const g = ctx.createRadialGradient(w / 2, 450, 20, w / 2, 450, 420);
-    g.addColorStop(0, 'rgba(56, 189, 248, 0.18)');
+    g.addColorStop(0, 'rgba(201, 160, 99, 0.18)');
     g.addColorStop(1, 'transparent');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, 900);
 
     // ─── HERO (y: 180 - 580) ───
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+    ctx.fillStyle = 'rgba(201, 160, 99, 0.14)';
     this.roundRect(ctx, 28, 180, 270, 42, 21, true, false);
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.strokeStyle = 'rgba(240, 217, 160, 0.42)';
     this.roundRect(ctx, 28, 180, 270, 42, 21, false, true);
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#F0D9A0';
     ctx.font = 'bold 14px "JetBrains Mono", monospace';
     ctx.fillText('● MOBILNA PERFEKCIJA', 48, 206);
 
@@ -627,7 +644,7 @@ export class DeviceShowcase {
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
       this.roundRect(ctx, mx, 590, 210, 110, 18, false, true);
 
-      ctx.fillStyle = '#38bdf8';
+      ctx.fillStyle = '#F0D9A0';
       ctx.font = 'bold 36px "Space Grotesk", sans-serif';
       ctx.fillText(ms.n, mx + 24, 645);
 
@@ -637,7 +654,7 @@ export class DeviceShowcase {
     });
 
     // ─── MOBILE PROJECT CARDS (y: 760 - 2400) ───
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#C9A063';
     ctx.font = 'bold 15px "JetBrains Mono", monospace';
     ctx.fillText('////// IZDVOJENI PROJEKTI', 28, 770);
 
@@ -646,8 +663,8 @@ export class DeviceShowcase {
     ctx.fillText('Radovi i aplikacije', 28, 820);
 
     const mCards = [
-      { name: "Petra's Stolovi", type: 'E-COMMERCE & 3D', color: '#38bdf8', stat: '+240% Prodaja' },
-      { name: 'Brookie Nice', type: 'FASHION STORE', color: '#ec4899', stat: 'Fluid UX' },
+      { name: "Petra's Stolovi", type: 'PRODAJA STOLOVA', color: '#F0D9A0', stat: '+240% Prodaja' },
+      { name: 'Brookie Nice', type: 'NYC COOKIES', color: '#ec4899', stat: 'Fluid UX' },
       { name: 'Mango Event App', type: 'WEB APLIKACIJA', color: '#818cf8', stat: '< 0.6s Load' },
       { name: 'Aero Logistics SaaS', type: 'SAAS PLATFORMA', color: '#34d399', stat: 'Real-time Sync' },
       { name: 'Boutique Hotel NS', type: 'BOOKING SISTEM', color: '#06b6d4', stat: 'Direktne Rezervacije' },
@@ -674,7 +691,7 @@ export class DeviceShowcase {
       ctx.font = '400 18px "Inter", sans-serif';
       ctx.fillText('100% Mobile fluid UX & Retina grafika', 52, my + 148);
 
-      ctx.fillStyle = '#38bdf8';
+      ctx.fillStyle = '#F0D9A0';
       ctx.font = 'bold 17px "Inter", sans-serif';
       ctx.fillText('● ' + mc.stat, 52, my + 198);
 
@@ -684,7 +701,7 @@ export class DeviceShowcase {
     });
 
     // ─── MOBILE SERVICES SECTION (y: 2460 - 3240) ───
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#C9A063';
     ctx.font = 'bold 15px "JetBrains Mono", monospace';
     ctx.fillText('////// NAŠE USLUGE', 28, 2490);
 
@@ -693,7 +710,7 @@ export class DeviceShowcase {
     ctx.fillText('Kompletna rešenja', 28, 2540);
 
     const mServices = [
-      { t: 'Custom Web & 3D', d: 'Sajtovi koji impresioniraju posetioce i pretvaraju ih u kupce.', c: '#38bdf8' },
+      { t: 'Custom Web & 3D', d: 'Sajtovi koji impresioniraju posetioce i pretvaraju ih u kupce.', c: '#F0D9A0' },
       { t: 'Mobilne Aplikacije', d: 'PWA rešenja sa brzinom nativnih aplikacija i trenutnim odzivom.', c: '#818cf8' },
       { t: 'AI Automatizacija', d: 'Povezivanje sistema i CRM baza za automatizaciju narudžbina.', c: '#34d399' },
     ];
@@ -717,7 +734,7 @@ export class DeviceShowcase {
     // ─── BOTTOM CTA & FOOTER (y: 3300 - 3900) ───
     ctx.fillStyle = 'rgba(17, 24, 39, 0.95)';
     this.roundRect(ctx, 28, 3320, w - 56, 280, 24, true, false);
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.3)';
+    ctx.strokeStyle = 'rgba(201, 160, 99, 0.35)';
     this.roundRect(ctx, 28, 3320, w - 56, 280, 24, false, true);
 
     ctx.fillStyle = '#FFFFFF';
@@ -728,7 +745,7 @@ export class DeviceShowcase {
     ctx.font = '400 20px "Inter", sans-serif';
     ctx.fillText('bulevarit@gmail.com', 54, 3445);
 
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#F0D9A0';
     ctx.font = 'bold 20px "Inter", sans-serif';
     ctx.fillText('+381 66 5852 052 ↗', 54, 3500);
 
@@ -754,10 +771,15 @@ export class DeviceShowcase {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.strokeRect(0, 140, w, 1);
 
-    // Status Bar time
+    // Status Bar time (Real-time clock)
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 26px "Inter", sans-serif';
-    ctx.fillText('9:41', 48, 54);
+    ctx.fillText(timeStr, 48, 54);
 
     // Dynamic Island Pill
     ctx.fillStyle = '#000000';
@@ -774,7 +796,7 @@ export class DeviceShowcase {
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 30px "Space Grotesk", sans-serif';
     ctx.fillText('Bulevar', 36, 116);
-    ctx.fillStyle = '#38bdf8';
+    ctx.fillStyle = '#F0D9A0';
     ctx.fillText('.IT', 152, 116);
 
     // Hamburger icon
@@ -807,6 +829,33 @@ export class DeviceShowcase {
   }
 
   loadModels() {
+    // ─── 1. Premium Stealth Matte Black Materials for Laptop ───
+    const laptopBlackAluminum = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0x06070a), // Deep pitch matte space black
+      roughness: 0.82,                  // True matte black anodized surface, absorbs shiny highlights
+      metalness: 0.08,                  // Low specularity
+      envMapIntensity: 0.4,
+    });
+
+    const laptopDarkTrim = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0x030405), // Pitch stealth obsidian
+      roughness: 0.75,
+      metalness: 0.12,
+    });
+
+    const laptopVentMaterial = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0x040506), // Air intake vents & speaker grills
+      roughness: 0.75,
+      metalness: 0.20,
+    });
+
+    // ─── 2. Apple Black Titanium Materials for iPhone 15 Pro Max ───
+    const phoneTitaniumMaterial = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0x18191d), // Natural Apple Black Titanium
+      roughness: 0.35,
+      metalness: 0.85,
+    });
+
     // 1. Load Gaming Laptop
     this.loader.load(
       '/models/gaming_laptop.glb',
@@ -817,10 +866,13 @@ export class DeviceShowcase {
 
         model.traverse((child) => {
           // Hide Object_18 (protruding camera notch / black box), Object_16 (old screen), Object_11 (touchpad duplicate)
+          // Hide Object_19 (speckled hinge cylinders)
           if (
             child.name === 'Object_11' ||
             child.name === 'Object_16' ||
             child.name === 'Object_18' ||
+            child.name === 'Object_19' ||
+            child.material?.name === 'Material.012' ||
             child.name.toLowerCase().includes('notch') ||
             child.name.toLowerCase().includes('camera') ||
             child.material?.name === 'Material.013' ||
@@ -830,31 +882,36 @@ export class DeviceShowcase {
             child.visible = false;
           }
 
-          // Keyboard deck: backlit titanium keyboard
+          // Keyboard deck: dark precision backlit keyboard
           if (child.name === 'Object_7' || child.material?.name === 'Material.004') {
             child.material = new THREE.MeshStandardMaterial({
               map: this.keyboardTexture,
-              metalness: 0.35,
-              roughness: 0.45,
+              metalness: 0.12,
+              roughness: 0.85,
+              envMapIntensity: 0.3,
             });
           }
 
-          // Hinge cylinder: obsidian titanium
-          if (child.name === 'Object_19' || child.material?.name === 'Material.012') {
-            child.material = new THREE.MeshStandardMaterial({
-              color: 0x181e2b,
-              metalness: 0.85,
-              roughness: 0.25,
-            });
+          // Base chassis, lid outer shells, bezel casing: Stealth Space Black
+          if (
+            child.name === 'Object_4' ||
+            child.name === 'Object_5' ||
+            child.name === 'Object_8' ||
+            child.name === 'Object_13' ||
+            child.name === 'Object_14' ||
+            child.name === 'Object_15' ||
+            child.material?.name === 'Material.001' ||
+            child.material?.name === 'Material.002' ||
+            child.material?.name === 'Material.005' ||
+            child.material?.name === 'Material.009' ||
+            child.material?.name === 'Material'
+          ) {
+            child.material = laptopBlackAluminum;
           }
 
-          // Base trims: sleek dark aluminum
-          if (child.name === 'Object_4' || child.name === 'Object_5' || child.name === 'Object_8') {
-            child.material = new THREE.MeshStandardMaterial({
-              color: 0x121722,
-              metalness: 0.8,
-              roughness: 0.3,
-            });
+          // Air vent / speaker grills: subtle matte black
+          if (child.name === 'Object_6' || child.material?.name === 'Material.003' || child.material?.name === 'Material.007') {
+            child.material = laptopVentMaterial;
           }
 
           // Find lid root node in GLTF
@@ -903,7 +960,7 @@ export class DeviceShowcase {
 
           this.laptopLidPivot = pivot;
           // Set to current scroll progress (initially closed at 0)
-          this.setLaptopOpen(this.scrollProgress);
+          this.setLaptopOpen(0);
         }
 
         // Align laptop model so screen faces camera in 100% symmetrical horizontal 90° view
@@ -921,7 +978,8 @@ export class DeviceShowcase {
         model.quaternion.setFromRotationMatrix(modelMatrix);
 
         this.laptopGroup.add(model);
-        console.log('[DeviceShowcase] Laptop loaded & natural front-facing hinge opening configured');
+        this.isLaptopLoaded = true;
+        console.log('[DeviceShowcase] Laptop loaded as Stealth Space Black model & configured');
       },
       undefined,
       (err) => console.error('[DeviceShowcase] Failed to load laptop:', err)
@@ -946,20 +1004,29 @@ export class DeviceShowcase {
                 polygonOffsetUnits: -1,
                 depthWrite: true,
               });
-              // Keep original scale (1.0) to eliminate bezel clipping and jagged glitch lines!
               child.scale.set(1.0, 1.0, 1.0);
+            } else if (
+              child.name === 'wLfSXtbwRlBrwof' ||
+              child.name === 'WJwwVjsahIXbJpU' ||
+              child.name === 'cibcwsZWGgGfpme' ||
+              child.name === 'YfrJNXgMvGOAfzz' ||
+              child.material?.name === 'oZRkkORNzkufnGD' ||
+              child.material?.name === 'yhcAXNGcJWCqtIS' ||
+              child.material?.name === 'ZQfGMLaFcpPaLMU' ||
+              child.material?.name === 'bCgzXjHOanGdTFV'
+            ) {
+              child.material = phoneTitaniumMaterial;
             }
           }
         });
 
-        // Model internal rotation is 0 so phoneGroup controls orientation without double-flip
         model.rotation.set(0, 0, 0);
-
         this.phoneGroup.add(model);
-        // Initially set phone screen 100% black / off at 0
-        this.setPhoneOpen(this.scrollProgress);
+        this.isPhoneLoaded = true;
 
-        console.log('[DeviceShowcase] iPhone loaded & screen mapped cleanly without glitch');
+        // Initially parked out of view with screen off
+        this.setPhoneOpen(0);
+        console.log('[DeviceShowcase] iPhone loaded as Black Titanium model & mapped cleanly');
       },
       undefined,
       (err) => console.error('[DeviceShowcase] Failed to load iPhone:', err)
@@ -975,6 +1042,21 @@ export class DeviceShowcase {
     if (!this.laptopLidPivot) return;
     const closedAngle = 1.75;
     this.laptopLidPivot.rotation.z = closedAngle * (1.0 - progress);
+
+    if (this.laptopScreenMesh && this.laptopScreenMesh.material) {
+      if (progress <= 0.02) {
+        this.laptopScreenMesh.visible = false;
+        if (this.laptopScreenMesh.material.color) {
+          this.laptopScreenMesh.material.color.setRGB(0, 0, 0);
+        }
+      } else {
+        this.laptopScreenMesh.visible = true;
+        const b = Math.min(1.0, Math.pow(progress / 0.65, 1.2));
+        if (this.laptopScreenMesh.material.color) {
+          this.laptopScreenMesh.material.color.setRGB(b, b, b);
+        }
+      }
+    }
   }
 
   /**
@@ -983,8 +1065,8 @@ export class DeviceShowcase {
    * When progress > 0.02: smoothly turns front-facing and wakes up OLED screen
    */
   setPhoneOpen(progress) {
-    this.phoneBaseRotY = Math.PI - 0.20 * (1.0 - progress);
-    this.phoneBaseRotX = -0.10 * (1.0 - progress) + 0.05 * progress;
+    this.phoneBaseRotY = Math.PI - 0.16 * (1.0 - progress);
+    this.phoneBaseRotX = -0.08 * (1.0 - progress) + 0.04 * progress;
     if (this.phoneGroup) {
       this.phoneGroup.rotation.y = this.phoneBaseRotY;
       this.phoneGroup.rotation.x = this.phoneBaseRotX;
@@ -1007,18 +1089,51 @@ export class DeviceShowcase {
   }
 
   /**
-   * Dual Devices Parallel Scroll Animation:
-   * Outer scroll drives device opening/wake, while screen websites scroll autonomously
+   * Device Scroll Choreography:
+   * Large gap (~5.4 units) so ONLY ONE device is visible on screen at any time:
+   * - Progress [0.00, 0.35]: ONLY LAPTOP is centered at Y = 0. Phone is far below (Y = -5.4, off-screen).
+   * - Progress (0.35, 0.65): Transition! Laptop glides UP out of view (0 -> +5.4), Phone glides UP into center (-5.4 -> 0).
+   * - Progress (0.65, 1.00]: ONLY PHONE is centered at Y = 0. Laptop is far above (Y = +5.4, off-screen).
    */
-  setDualDevicesScroll(progress) {
+  setDeviceScroll(progress) {
     if (this.activeModal) return;
     this.scrollProgress = progress;
+    this.currentDevProg = progress;
 
-    // 1. Parallel Laptop Lid Opening (swings naturally upward from keyboard base)
-    this.setLaptopOpen(progress);
+    this.laptopGroup.visible = true;
+    this.phoneGroup.visible = true;
 
-    // 2. Parallel Phone Screen Power-On & Wake (from 100% black to OLED vibrant)
-    this.setPhoneOpen(progress);
+    if (progress <= 0.35) {
+      this.targetLaptopY = this.laptopRestY;
+      this.targetPhoneY = this.phoneRestY - this.deviceSeparation;
+
+      // Laptop lid opens smoothly on scroll:
+      const laptopOpenP = Math.min(1.0, progress / 0.28);
+      const smoothOpen = laptopOpenP < 0.5 ? 2 * laptopOpenP * laptopOpenP : 1 - Math.pow(-2 * laptopOpenP + 2, 2) / 2;
+      this.setLaptopOpen(smoothOpen);
+      this.setPhoneOpen(0);
+    } else if (progress <= 0.65) {
+      const t = (progress - 0.35) / 0.30;
+      const smoothT = t * t * (3 - 2 * t);
+
+      this.targetLaptopY = this.laptopRestY + smoothT * this.deviceSeparation;
+      this.targetPhoneY = this.phoneRestY + (smoothT - 1) * this.deviceSeparation;
+
+      this.setLaptopOpen(1.0);
+      // Phone wakes up smoothly as it rises into view:
+      this.setPhoneOpen(smoothT);
+    } else {
+      this.targetLaptopY = this.laptopRestY + this.deviceSeparation;
+      this.targetPhoneY = this.phoneRestY;
+
+      this.setLaptopOpen(1.0);
+      this.setPhoneOpen(1.0);
+    }
+  }
+
+  // Alias for backwards compatibility
+  setDualDevicesScroll(progress) {
+    this.setDeviceScroll(progress);
   }
 
   /**
@@ -1039,12 +1154,36 @@ export class DeviceShowcase {
 
     if (!modal) return;
 
+    // Hide top navigation and section header while details modal is active
+    document.body.classList.add('is-device-modal-open');
+    const navEl = document.querySelector('.header') || document.querySelector('.nav-container') || document.querySelector('nav');
+    const headerEl = document.querySelector('.unified-showcase__header');
+    if (navEl) {
+      navEl.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+      navEl.style.opacity = '0';
+      navEl.style.pointerEvents = 'none';
+    }
+    if (headerEl) {
+      headerEl.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+      headerEl.style.opacity = '0';
+      headerEl.style.pointerEvents = 'none';
+    }
+    const hintBtn = document.getElementById('device-click-hint');
+    if (hintBtn) {
+      hintBtn.style.transition = 'opacity 0.25s ease, visibility 0.25s ease';
+      hintBtn.style.opacity = '0';
+      hintBtn.style.visibility = 'hidden';
+      hintBtn.style.pointerEvents = 'none';
+    }
+
     if (type === 'laptop') {
       // Position laptop prominent on the LEFT side, 90° flat facing viewer
-      this.laptopGroup.position.set(-1.85, 0, 0);
+      this.laptopGroup.position.set(-1.75, 0, 0);
       this.laptopGroup.rotation.set(0, 0, 0);
-      this.laptopGroup.scale.set(0.85, 0.85, 0.85);
+      this.laptopGroup.scale.set(1.08, 1.08, 1.08);
+      this.laptopGroup.visible = true;
       this.phoneGroup.position.set(0, -50, 0); // park phone out of view
+      this.phoneGroup.visible = false;
       this.setLaptopOpen(1.0);
 
       if (switchLaptop) switchLaptop.classList.add('is-active');
@@ -1075,10 +1214,12 @@ export class DeviceShowcase {
       }
     } else {
       // Position phone prominent on the LEFT side, 90° flat facing viewer
-      this.phoneGroup.position.set(-1.65, 0, 0.4);
+      this.phoneGroup.position.set(-1.60, 0, 0.4);
       this.phoneGroup.rotation.set(0, Math.PI, 0);
-      this.phoneGroup.scale.set(22.0, 22.0, 22.0);
+      this.phoneGroup.scale.set(27.0, 27.0, 27.0);
+      this.phoneGroup.visible = true;
       this.laptopGroup.position.set(0, 50, 0); // park laptop out of view
+      this.laptopGroup.visible = false;
       this.setPhoneOpen(1.0);
 
       if (switchLaptop) switchLaptop.classList.remove('is-active');
@@ -1121,18 +1262,39 @@ export class DeviceShowcase {
       modal.setAttribute('aria-hidden', 'true');
     }
 
-    // Reset back to dual view: Laptop on top, Phone below (with ~180px distinct gap)
+    // Restore top navigation and section header
+    document.body.classList.remove('is-device-modal-open');
+    const navEl = document.querySelector('.header') || document.querySelector('.nav-container') || document.querySelector('nav');
+    const headerEl = document.querySelector('.unified-showcase__header');
+    if (navEl) {
+      navEl.style.opacity = '';
+      navEl.style.pointerEvents = '';
+    }
+    if (headerEl) {
+      headerEl.style.opacity = '';
+      headerEl.style.pointerEvents = '';
+    }
+    const hintBtn = document.getElementById('device-click-hint');
+    if (hintBtn) {
+      hintBtn.style.opacity = '';
+      hintBtn.style.visibility = '';
+      hintBtn.style.pointerEvents = '';
+    }
+
+    // CRITICAL: Reset device X to 0 (exact horizontal center) so it is NOT left shifted to the left!
     if (this.laptopGroup) {
-      this.laptopGroup.position.set(0, 0.75, 0);
-      this.laptopGroup.scale.set(0.48, 0.48, 0.48);
+      this.laptopGroup.position.set(0, this.targetLaptopY, 0);
+      this.laptopGroup.scale.set(this.laptopBaseScale, this.laptopBaseScale, this.laptopBaseScale);
       this.laptopGroup.rotation.set(0, 0, 0);
-      this.setLaptopOpen(this.scrollProgress);
     }
     if (this.phoneGroup) {
-      this.phoneGroup.position.set(0, -1.25, 0.4);
-      this.phoneGroup.scale.set(11.5, 11.5, 11.5);
-      this.setPhoneOpen(this.scrollProgress);
+      this.phoneGroup.position.set(0, this.targetPhoneY, 0.4);
+      this.phoneGroup.scale.set(this.phoneBaseScale, this.phoneBaseScale, this.phoneBaseScale);
+      this.phoneGroup.rotation.set(this.phoneBaseRotX, this.phoneBaseRotY, 0);
     }
+
+    // Restore exact scroll stage positions
+    this.setDeviceScroll(this.scrollProgress);
   }
 
   bindEvents() {
@@ -1159,13 +1321,13 @@ export class DeviceShowcase {
       if (this.container) this.container.style.cursor = 'default';
     });
 
-    // Clicking either device opens the details modal
+    // Clicking active device opens the details modal
     this.container.addEventListener('click', (e) => {
       if (e.target.closest('#device-modal') || e.target.closest('#device-click-hint')) return;
-      if (this.isHoveringLaptop) {
-        this.openModal('laptop');
-      } else if (this.isHoveringPhone) {
+      if (this.isHoveringPhone && this.phoneGroup?.visible) {
         this.openModal('phone');
+      } else {
+        this.openModal('laptop');
       }
     });
 
@@ -1217,11 +1379,11 @@ export class DeviceShowcase {
 
     this.camera.aspect = width / height;
     if (width < 768) {
-      this.camera.position.set(0, -0.15, 10.8);
+      this.camera.position.set(0, 0, 11.2);
     } else if (width < 1024) {
-      this.camera.position.set(0, -0.12, 9.2);
+      this.camera.position.set(0, 0, 9.6);
     } else {
-      this.camera.position.set(0, -0.10, 8.2);
+      this.camera.position.set(0, 0, 8.2);
     }
     this.camera.updateProjectionMatrix();
 
@@ -1239,22 +1401,26 @@ export class DeviceShowcase {
 
     if (this.activeModal) {
       // ─── Modal Mode: Device is on the LEFT, stands at 90° straight-on with subtle micro-parallax ───
-      if (this.activeModal === 'laptop' && this.laptopGroup) {
+      if (this.activeModal === 'laptop' && this.laptopGroup && this.laptopGroup.visible) {
         this.laptopGroup.rotation.y = this.mouse.x * 0.04;
         this.laptopGroup.rotation.x = -this.mouse.y * 0.03;
-      } else if (this.activeModal === 'phone' && this.phoneGroup) {
+      } else if (this.activeModal === 'phone' && this.phoneGroup && this.phoneGroup.visible) {
         this.phoneGroup.rotation.y = Math.PI + this.mouse.x * 0.04;
         this.phoneGroup.rotation.x = -this.mouse.y * 0.03;
       }
     } else {
-      // ─── Dual View Mode: Both devices visible with clear ~180px gap, gentle idle float & subtle mouse tilt ───
-      if (this.laptopGroup) {
-        this.laptopGroup.position.y = 0.75 + Math.sin(time * 1.4) * 0.015;
+      // ─── Dual View Mode: Both devices visible with original spacing, gentle idle float & subtle mouse tilt ───
+      if (this.laptopGroup && this.laptopGroup.visible) {
+        const floatY = Math.sin(time * 1.4) * 0.015;
+        this.laptopGroup.position.x = 0;
+        this.laptopGroup.position.y = this.targetLaptopY + floatY;
         this.laptopGroup.rotation.y = this.mouse.x * 0.08;
         this.laptopGroup.rotation.x = -this.mouse.y * 0.06;
       }
-      if (this.phoneGroup) {
-        this.phoneGroup.position.y = -1.25 + Math.sin(time * 1.4 + 1.2) * 0.015;
+      if (this.phoneGroup && this.phoneGroup.visible) {
+        const floatY = Math.sin(time * 1.4 + 1.2) * 0.015;
+        this.phoneGroup.position.x = 0;
+        this.phoneGroup.position.y = this.targetPhoneY + floatY;
         this.phoneGroup.rotation.y = this.phoneBaseRotY + this.mouse.x * 0.10;
         this.phoneGroup.rotation.x = this.phoneBaseRotX - this.mouse.y * 0.06;
       }
@@ -1271,11 +1437,15 @@ export class DeviceShowcase {
     this.updateMobileScreen(this.mobileScrollY);
     if (this.mobileTexture) this.mobileTexture.needsUpdate = true;
 
-    // Raycast hover detection (only if not in modal)
+    // Raycast hover detection on active visible devices only
     if (!this.activeModal && this.camera && this.mouseCoords.x > -900) {
       this.raycaster.setFromCamera(this.mouseCoords, this.camera);
-      const laptopHits = this.raycaster.intersectObjects(this.laptopGroup.children, true);
-      const phoneHits = this.raycaster.intersectObjects(this.phoneGroup.children, true);
+      const laptopHits = (this.laptopGroup && this.laptopGroup.visible)
+        ? this.raycaster.intersectObjects(this.laptopGroup.children, true)
+        : [];
+      const phoneHits = (this.phoneGroup && this.phoneGroup.visible)
+        ? this.raycaster.intersectObjects(this.phoneGroup.children, true)
+        : [];
 
       this.isHoveringLaptop = laptopHits.length > 0;
       this.isHoveringPhone = phoneHits.length > 0;

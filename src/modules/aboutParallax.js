@@ -1,15 +1,13 @@
 /**
- * aboutParallax.js — Interactive "O nama" section with pinned parallax scroll
- * Inspired by Boon Global & Apple AirDrop interaction aesthetics
- *
- * Uses:
- * - GSAP ScrollTrigger for pinned scroll-locking
- * - 4 sliced master composition images (2528x1696 coordinate space)
- * - Absolute percentage geometry for 100% seamless composite alignment
- * - Bold clean white "O NAMA" typography on animation visual
- * - Fast, engaging progressive text typing/reveal (no slow drag)
- * - Authentic Apple AirDrop spring pop-in with radar rings for value blocks
- * - Smooth transition to Deep Black background
+ * aboutParallax.js — Cinematic Pinned "O nama" Parallax & Interactive Scrollytelling
+ * 
+ * Features:
+ * 1. Pinned Scroll Lock (ScrollTrigger pin: true, pinSpacing: true, scrub: 0.8)
+ * 2. 4-Layer Sliced Image Parallax Separation with bold "O NAMA" title (Boon-style)
+ * 3. Progressive Typewriter text reveal as the visitor scrolls down
+ * 4. 4 Sleek Metric Blocks (inspired by reference design) that "emerge from the ground"
+ *    one by one, strictly AFTER the entire text has finished typing.
+ * 5. Interactive hover state with vibrant green gradient & circular action button.
  */
 
 import gsap from 'gsap';
@@ -17,111 +15,56 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-/**
- * Tunable animation configuration parameters
- */
 export const PARALLAX_CONFIG = {
-  // Pinned scroll duration
-  scrollLength: '+=180%',
-
-  // Scrub smoothness
+  scrollLength: '+=300%',
   scrub: 0.8,
 
-  // Layer 1: Gornja osnova (y: 0 to 1131, full width)
-  layer1: {
-    yPercent: -105,
-    duration: 0.92,
-  },
-
-  // Layer 2: Srednji levi prozor (y: 848 to 1413, x: 0 to 1116)
-  layer2: {
-    xPercent: -125,
-    duration: 0.86,
-  },
-
-  // Layer 3: Donji levi blok (y: 1131 to 1696, x: 0 to 1517)
-  layer3: {
-    yPercent: 125,
-    xPercent: -20,
-    duration: 0.94,
-  },
-
-  // Layer 4: Donji desni blok (y: 1131 to 1696, x: 1116 to 2528)
-  layer4: {
-    xPercent: 125,
-    duration: 0.86,
-  },
-
-  // Progress thresholds (0.0 to 1.0 along the pinned scroll)
-  textRevealThreshold: 0.12,   // Starts text typing early so visitor isn't waiting
-  cardsRevealThreshold: 0.32,  // AirDrop blocks appear right as text finishes
-  layersFadeThreshold: 0.85,   // Layers finish exiting and fade out by 100%
+  // Sliced master coordinate layers (2528x1696)
+  layer1: { yPercent: -105, duration: 0.35 },
+  layer2: { xPercent: -125, duration: 0.32 },
+  layer3: { yPercent: 125, xPercent: -20, duration: 0.36 },
+  layer4: { xPercent: 125, duration: 0.32 },
 };
 
 /**
- * Helper: Split heading text into masked words for smooth reveal
+ * Splits description text into individual words while preserving space
+ * to prevent any layout shifts or jumping during typing.
  */
-function splitHeading(headingEl) {
-  if (!headingEl || headingEl.dataset.split) return;
-  headingEl.dataset.split = 'true';
+function prepareTypewriter(descEl) {
+  if (!descEl || descEl.dataset.typewriterReady) return null;
+  descEl.dataset.typewriterReady = 'true';
 
-  const childNodes = Array.from(headingEl.childNodes);
-  headingEl.innerHTML = '';
+  const rawText = descEl.textContent.trim();
+  const words = rawText.split(/\s+/).filter(Boolean);
 
-  childNodes.forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const words = node.textContent.split(/\s+/).filter(Boolean);
-      words.forEach((word) => {
-        const wrap = document.createElement('span');
-        wrap.className = 'about-word-wrap';
-        const inner = document.createElement('span');
-        inner.className = 'about-word';
-        inner.textContent = word;
-        wrap.appendChild(inner);
-        headingEl.appendChild(wrap);
-        headingEl.appendChild(document.createTextNode(' '));
-      });
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const text = node.textContent;
-      const wrap = document.createElement('span');
-      wrap.className = 'about-word-wrap';
-      const inner = document.createElement('span');
-      inner.className = `about-word ${node.className}`;
-      inner.textContent = text;
-      wrap.appendChild(inner);
-      headingEl.appendChild(wrap);
-      headingEl.appendChild(document.createTextNode(' '));
-    }
-  });
-}
-
-/**
- * Helper: Split description text into words for typewriter/fade streaming
- */
-function splitDescription(descEl) {
-  if (!descEl || descEl.dataset.split) return;
-  descEl.dataset.split = 'true';
-
-  const text = descEl.textContent.trim();
-  const words = text.split(/\s+/);
   descEl.innerHTML = '';
 
-  words.forEach((word) => {
-    const span = document.createElement('span');
-    span.className = 'about-desc-word';
-    span.textContent = word;
-    descEl.appendChild(span);
-    descEl.appendChild(document.createTextNode(' '));
+  const container = document.createElement('span');
+  container.className = 'about-tw-container';
+
+  const wordSpans = [];
+
+  words.forEach((word, idx) => {
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'about-tw-word';
+    wordSpan.textContent = word + (idx < words.length - 1 ? ' ' : '');
+    container.appendChild(wordSpan);
+    wordSpans.push(wordSpan);
   });
+
+  descEl.appendChild(container);
+
+  return { wordSpans };
 }
 
 /**
- * Initialize the Pinned About Parallax Section
+ * Initialize the Pinned Parallax Image Separation, Typewriter & Ground-Emerging Blocks
  */
 export function initAboutParallax() {
   const section = document.querySelector('#o-nama') || document.querySelector('#about');
   if (!section) return;
 
+  // Parallax elements
   const parallaxWrap = section.querySelector('.about-parallax');
   const topFade = section.querySelector('.about-parallax__top-fade');
   const parallaxTitle = section.querySelector('.about-parallax__title');
@@ -130,171 +73,181 @@ export function initAboutParallax() {
   const layer3 = section.querySelector('.about-parallax__layer--3');
   const layer4 = section.querySelector('.about-parallax__layer--4');
 
-  const headingEl = section.querySelector('.about__heading');
-  const descEl = section.querySelector('.about__description');
+  // Background content elements
   const labelEl = section.querySelector('.about__section-label') || section.querySelector('.section__label');
-  const cards = section.querySelectorAll('.value-card');
+  const headingEl = section.querySelector('.about__heading');
+  const descEl = section.querySelector('#about-description') || section.querySelector('.about__description');
+  const statBlocks = section.querySelectorAll('.stat-block');
 
-  // 1. Prepare typography for split-text reveals
-  if (headingEl) splitHeading(headingEl);
-  if (descEl) splitDescription(descEl);
+  // Prepare progressive typewriter
+  const twData = prepareTypewriter(descEl);
+  const words = twData ? twData.wordSpans : [];
 
-  const headingWords = section.querySelectorAll('.about-word');
-  const descWords = section.querySelectorAll('.about-desc-word');
-
-  // Initial states for text & cards (hidden behind images)
-  if (labelEl) gsap.set(labelEl, { opacity: 0, y: -15 });
-  if (headingWords.length) gsap.set(headingWords, { y: '110%', opacity: 0 });
-  if (descWords.length) gsap.set(descWords, { opacity: 0, y: 10, filter: 'blur(5px)' });
-  if (cards.length) gsap.set(cards, { opacity: 0, scale: 0.35, y: 35, filter: 'blur(8px)' });
-
-  // 2. Build forward-only Text Reveal Timeline (quick & punchy)
-  const textTl = gsap.timeline({ paused: true });
-
-  if (labelEl) {
-    textTl.to(labelEl, {
-      opacity: 1,
-      y: 0,
-      duration: 0.35,
-      ease: 'power2.out',
-    }, 0);
+  // Set initial states
+  if (labelEl) gsap.set(labelEl, { opacity: 0, y: -20 });
+  if (headingEl) gsap.set(headingEl, { opacity: 0, y: 25 });
+  if (words.length) {
+    gsap.set(words, { opacity: 0, y: 4, filter: 'blur(2px)' });
+  }
+  if (statBlocks.length) {
+    // "Izlazak iz zemlje" — all blocks start sunken below the ground with blur & zero opacity
+    gsap.set(statBlocks, { y: 120, opacity: 0, filter: 'blur(10px)' });
   }
 
-  if (headingWords.length) {
-    textTl.to(headingWords, {
-      y: '0%',
-      opacity: 1,
-      stagger: 0.025,
-      duration: 0.35,
-      ease: 'power3.out',
-    }, 0.05);
-  }
+  // Master timeline mapped to scroll progress (0.0 to 1.0)
+  const masterTl = gsap.timeline({ paused: true });
 
-  if (descWords.length) {
-    textTl.to(descWords, {
-      opacity: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      stagger: 0.007,
-      duration: 0.3,
-      ease: 'power2.out',
-    }, 0.18);
-  }
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 1 (0.00 – 0.38): Sliced Image Layers Separation
+  // Layers separate and pull apart, revealing background content
+  // ═══════════════════════════════════════════════════════════
 
-  // 3. Build forward-only Apple AirDrop Cards Reveal Timeline
-  // Starts immediately as the text finishes revealing
-  const cardsTl = gsap.timeline({ paused: true });
-
-  if (cards.length) {
-    // AirDrop spring bounce pop-in
-    cardsTl.to(cards, {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      filter: 'blur(0px)',
-      stagger: 0.1,
-      duration: 0.75,
-      ease: 'back.out(2.0)', // Authentic iOS spring pop
-    }, 0);
-
-    // AirDrop radar pulse ring expansion
-    cards.forEach((card, i) => {
-      const ring = card.querySelector('.value-card__radar-ring');
-      if (ring) {
-        cardsTl.fromTo(ring,
-          { scale: 0.75, opacity: 0.95 },
-          { scale: 1.5, opacity: 0, duration: 0.9, ease: 'power2.out' },
-          i * 0.1 + 0.15
-        );
-      }
-    });
-  }
-
-  // 4. Build scrubbed Image Layers Separation Timeline
-  const imagesTl = gsap.timeline({ paused: true });
-
-  // "O NAMA" large white title on the left sweeps left with Layer 2
+  // "O NAMA" large white title sweeps left
   if (parallaxTitle) {
-    imagesTl.to(parallaxTitle, {
+    masterTl.to(parallaxTitle, {
       xPercent: -100,
       opacity: 0,
       ease: 'power1.inOut',
-      duration: 0.65,
-    }, 0);
+      duration: 0.28,
+    }, 0.0);
   }
 
-  // Layer 1: Gornja osnova
+  // Layer 1: Gornja osnova flies UP
   if (layer1) {
-    imagesTl.to(layer1, {
+    masterTl.to(layer1, {
       yPercent: PARALLAX_CONFIG.layer1.yPercent,
       ease: 'power1.inOut',
       duration: PARALLAX_CONFIG.layer1.duration,
-    }, 0);
+    }, 0.0);
   }
 
-  // Layer 2: Srednji levi prozor
+  // Layer 2: Srednji levi prozor flies LEFT
   if (layer2) {
-    imagesTl.to(layer2, {
+    masterTl.to(layer2, {
       xPercent: PARALLAX_CONFIG.layer2.xPercent,
       ease: 'power1.inOut',
       duration: PARALLAX_CONFIG.layer2.duration,
-    }, 0);
+    }, 0.0);
   }
 
-  // Layer 3: Donji levi blok
+  // Layer 3: Donji levi blok flies DOWN-LEFT
   if (layer3) {
-    imagesTl.to(layer3, {
+    masterTl.to(layer3, {
       yPercent: PARALLAX_CONFIG.layer3.yPercent,
       xPercent: PARALLAX_CONFIG.layer3.xPercent,
       ease: 'power1.inOut',
       duration: PARALLAX_CONFIG.layer3.duration,
-    }, 0);
+    }, 0.0);
   }
 
-  // Layer 4: Donji desni blok
+  // Layer 4: Donji desni blok flies RIGHT
   if (layer4) {
-    imagesTl.to(layer4, {
+    masterTl.to(layer4, {
       xPercent: PARALLAX_CONFIG.layer4.xPercent,
       ease: 'power1.inOut',
       duration: PARALLAX_CONFIG.layer4.duration,
-    }, 0);
+    }, 0.0);
   }
 
-  // Top blend fade out early as images pull apart
+  // Top soft fade clears out
   if (topFade) {
-    imagesTl.to(topFade, {
+    masterTl.to(topFade, {
       opacity: 0,
       ease: 'power1.out',
-      duration: 0.3,
-    }, 0);
+      duration: 0.18,
+    }, 0.0);
   }
 
-  // Fade out parallax container at the very end so no layer blocks text
+  // Entire parallax container fades out smoothly as layers open
   if (parallaxWrap) {
-    imagesTl.fromTo(parallaxWrap,
-      { opacity: 1 },
-      {
-        opacity: 0,
-        ease: 'power1.out',
-        duration: (1 - PARALLAX_CONFIG.layersFadeThreshold),
-      },
-      PARALLAX_CONFIG.layersFadeThreshold
-    );
+    masterTl.to(parallaxWrap, {
+      opacity: 0,
+      ease: 'power1.out',
+      duration: 0.10,
+    }, 0.28);
   }
 
-  // 5. Track reveal states
-  let hasTextPlayed = false;
-  let hasCardsPlayed = false;
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 1.5 (0.15 – 0.32): Label and Heading Reveal
+  // Fade in behind the opening image layers
+  // ═══════════════════════════════════════════════════════════
+  if (labelEl) {
+    masterTl.to(labelEl, {
+      opacity: 1,
+      y: 0,
+      duration: 0.12,
+      ease: 'power2.out',
+    }, 0.16);
+  }
 
-  // 6. Master Pinned ScrollTrigger
+  if (headingEl) {
+    masterTl.to(headingEl, {
+      opacity: 1,
+      y: 0,
+      duration: 0.14,
+      ease: 'power2.out',
+    }, 0.20);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 2 (0.32 – 0.65): Description Text Types Out on Scroll
+  // As the user continues scrolling, words progressively type out
+  // ═══════════════════════════════════════════════════════════
+  if (words.length) {
+    const typeStart = 0.32;
+    const typeDuration = 0.33;
+    const eachDuration = typeDuration / words.length;
+
+    words.forEach((w, i) => {
+      const startTime = typeStart + i * eachDuration;
+      masterTl.to(w, {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: eachDuration * 0.9,
+        ease: 'none',
+      }, startTime);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 3 (0.68 – 0.92): Blocks Emerge From Ground ONE BY ONE
+  // STRICT REQUIREMENT: Only AFTER the entire text is fully typed out,
+  // do the 4 blocks emerge from the ground sequentially
+  // ═══════════════════════════════════════════════════════════
+  if (statBlocks.length) {
+    const blockStartTimes = [0.68, 0.74, 0.80, 0.86];
+    const blockDuration = 0.07;
+
+    statBlocks.forEach((block, idx) => {
+      const startTime = blockStartTimes[idx] || (0.68 + idx * 0.06);
+      masterTl.to(block, {
+        y: 0,
+        opacity: 1,
+        filter: 'blur(0px)',
+        duration: blockDuration,
+        ease: 'power2.out',
+      }, startTime);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // PHASE 4 (0.92 – 1.00): Visual Pause with all elements stable
+  // Allows user to view/hover the blocks comfortably before unpinning
+  // ═══════════════════════════════════════════════════════════
+  masterTl.to({}, { duration: 0.08 }, 0.92);
+
+  // Master Pinned ScrollTrigger
   ScrollTrigger.create({
+    id: 'about-scroll-lock',
     trigger: section,
     start: 'top top',
     end: PARALLAX_CONFIG.scrollLength,
     pin: true,
     pinSpacing: true,
     scrub: PARALLAX_CONFIG.scrub,
-    animation: imagesTl,
+    anticipatePin: 1,
+    invalidateOnRefresh: true,
     onEnter: () => {
       document.body.classList.add('theme--black');
     },
@@ -302,41 +255,18 @@ export function initAboutParallax() {
       document.body.classList.add('theme--black');
     },
     onUpdate: (self) => {
-      const progress = self.progress;
-
-      // Trigger snappy text reveal once scroll reaches threshold
-      if (progress >= PARALLAX_CONFIG.textRevealThreshold && !hasTextPlayed) {
-        textTl.play();
-        hasTextPlayed = true;
-      }
-
-      // Trigger AirDrop cards reveal right after text
-      if (progress >= PARALLAX_CONFIG.cardsRevealThreshold && !hasCardsPlayed) {
-        cardsTl.play();
-        hasCardsPlayed = true;
-      }
+      masterTl.progress(self.progress);
     },
     onLeave: () => {
-      if (!hasTextPlayed) {
-        textTl.progress(1);
-        hasTextPlayed = true;
-      }
-      if (!hasCardsPlayed) {
-        cardsTl.progress(1);
-        hasCardsPlayed = true;
-      }
+      masterTl.progress(1.0);
     },
     onLeaveBack: () => {
-      // User completely left back up into Hero
+      masterTl.progress(0.0);
       document.body.classList.remove('theme--black');
-      hasTextPlayed = false;
-      hasCardsPlayed = false;
-      textTl.pause(0);
-      cardsTl.pause(0);
-      if (labelEl) gsap.set(labelEl, { opacity: 0, y: -15 });
-      if (headingWords.length) gsap.set(headingWords, { y: '110%', opacity: 0 });
-      if (descWords.length) gsap.set(descWords, { opacity: 0, y: 10, filter: 'blur(5px)' });
-      if (cards.length) gsap.set(cards, { opacity: 0, scale: 0.35, y: 35, filter: 'blur(8px)' });
     },
+  });
+
+  window.addEventListener('resize', () => {
+    ScrollTrigger.refresh();
   });
 }

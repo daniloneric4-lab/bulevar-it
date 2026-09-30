@@ -52,10 +52,37 @@ export function initNav() {
       if (!href || !href.startsWith('#')) return;
 
       const targetId = href.slice(1);
+
+      // Responzivnost: scrolls directly to before laptop opens (start of 3D showcase)
+      if (targetId === 'devices') {
+        e.preventDefault();
+        const st = ScrollTrigger.getById('unified-showcase-trigger');
+        if (st) {
+          if (window.lenis) window.lenis.scrollTo(st.start, { duration: 1.2 });
+          else window.scrollTo({ top: st.start, behavior: 'smooth' });
+          setActiveLink('devices');
+          return;
+        }
+      }
+
+      // Portfolio: scrolls directly to where the horizontal projects begin ("Naši radovi")
+      if (targetId === 'portfolio') {
+        e.preventDefault();
+        const st = ScrollTrigger.getById('unified-showcase-trigger');
+        if (st) {
+          const devDuration = window.innerHeight * 2.0;
+          const portfolioStart = st.start + devDuration + (window.innerWidth * 0.70);
+          if (window.lenis) window.lenis.scrollTo(portfolioStart, { duration: 1.2 });
+          else window.scrollTo({ top: portfolioStart, behavior: 'smooth' });
+          setActiveLink('portfolio');
+          return;
+        }
+      }
+
       const targetEl = document.getElementById(targetId);
       if (targetEl) {
         e.preventDefault();
-        if (window.lenis) window.lenis.scrollTo(targetEl);
+        if (window.lenis) window.lenis.scrollTo(targetEl, { duration: 1.2 });
         else targetEl.scrollIntoView({ behavior: 'smooth' });
       }
     });
@@ -66,14 +93,16 @@ export function initNav() {
     navLinks.forEach((link) => {
       const href = link.getAttribute('href');
       const isMatch = href === `#${id}` ||
-        ((id === 'o-nama' || id === 'about') && (href === '#o-nama' || href === '#about')) ||
-        (id === 'devices' && href === '#portfolio');
+        ((id === 'o-nama' || id === 'about') && (href === '#o-nama' || href === '#about'));
       link.classList.toggle('nav__link--active', isMatch);
     });
   };
 
-  // Highlight active section on scroll
-  const sections = document.querySelectorAll('section[id]:not(#tech-canvas)');
+  // Expose global helper for stage synchronization
+  window.__setActiveNavLink = setActiveLink;
+
+  // Highlight active section on scroll (exclude #devices as it manages its own sub-phases)
+  const sections = document.querySelectorAll('section[id]:not(#tech-canvas):not(#devices)');
   sections.forEach((section) => {
     ScrollTrigger.create({
       trigger: section,
