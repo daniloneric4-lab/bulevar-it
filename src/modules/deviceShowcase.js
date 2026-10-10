@@ -121,28 +121,28 @@ export class DeviceShowcase {
   }
 
   setupLights() {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
     this.scene.add(ambientLight);
 
-    // Key studio light (from high above, highlighting sleek black form without glare)
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    keyLight.position.set(3, 9, 2);
+    // Key studio light (from high above, clean neutral studio lighting)
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    keyLight.position.set(3, 9, 4);
     this.scene.add(keyLight);
 
-    // Soft neutral fill light (eliminates harsh shadows, zero blue cast!)
-    const fillLight = new THREE.DirectionalLight(0x71717a, 0.6);
-    fillLight.position.set(-6, 2, 4);
+    // Soft neutral fill light (eliminates harsh shadows, clean neutral cast)
+    const fillLight = new THREE.DirectionalLight(0xd4d4d8, 0.85);
+    fillLight.position.set(-6, 3, 5);
     this.scene.add(fillLight);
 
-    // Luxurious warm gold rim light from behind/top to catch the black chamfer edges
-    const goldRimLight = new THREE.DirectionalLight(0xf0d9a0, 1.2);
-    goldRimLight.position.set(0, 8, -4);
-    this.scene.add(goldRimLight);
+    // Gentle soft rim light from behind for subtle silhouette separation
+    const rimLight = new THREE.DirectionalLight(0xfff5ea, 0.35);
+    rimLight.position.set(0, 8, -4);
+    this.scene.add(rimLight);
 
-    // Subtle warm golden accent light from bottom-right to harmonize with gold branding
-    const goldAccentLight = new THREE.DirectionalLight(0xf0d9a0, 0.6);
-    goldAccentLight.position.set(4, -4, 4);
-    this.scene.add(goldAccentLight);
+    // Gentle bottom-front bounce light to highlight keyboard deck and touchpad
+    const frontBounceLight = new THREE.DirectionalLight(0xffffff, 0.55);
+    frontBounceLight.position.set(0, -4, 4);
+    this.scene.add(frontBounceLight);
   }
 
   createScreenTextures() {
@@ -162,6 +162,7 @@ export class DeviceShowcase {
     this.updateDesktopScreen(0);
 
     this.desktopTexture = new THREE.CanvasTexture(this.desktopCanvas);
+    this.desktopTexture.colorSpace = THREE.SRGBColorSpace;
     this.desktopTexture.minFilter = THREE.LinearFilter;
     this.desktopTexture.magFilter = THREE.LinearFilter;
 
@@ -829,157 +830,166 @@ export class DeviceShowcase {
   }
 
   loadModels() {
-    // ─── 1. Premium Stealth Matte Black Materials for Laptop ───
-    const laptopBlackAluminum = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0x06070a), // Deep pitch matte space black
-      roughness: 0.82,                  // True matte black anodized surface, absorbs shiny highlights
-      metalness: 0.08,                  // Low specularity
-      envMapIntensity: 0.4,
-    });
-
-    const laptopDarkTrim = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0x030405), // Pitch stealth obsidian
-      roughness: 0.75,
-      metalness: 0.12,
-    });
-
-    const laptopVentMaterial = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0x040506), // Air intake vents & speaker grills
-      roughness: 0.75,
-      metalness: 0.20,
-    });
-
-    // ─── 2. Apple Black Titanium Materials for iPhone 15 Pro Max ───
+    // 1. Apple Black Titanium Materials for iPhone 15 Pro Max
     const phoneTitaniumMaterial = new THREE.MeshStandardMaterial({
       color: new THREE.Color(0x18191d), // Natural Apple Black Titanium
       roughness: 0.35,
       metalness: 0.85,
     });
 
-    // 1. Load Gaming Laptop
+    // 1. Load Laptop Model (laptop.glb)
     this.loader.load(
-      '/models/gaming_laptop.glb',
+      '/models/laptop.glb?v=' + Date.now(),
       (gltf) => {
         const model = gltf.scene;
 
-        let lidNode = null;
-
+        let origMesh = null;
         model.traverse((child) => {
-          // Hide Object_18 (protruding camera notch / black box), Object_16 (old screen), Object_11 (touchpad duplicate)
-          // Hide Object_19 (speckled hinge cylinders)
-          if (
-            child.name === 'Object_11' ||
-            child.name === 'Object_16' ||
-            child.name === 'Object_18' ||
-            child.name === 'Object_19' ||
-            child.material?.name === 'Material.012' ||
-            child.name.toLowerCase().includes('notch') ||
-            child.name.toLowerCase().includes('camera') ||
-            child.material?.name === 'Material.013' ||
-            child.material?.name === 'Material.011' ||
-            child.material?.name === 'Material.010'
-          ) {
-            child.visible = false;
-          }
-
-          // Keyboard deck: dark precision backlit keyboard
-          if (child.name === 'Object_7' || child.material?.name === 'Material.004') {
-            child.material = new THREE.MeshStandardMaterial({
-              map: this.keyboardTexture,
-              metalness: 0.12,
-              roughness: 0.85,
-              envMapIntensity: 0.3,
-            });
-          }
-
-          // Base chassis, lid outer shells, bezel casing: Stealth Space Black
-          if (
-            child.name === 'Object_4' ||
-            child.name === 'Object_5' ||
-            child.name === 'Object_8' ||
-            child.name === 'Object_13' ||
-            child.name === 'Object_14' ||
-            child.name === 'Object_15' ||
-            child.material?.name === 'Material.001' ||
-            child.material?.name === 'Material.002' ||
-            child.material?.name === 'Material.005' ||
-            child.material?.name === 'Material.009' ||
-            child.material?.name === 'Material'
-          ) {
-            child.material = laptopBlackAluminum;
-          }
-
-          // Air vent / speaker grills: subtle matte black
-          if (child.name === 'Object_6' || child.material?.name === 'Material.003' || child.material?.name === 'Material.007') {
-            child.material = laptopVentMaterial;
-          }
-
-          // Find lid root node in GLTF
-          if (
-            child.name === 'Cube003_2' ||
-            child.name === 'Cube.003_2' ||
-            child.name.toLowerCase().includes('cube003') ||
-            child.name.toLowerCase().includes('cube.003') ||
-            (child.name === 'Object_16' && child.parent)
-          ) {
-            lidNode = child.name === 'Object_16' ? child.parent : child;
+          if (child.isMesh && (child.name === 'Laptop_Laptop1_0' || !origMesh)) {
+            origMesh = child;
           }
         });
 
-        // Attach full-bleed edge-to-edge screen directly to lidNode with zero bezels:
-        if (lidNode) {
-          const screenWidth = 3.96;
-          const screenHeight = 2.50;
-          const screenGeo = new THREE.PlaneGeometry(screenWidth, screenHeight);
-
-          // Rotate geometry so plane aligns with lid coordinate system:
-          // Width along local Z, Height along local X, Normal along +Y (facing user)
-          screenGeo.rotateZ(-Math.PI / 2);
-          screenGeo.rotateX(-Math.PI / 2);
-
-          const screenMat = new THREE.MeshBasicMaterial({
-            map: this.desktopTexture,
-            toneMapped: false,
-            polygonOffset: true,
-            polygonOffsetFactor: -2,
-            polygonOffsetUnits: -2,
-          });
-
-          const screenMesh = new THREE.Mesh(screenGeo, screenMat);
-          screenMesh.position.set(0.06, 0.10, 0);
-          lidNode.add(screenMesh);
-          this.laptopScreenMesh = screenMesh;
-
-          const hinge = new THREE.Vector3(-1.1986, 0.0959, 0);
-          const pivot = new THREE.Group();
-          pivot.position.copy(hinge);
-
-          lidNode.parent.add(pivot);
-          lidNode.position.sub(hinge);
-          pivot.add(lidNode);
-
-          this.laptopLidPivot = pivot;
-          // Set to current scroll progress (initially closed at 0)
-          this.setLaptopOpen(0);
+        if (!origMesh) {
+          console.error('[DeviceShowcase] Laptop mesh not found in laptop.glb');
+          return;
         }
 
-        // Align laptop model so screen faces camera in 100% symmetrical horizontal 90° view
-        const targetRight = new THREE.Vector3(1, 0, 0);
-        const targetUp = new THREE.Vector3(0, 1, 0);
-        const targetNormal = new THREE.Vector3(0, 0, 1);
+        // Preserve native materials untouched (ensure sRGB colorSpace and double-sided)
+        if (origMesh.material) {
+          origMesh.material.side = THREE.DoubleSide;
+          if (origMesh.material.map) {
+            origMesh.material.map.colorSpace = THREE.SRGBColorSpace;
+          }
+        }
 
-        const localBasis = new THREE.Matrix4().makeBasis(
-          new THREE.Vector3(0, 0, 1), // local Z = width
-          new THREE.Vector3(1, 0, 0), // local X = height of lid
-          new THREE.Vector3(0, 1, 0)  // local Y = screen display normal (facing camera!)
-        );
-        const targetBasis = new THREE.Matrix4().makeBasis(targetRight, targetUp, targetNormal);
-        const modelMatrix = targetBasis.multiply(localBasis.invert());
-        model.quaternion.setFromRotationMatrix(modelMatrix);
+        // Split geometry into base and lid at Y = 1.2 in mesh local space
+        const origGeo = origMesh.geometry;
+        const posAttr = origGeo.attributes.position;
+        const indexAttr = origGeo.index;
+
+        const baseIndices = [];
+        const lidIndices = [];
+        const splitY = 1.2;
+
+        for (let i = 0; i < indexAttr.count; i += 3) {
+          const i0 = indexAttr.getX(i);
+          const i1 = indexAttr.getX(i + 1);
+          const i2 = indexAttr.getX(i + 2);
+
+          const y0 = posAttr.getY(i0);
+          const y1 = posAttr.getY(i1);
+          const y2 = posAttr.getY(i2);
+          const avgY = (y0 + y1 + y2) / 3;
+
+          if (avgY > splitY) {
+            lidIndices.push(i0, i1, i2);
+          } else {
+            baseIndices.push(i0, i1, i2);
+          }
+        }
+
+        // Create fresh BufferGeometries so WebGL never inherits stale draw groups
+        const baseGeo = new THREE.BufferGeometry();
+        baseGeo.setAttribute('position', origGeo.attributes.position);
+        baseGeo.setAttribute('normal', origGeo.attributes.normal);
+        baseGeo.setAttribute('uv', origGeo.attributes.uv);
+        if (origGeo.attributes.tangent) baseGeo.setAttribute('tangent', origGeo.attributes.tangent);
+        baseGeo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(baseIndices), 1));
+
+        const lidGeo = new THREE.BufferGeometry();
+        lidGeo.setAttribute('position', origGeo.attributes.position);
+        lidGeo.setAttribute('normal', origGeo.attributes.normal);
+        lidGeo.setAttribute('uv', origGeo.attributes.uv);
+        if (origGeo.attributes.tangent) lidGeo.setAttribute('tangent', origGeo.attributes.tangent);
+        lidGeo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(lidIndices), 1));
+
+        const baseMesh = new THREE.Mesh(baseGeo, origMesh.material);
+        baseMesh.name = 'LaptopBase';
+        baseMesh.castShadow = true;
+        baseMesh.receiveShadow = true;
+
+        const lidMesh = new THREE.Mesh(lidGeo, origMesh.material);
+        lidMesh.name = 'LaptopLid';
+        lidMesh.castShadow = true;
+        lidMesh.receiveShadow = true;
+
+        const hinge = new THREE.Vector3(0, 1.0, 0);
+        const lidPivot = new THREE.Group();
+        lidPivot.name = 'LaptopLidPivot';
+        lidPivot.position.copy(hinge);
+
+        lidMesh.position.sub(hinge); // Position lid relative to hinge pivot
+        lidPivot.add(lidMesh);
+
+        // Screen Quad formed directly from the model's exact screen bezel vertices:
+        // Vertices relative to hinge pivot (0, 1.0, 0):
+        // v0: Top-Left  (-17.176, 22.089, 6.977)
+        // v1: Top-Right ( 17.176, 22.089, 6.977)
+        // v2: Bottom-Right (17.176, 3.761, 0.856)
+        // v3: Bottom-Left (-17.176, 3.761, 0.856)
+        // Normal points towards -Z and +Y: (0, 0.3168, -0.9485).
+        // Nudge 0.04 units forward along normal so it rests right on top of wallpaper
+        const nY = 0.04 * 0.3168;
+        const nZ = -0.04 * 0.9485;
+
+        const screenPositions = new Float32Array([
+          -17.176, 22.089 + nY, 6.977 + nZ, // v0: Top-Left (local) -> camera Top-Right
+           17.176, 22.089 + nY, 6.977 + nZ, // v1: Top-Right (local) -> camera Top-Left
+           17.176,  3.761 + nY, 0.856 + nZ, // v2: Bottom-Right (local) -> camera Bottom-Left
+          -17.176,  3.761 + nY, 0.856 + nZ, // v3: Bottom-Left (local) -> camera Bottom-Right
+        ]);
+
+        const screenUVs = new Float32Array([
+          1, 1, // v0: camera Top-Right
+          0, 1, // v1: camera Top-Left
+          0, 0, // v2: camera Bottom-Left
+          1, 0, // v3: camera Bottom-Right
+        ]);
+
+        const screenIndices = new Uint16Array([
+          0, 3, 1,
+          1, 3, 2,
+          0, 1, 3,
+          1, 2, 3,
+        ]);
+
+        const screenGeo = new THREE.BufferGeometry();
+        screenGeo.setAttribute('position', new THREE.BufferAttribute(screenPositions, 3));
+        screenGeo.setAttribute('uv', new THREE.BufferAttribute(screenUVs, 2));
+        screenGeo.setIndex(new THREE.BufferAttribute(screenIndices, 1));
+        screenGeo.computeVertexNormals();
+
+        const screenMat = new THREE.MeshBasicMaterial({
+          map: this.desktopTexture,
+          toneMapped: false,
+          side: THREE.DoubleSide,
+        });
+
+        const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+        screenMesh.name = 'LaptopScreen';
+        lidPivot.add(screenMesh);
+        this.laptopScreenMesh = screenMesh;
+        this.laptopLidPivot = lidPivot;
+
+        // Replace original single mesh with separated base and animated lid
+        const parent = origMesh.parent;
+        parent.remove(origMesh);
+        parent.add(baseMesh);
+        parent.add(lidPivot);
+
+        // Center and orient model so screen stands vertical facing camera (+Z) and keyboard deck angles forward in natural 3D showcase perspective
+        model.rotation.set(0.28, Math.PI, 0);
+        model.position.set(0, -1.04, -1.31);
+        model.scale.set(7.0, 7.0, 7.0);
 
         this.laptopGroup.add(model);
         this.isLaptopLoaded = true;
-        console.log('[DeviceShowcase] Laptop loaded as Stealth Space Black model & configured');
+
+        // Initial lid pose based on scroll
+        this.setLaptopOpen(0);
+        this.setDeviceScroll(this.scrollProgress || 0);
+        console.log('[DeviceShowcase] New laptop model loaded with untouched native PBR materials, animated lid & scrolling screen');
       },
       undefined,
       (err) => console.error('[DeviceShowcase] Failed to load laptop:', err)
@@ -1035,26 +1045,19 @@ export class DeviceShowcase {
 
   /**
    * Natural Laptop Lid Opening:
-   * When progress = 0 (closed): lid is folded down flat onto keyboard base (+1.75 rad)
-   * When progress = 1 (open): lid stands open upright at 90° (0 rad) facing the camera
+   * When progress = 0 (closed): lid is folded down flat onto keyboard base
+   * When progress = 1 (open): lid stands open in its natural viewing angle facing the camera
    */
   setLaptopOpen(progress) {
     if (!this.laptopLidPivot) return;
-    const closedAngle = 1.75;
-    this.laptopLidPivot.rotation.z = closedAngle * (1.0 - progress);
+    const closedAngle = 1.894; // ~108.5° to fold flat over keyboard
+    this.laptopLidPivot.rotation.x = -closedAngle * (1.0 - progress);
 
     if (this.laptopScreenMesh && this.laptopScreenMesh.material) {
-      if (progress <= 0.02) {
-        this.laptopScreenMesh.visible = false;
-        if (this.laptopScreenMesh.material.color) {
-          this.laptopScreenMesh.material.color.setRGB(0, 0, 0);
-        }
-      } else {
-        this.laptopScreenMesh.visible = true;
-        const b = Math.min(1.0, Math.pow(progress / 0.65, 1.2));
-        if (this.laptopScreenMesh.material.color) {
-          this.laptopScreenMesh.material.color.setRGB(b, b, b);
-        }
+      this.laptopScreenMesh.visible = true;
+      const b = 0.25 + 0.75 * Math.min(1.0, Math.pow(progress / 0.5, 1.2));
+      if (this.laptopScreenMesh.material.color) {
+        this.laptopScreenMesh.material.color.setRGB(b, b, b);
       }
     }
   }
