@@ -1,0 +1,199 @@
+<title>Ideje na skrol</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: the page's own dot grid is the material. A pinned stage; scroll lights grid dots into a road and a growing skyline,
+   while a gold "IDEJA" core keeps one size. Copy sits left (top on phone) and re-decodes at each size stage. */
+:root{
+  --navy:#0B1020; --gold:#D9B25F; --ink:#F3EEE3; --muted:#A7AEC2; --line:#2A3658;
+  --display:'Montserrat',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--navy);color:var(--ink)}
+body{font-family:var(--display)}
+*{box-sizing:border-box}
+#bg{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.spacer{position:relative;z-index:1;min-height:60vh;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.track{position:relative;z-index:1;height:460vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;max-width:1400px;margin:0 auto;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:center}
+.copy{display:flex;flex-direction:column;gap:18px;min-width:0;max-width:520px}
+.tag{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+h2{margin:0;font-weight:900;font-size:clamp(36px,5vw,72px);line-height:.98;letter-spacing:-.025em;text-wrap:balance}
+h2 em{font-style:normal;color:var(--gold)}
+.lvl{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;align-items:center}
+.lvl b{color:var(--ink);font-weight:600}
+.lvl i{flex:1;height:1px;background:var(--line)}
+.case{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;row-gap:10px;align-items:baseline}
+.case dt{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.case dd{margin:0;font-size:clamp(16px,1.5vw,19px);font-weight:700;line-height:1.35;min-height:2.7em}
+.case dd.idea{color:var(--gold)}
+.noise{font-family:var(--mono);color:var(--gold);opacity:.85}
+.rest{color:transparent}
+.foot{margin:0;font-size:14px;line-height:1.5;color:var(--muted);max-width:42ch;opacity:var(--f,0);transform:translateY(calc((1 - var(--f,0))*10px))}
+.marks{position:absolute;right:0;bottom:28px;display:flex;gap:6px}
+.mk{appearance:none;background:none;border:1px solid var(--line);border-radius:18px;height:34px;padding:0 12px;color:var(--muted);font-family:var(--display);font-weight:700;font-size:12px;cursor:pointer;background:rgba(11,16,32,.7)}
+.mk[aria-current="true"]{border-color:var(--gold);color:var(--navy);background:var(--gold)}
+.mk:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.core{position:absolute;pointer-events:none;transform:translate(-50%,-50%);font-weight:800;font-size:13px;letter-spacing:.08em;color:var(--navy)}
+@media (max-width:860px){
+  .stage{grid-template-columns:minmax(0,1fr);align-items:start;padding-top:72px}
+  .copy{gap:10px}
+  h2{font-size:clamp(30px,8vw,40px)}
+  .case dd{min-height:0;font-size:15px}
+  .marks{left:0;right:0;justify-content:center;bottom:18px}
+  .mk{padding:0 9px;font-size:11px}
+  .foot{display:none}
+}
+</style>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div class="spacer pad">↑ 02 · O nama · skrolujte ↓</div>
+
+<div class="track" id="track">
+  <div class="stage pad" id="stage">
+    <div class="copy">
+      <div class="tag">03 · Za svaku veličinu</div>
+      <h2>Ideje nemaju <em>veličinu firme.</em></h2>
+      <div class="lvl">Veličina: <b id="lv"></b><i></i></div>
+      <dl class="case" aria-live="polite">
+        <dt>Ko</dt><dd id="who"></dd>
+        <dt>Problem</dt><dd id="prob"></dd>
+        <dt>Ideja</dt><dd id="idea" class="idea"></dd>
+      </dl>
+      <p class="foot" id="foot">Firma je rasla, ideja je ostala iste veličine. Rešenje ne biramo po veličini klijenta, nego po problemu, potencijalu i saradnji.</p>
+    </div>
+    <div class="marks" role="group" aria-label="Skok na veličinu firme">
+      <button class="mk" data-i="0">Lokal</button><button class="mk" data-i="1">Restoran</button><button class="mk" data-i="2">Prodavnica</button><button class="mk" data-i="3">Veća firma</button>
+    </div>
+    <div class="core" id="core">IDEJA</div>
+  </div>
+</div>
+
+<div class="spacer pad">↓ 04 · Kreativa × Rast × Tehnologija</div>
+
+<script>
+(function(){
+  var DATA=[
+    {lv:'1 lokal',who:'Frizerski salon u kraju',prob:'Termini se dogovaraju telefonom i porukama.',idea:'Online zakazivanje sa podsetnikom.'},
+    {lv:'1 objekat · 12 ljudi',who:'Restoran u centru',prob:'Gosti dolaze preko platformi, a restoran ih ne poznaje.',idea:'Sopstvene rezervacije i baza gostiju.'},
+    {lv:'magacin + web',who:'Online prodavnica',prob:'Ljudi kupe jednom i ne vrate se.',idea:'Podsetnici, lojalnost i preporuke.'},
+    {lv:'više sektora',who:'Veća firma',prob:'Pet alata koji ne pričaju međusobno.',idea:'Jedan povezan sistem i jasni podaci.'}
+  ];
+  /* skyline in grid cells: x = column offset from city center, w = columns, h = max rows, a = scroll point where it starts rising */
+  var B=[
+    {x:-2,w:5,h:10,a:0,min:5},
+    {x:4,w:4,h:6,a:.18},
+    {x:-8,w:5,h:8,a:.3},
+    {x:9,w:4,h:13,a:.45},
+    {x:-14,w:5,h:12,a:.5},
+    {x:14,w:5,h:7,a:.62},
+    {x:-19,w:4,h:9,a:.68},
+    {x:20,w:3,h:5,a:.74}
+  ];
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cv=document.getElementById('bg'),ctx=cv.getContext('2d');
+  var track=document.getElementById('track'),stage=document.getElementById('stage'),coreEl=document.getElementById('core');
+  var W,H,S,cols,rows,D=[],P=0,stageIdx=-1;
+
+  function rnd(i){var x=Math.sin(i*12.9898)*43758.5453;return x-Math.floor(x)}
+  function resize(){
+    var dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;
+    cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    S=W<860?22:31;                       /* grid spacing = the site's background grid */
+    cols=Math.ceil(W/S)+1;rows=Math.ceil(H/S)+1;D=[];
+    for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){
+      var i=r*cols+c;
+      D.push({c:c,r:r,br:1+rnd(i)*1.7,ba:.22+rnd(i+7)*.38,o:rnd(i+3)>.93,L:0,G:0,ph:rnd(i+11)*6.28});
+    }
+  }
+  function smooth(a,b,x){var t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)}
+
+  function geo(){
+    var mob=W<860;
+    return {cx:Math.round((mob?W*.5:W*.66)/S), base:Math.round((mob?H*.88:H*.82)/S), mob:mob};
+  }
+  /* target light for a dot at (c,r): 1 outline/road, .55 window, 0 none */
+  /* 1 = outline/road, .6 = lit window, -1 = carved (dark interior), -.6 = dimmed grid around the city, 0 = normal grid */
+  function target(c,r,g){
+    if(r===g.base && Math.abs(c-g.cx)<=24)return 1;
+    for(var k=0;k<B.length;k++){
+      var b=B[k],e=smooth(b.a,b.a+.2,P),h=b.min?Math.round(b.min+(b.h-b.min)*smooth(0,.9,P)):Math.round(b.h*e);
+      if(h<1)continue;
+      var x0=g.cx+b.x,x1=x0+b.w-1,top=g.base-h;
+      if(c<x0||c>x1||r<top||r>=g.base)continue;
+      if(r===top||c===x0||c===x1)return 1;
+      return ((r-top)%2===1&&(c-x0)%2===1)?.6:-1;
+    }
+    if(r<g.base&&r>=g.base-15&&Math.abs(c-g.cx)<=24)return -.6;
+    return 0;
+  }
+  function draw(now){
+    var g=geo(),coreC=g.cx,coreR=g.base-(g.mob?9:9),R=1.6;
+    ctx.clearRect(0,0,W,H);
+    var copyEdge=g.mob?0:Math.min(W*.42,640);
+    var traffic=[(now/38)%50-25,(now/52+17)%50-25,(now/45+33)%50-25];
+    for(var i=0;i<D.length;i++){
+      var d=D[i],x=d.c*S+S/2,y=d.r*S+S/2;
+      var t=target(d.c,d.r,g);
+      var dc=Math.hypot(d.c-coreC,d.r-coreR),tg=dc<=R?1:(Math.abs(dc-2.6)<.5?.45:0);
+      var e=reduce?1:.12;d.L+=(t-d.L)*e;d.G+=(tg-d.G)*e;
+      var fade=x<copyEdge?.35:1;
+      if(g.mob&&y<H*.5)fade=.35;
+      var tw=.85+.15*Math.sin(now/900+d.ph);
+      var a=d.ba*tw*fade, r=d.br, col=d.o?'#E08A3C':'#D9B25F';
+      if(d.L>.02){a=a+(1-a)*d.L;r=r+(2.8-r)*d.L*.85;col=d.L>.3?'#F3EEE3':col}
+      else if(d.L<-.02){a=a*(1+d.L*.85)}
+      if(d.r===g.base&&Math.abs(d.c-g.cx)<=24){for(var q=0;q<3;q++)if(Math.abs(d.c-g.cx-traffic[q])<.6){col='#D9B25F';r=3.4;a=1}}
+      if(d.G>.02){a=a+(1-a)*d.G;r=r+(4.2-r)*d.G;col='#D9B25F'}
+      ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,6.283);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    /* core: one fixed size, never scales with the city */
+    var cx=coreC*S+S/2,cy=coreR*S+S/2,rad=S*1.15;
+    var gr=ctx.createRadialGradient(cx,cy,0,cx,cy,rad*3);gr.addColorStop(0,'rgba(217,178,95,.35)');gr.addColorStop(1,'rgba(217,178,95,0)');
+    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(cx,cy,rad*3,0,6.283);ctx.fill();
+    ctx.fillStyle='#D9B25F';ctx.beginPath();ctx.arc(cx,cy,rad*(reduce?1:1+Math.sin(now/900)*.03),0,6.283);ctx.fill();
+    var sr=stage.getBoundingClientRect();
+    coreEl.style.left=(cx-sr.left)+'px';coreEl.style.top=(cy-sr.top)+'px';
+    var vis=track.getBoundingClientRect();coreEl.style.opacity=(vis.top<H&&vis.bottom>0)?1:0;
+  }
+
+  /* scramble copy */
+  var GL='ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+';
+  var L=['lv','who','prob','idea'].map(function(id){return {el:document.getElementById(id)}});
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+  function setStage(i){
+    if(i===stageIdx)return;stageIdx=i;var d=DATA[i],now=performance.now();
+    [d.lv,d.who,d.prob,d.idea].forEach(function(s,j){L[j].t=s;L[j].st=now+j*120});
+    marks.forEach(function(m,j){m.setAttribute('aria-current',j===i?'true':'false')});
+  }
+  function text(now){
+    L.forEach(function(l){
+      if(!l.t)return;var n=l.t.length,k=reduce?1:Math.min(1,Math.max(0,(now-l.st)/(n*20))),done=Math.floor(k*n);
+      var nz=(k<=0||k>=1)?0:Math.min(4,n-done),z='';
+      for(var j=0;j<nz;j++){var ch=l.t[done+j];z+=ch===' '?' ':GL[(Math.random()*GL.length)|0]}
+      var h=esc(l.t.slice(0,done))+'<span class="noise">'+esc(z)+'</span><span class="rest">'+esc(l.t.slice(done+nz))+'</span>';
+      if(h!==l.h){l.el.innerHTML=h;l.h=h}
+    });
+  }
+  var foot=document.getElementById('foot');
+  function onScroll(){
+    var r=track.getBoundingClientRect(),tot=track.offsetHeight-H;
+    P=Math.max(0,Math.min(1,-r.top/tot));
+    setStage(Math.min(3,Math.floor(P*4.4)));
+    foot.style.setProperty('--f',smooth(.86,.96,P).toFixed(3));
+  }
+  var marks=[].slice.call(document.querySelectorAll('.mk'));
+  marks.forEach(function(m){m.addEventListener('click',function(){
+    var i=+m.dataset.i,tot=track.offsetHeight-H,to=[.05,.3,.52,.9][i];
+    scrollTo({top:track.offsetTop+tot*to,behavior:reduce?'auto':'smooth'});
+  })});
+
+  function loop(now){onScroll();draw(now);text(now);requestAnimationFrame(loop)}
+  addEventListener('resize',resize);resize();onScroll();setStage(0);
+  requestAnimationFrame(loop);
+})();
+</script>

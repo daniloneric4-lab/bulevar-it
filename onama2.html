@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hero, O nama, Ideje</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#080C14; --line:#2A3658; --gold:#D9B25F; --orange:#E8963A; --ink:#F3EEE3; --muted:#A7AEC2;
+  --display:'Montserrat',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{margin:0;background:var(--navy);color:var(--ink)}
+html{overflow-x:clip}
+body{font-family:var(--display)}
+*{box-sizing:border-box}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.spacer{min-height:45vh;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.track{position:relative;height:1200vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cap{position:absolute;left:0;right:0;bottom:clamp(22px,6vh,64px);pointer-events:none;transition:opacity .2s}
+.cap .wrap{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(16px,4vw,56px);align-items:end}
+.meta{display:flex;flex-direction:column;gap:8px}
+.tag{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.cnt{font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:var(--muted);font-variant-numeric:tabular-nums}
+.cnt b{color:var(--orange);font-weight:600}
+.txt{max-width:640px}
+.txt h2{margin:0 0 8px;font-weight:900;font-size:clamp(20px,2.2vw,32px);line-height:1.12;letter-spacing:-.01em;min-height:1.15em}
+.txt p{margin:0;color:var(--muted);font-size:clamp(14px,1.2vw,17px);line-height:1.55;min-height:3.1em}
+.noise{font-family:var(--mono);color:var(--orange)}.rest{color:transparent}
+.bar{position:absolute;left:0;top:0;height:3px;background:var(--gold);width:0}
+/* Ideje naslov (kao na sajtu) */
+.ideje{position:absolute;left:6vw;top:11vh;opacity:0;pointer-events:none}
+.ideje .k{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--gold);text-transform:uppercase}
+.ideje h2{margin:14px 0 0;font-weight:900;font-size:clamp(34px,3.6vw,64px);line-height:1.02;letter-spacing:-.02em;min-height:2.1em}
+.ideje h2 em{font-style:normal;color:var(--gold)}
+.hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--navy);display:block}
+.hint{position:absolute;left:0;right:0;bottom:28px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(167,174,194,.75);pointer-events:none;transition:opacity .3s}
+.hint i{display:block;width:1px;height:28px;margin:10px auto 0;background:linear-gradient(var(--gold),transparent);animation:hd 1.6s ease-in-out infinite}
+@keyframes hd{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@media (prefers-reduced-motion:reduce){.hint i{animation:none}}
+@media (max-width:760px){.cap .wrap{grid-template-columns:minmax(0,1fr);gap:10px}.meta{flex-direction:row;gap:14px;align-items:baseline}.ideje{top:9vh}}
+</style>
+</head>
+<body>
+
+<div class="track" id="track"><div class="stage" id="stage">
+  <video class="hv" id="hv" muted playsinline preload="auto" aria-hidden="true"></video>
+  <canvas id="cv" aria-hidden="true"></canvas>
+  <div class="bar" id="bar"></div>
+  <div class="cap pad" id="cap"><div class="wrap">
+    <div class="meta"><div class="tag">02 · O nama</div><div class="cnt"><b id="ci">01</b> / 05</div></div>
+    <div class="txt" aria-live="polite"><h2 id="th"></h2><p id="tp"></p></div>
+  </div></div>
+  <div class="ideje" id="ideje"><div class="k">03 · Za svaku veličinu</div><h2 id="ih"></h2></div>
+  <div class="hint" id="hint">Skroluj<i></i></div>
+</div></div>
+
+<div class="spacer pad">↓ dalje ide postojeća sekcija „Ideje“ (tlo, zgrada, IDEJA)</div>
+
+<script>
+const LOGO=(()=>{const W=971,H=154,S=6,R=["47.8w107.","47.7w108.","20w27.8w79.7g2.19g","21w26.7w79.8g.20g","22w25.8w79.7g2.19g","23w24.7w79.8g.20g","23w24.8w79.7g2.19g","9w5.9w2.8w5.7w2.7w7.8w5.7w6.7w4.8w6.7w2.4w8.8g.20g","9w6.9w2.7w5.8w.8w5.12w2.8w5.8w.13w4.12w9.7g7.8g6.","9w6.8w2.8w5.7w2.7w4.14w2.8w5.22w3.13w8.8g7.8g6.","9w6.8w3.7w5.8w.8w3.16w.7w5.7w.15w3.12w9.7g7.8g6.","22w3.8w5.7w2.7w3.17w.7w4.7w2.15w2.13w8.8g7.8g6.","21w5.7w5.8w.8w2.8w3.7w.7w3.7w3.5w.9w2.12w9.7g7.8g6.","21w4.8w5.7w2.7w2.7w5.7w.7w2.7w4.w6.8w.10w2.w8.8g7.8g6.","23w3.7w5.8w.8w.19w2.7w2.6w12.7w2.8w13.7g7.8g6.","23w2.8w5.7w2.7w.20w.8w.6w5.15w.8w13.8g7.8g6.","9w6.9w2.7w5.8w.8w.19w2.7w.7w3.17w.7w14.7g7.8g6.","9w7.8w.8w4.8w2.7w.20w2.14w3.17w.7w8.2g4.8g7.8g6.","9w7.9w.8w3.9w.8w.8w14.13w3.7w3.8w.7w6.5g3.7g7.8g6.","9w6.9w.20w2.7w2.8w5.2w7.12w3.7w4.7w.7w5.8g.8g7.8g6.","24w2.20w.8w2.15w7.11w4.7w3.8w.7w4.9g.7g7.8g6.","24w2.19w2.7w3.16w6.10w4.18w.7w5.8g.8g7.8g6.","24w3.19w.8w3.16w6.9w5.18w.7w4.9g.7g7.8g6.","22w5.18w2.7w4.15w7.8w6.17w.7w5.8g.8g7.8g6.","21w7.9w.8w.8w5.12w8.8w7.9w.7w.7w5.7g2.7g7.8g6.","17w12.6w3.7w2.7w7.9w10.8w8.6w2.7w.7w7.4g3.8g7.8g6."],p=[];R.forEach((row,r)=>{let k=0,m;const re=/(\d*)([wg.])/g;while((m=re.exec(row))){const n=+(m[1]||1);for(let q=0;q<n;q++,k++){if(m[2]!=='.')p.push((r%2?3:0)+k*S,r*S,m[2]==='w'?1:0)}}});return {w:W,h:H,p}})();
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cl(x){return Math.max(0,Math.min(1,x))}
+  function sm(a,b,x){x=cl((x-a)/(b-a));return x*x*(3-2*x)}
+  function eio(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+  var $=function(id){return document.getElementById(id)};
+  var F=[
+    {m:'BULEVAR',a:'.IT',h:'Studio iz Novog Sada.',p:'Pravimo digitalne sisteme koji posle ostaju u rukama vlasnika.'},
+    {m:'18',a:'',h:'Najmlađi u timu imaju 18 godina.',p:'Rastu uz alate koji su izašli prošle nedelje. Brzi su i ne boje se novog.'},
+    {m:'25',a:'+',h:'Godina iskustva mentora u marketingu.',p:'Znaju šta prodaje i zašto. Paze da sve što napravimo ima poslovni smisao.'},
+    {m:'5',a:'',h:'Zanata u jednoj ekipi.',p:'Srednjoškolci, mentori, programeri, fotografi i dron operateri, za istim stolom.'},
+    {m:'1',a:'',h:'Sistem. I ostaje vaš.',p:'Ne iznajmljujemo vam sajt. Gradimo ga za vas, i ključevi ostaju kod vas.'}
+  ];
+  var SPK={x:0,y:0},U0=(1.12-.5)/1.1,cv=$('cv'),x=cv.getContext('2d'),W=0,H=0,dpr=Math.min(2,devicePixelRatio||1),STEP=12,N=0,P=[],SH=[],ARC=[],SC=[],CAP=0;
+  var off=document.createElement('canvas'),ox=off.getContext('2d',{willReadFrequently:true});
+
+  function sample(f){var mob=W<760,stepS=STEP;off.width=W;off.height=H;ox.clearRect(0,0,W,H);
+    var txt=f.m+f.a,size=400;ox.font='900 '+size+'px Montserrat, sans-serif';var tw=ox.measureText(txt).width;
+    var maxW=W*(mob?.92:.86),maxH=H*(mob?.42:.56);size=Math.min(size*maxW/tw,maxH/0.74);
+    ox.font='900 '+size+'px Montserrat, sans-serif';ox.textBaseline='alphabetic';ox.textAlign='left';
+    var mw=ox.measureText(f.m).width,aw=ox.measureText(f.a).width,x0=(W-mw-aw)/2,y0=H*(mob?.4:.44)+size*.36;
+    ox.fillStyle='#fff';ox.fillText(f.m,x0,y0);ox.fillStyle='#f00';ox.fillText(f.a,x0+mw,y0);
+    var d=ox.getImageData(0,0,W,H).data,o=[];
+    for(var yy=stepS/2;yy<H;yy+=stepS)for(var xx=stepS/2;xx<W;xx+=stepS){var i=((yy|0)*W+(xx|0))*4;if(d[i+3]>140)o.push({x:xx,y:yy,a:d[i+1]<100})}
+    return o}
+  /* logo (kao na slici): maska iz tačno uzorkovanog logoa, slova razdvojena po kolonama */
+  var LM=new Image();LM.src='data:image/png;base64,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';
+  var LST=8;function sampleLogo(){var mob=W<760;off.width=W;off.height=H;ox.clearRect(0,0,W,H);
+    /* tačan logo sa slike; svako slovo se uzorkuje posebno, sa svojom mrežom centriranom u slovu */
+    var IW=984,IH=165,lw=W*(mob?.9:.76),sc=lw/IW,lh=IH*sc;if(lh>H*.3){sc=H*.3/IH;lw=IW*sc;lh=H*.3}
+    var x0=(W-lw)/2,y0=H*(mob?.36:.38)-lh/2;ox.imageSmoothingEnabled=true;ox.drawImage(LM,x0,y0,lw,lh);
+    var d=ox.getImageData(0,0,W,H).data,o=[];
+    var ST=Math.max(4,Math.round(lh/(mob?12:17)));LST=ST;
+    /* granice slova u pikselima slike: B u l e v a r | . I T */
+    var BX=[[0,155,0],[155,281,0],[281,335,0],[335,456,0],[456,564,0],[564,677,0],[677,800,0],[700,804,1],[804,853,1],[853,984,1]];
+    var gy0=y0+ST/2;
+    BX.forEach(function(b,L){var sx0=x0+b[0]*sc,sx1=x0+b[1]*sc,wantGold=b[2];
+      function inL(px,py){if(px<sx0||px>=sx1||px<0||py<0||px>=W||py>=H)return false;var k=((py|0)*W+(px|0))*4;return d[k+3]>128&&((d[k+1]<100)===!!wantGold)}
+      var bx0=1e9,bx1=-1e9,by0=1e9,by1=-1e9;
+      for(var py=y0|0;py<y0+lh;py+=2)for(var px=sx0|0;px<sx1;px+=2)if(inL(px,py)){bx0=Math.min(bx0,px);bx1=Math.max(bx1,px);by0=Math.min(by0,py);by1=Math.max(by1,py)}
+      if(bx1<bx0)return;
+      var NX=Math.max(1,Math.round((bx1-bx0)/ST)+0),gx0=bx0+((bx1-bx0)-(NX-1)*ST)/2,j0=Math.floor((by0-gy0)/ST)-1,j1=Math.ceil((by1-gy0)/ST)+1;
+      var on={},cov={};
+      for(var j=j0;j<=j1;j++)for(var i=-1;i<=NX;i++){var cx0=gx0+i*ST,cy0=gy0+j*ST,c=0;
+        for(var sy=0;sy<4;sy++)for(var sx=0;sx<4;sx++){if(inL(cx0+(sx-1.5)*ST/4,cy0+(sy-1.5)*ST/4))c++}
+        cov[i+','+j]=c/16;on[i+','+j]=c/16>=.5}
+      function at(i,j){return !!on[i+','+j]}
+      var keep={};for(var k in on){if(!on[k])continue;var ij=k.split(','),i=+ij[0],j=+ij[1],n4=at(i-1,j)+at(i+1,j)+at(i,j-1)+at(i,j+1);if(n4>=2||(n4>=1&&cov[k]>.8))keep[k]=1}
+      for(var k in cov){if(keep[k]||on[k])continue;var ij=k.split(','),i=+ij[0],j=+ij[1];if(at(i-1,j)&&at(i+1,j)&&at(i,j-1)&&at(i,j+1)&&cov[k]>=.3)keep[k]=1}
+      for(var k in keep){var ij=k.split(',');o.push({x:gx0+(+ij[0])*ST,y:gy0+(+ij[1])*ST,a:!!wantGold,L:L})}});
+    LC=[0,1,2,3,4,5,6,7,8,9].map(function(){return{x0:1e9,x1:-1e9,y0:1e9,y1:-1e9}});o.forEach(function(p){var c=LC[p.L];c.x0=Math.min(c.x0,p.x);c.x1=Math.max(c.x1,p.x);c.y0=Math.min(c.y0,p.y);c.y1=Math.max(c.y1,p.y)});
+    LC.forEach(function(c){c.cx=(c.x0+c.x1)/2;c.cy=(c.y0+c.y1)/2});return o}
+  var LC=[];
+  function backOut(x){var c1=1.9,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)}
+  /* poza tačke slova: ulet sa strane + skok + rotacija + gnječenje pri doskoku, pa stalno blago „Nickelodeon“ ljuljanje */
+  function logoPos(pt,prog,t){ if(prog>=1) return{x:pt.x,y:pt.y,vis:true};
+    if(pt.sx===undefined){pt.sx=-20-Math.random()*W*.35;pt.sy=pt.y+(Math.random()-.5)*H*.5;pt.dl=(pt.x/W)*.45+Math.random()*.12}
+    var q=cl((prog-pt.dl)/.43),e=1-Math.pow(1-q,3);
+    var x2=pt.sx+(pt.x-pt.sx)*e,y2=pt.sy+(pt.y-pt.sy)*(1-Math.pow(1-q,1.6));
+    return{x:x2,y:y2,vis:q>0,q:q}}
+  function build(){var r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);STEP=W<760?8:12;
+    SH=F.map(function(f,i){return i===0?sampleLogo():sample(f)});N=Math.max.apply(null,SH.map(function(s){return s.length}));
+    SH=SH.map(function(s){var o=s.slice();for(var i=o.length-1;i>0;i--){var j=(Math.random()*(i+1))|0,t=o[i];o[i]=o[j];o[j]=t}
+      while(o.length<N)o.push({x:Math.random()*W,y:Math.random()*H,a:false,dust:true});return o});
+    /* kraj O nama: polazi se od samog „1“; svaka tačka dobija svoje mesto u luku (u) */
+    ARC=SH[4].map(function(q){return{x:q.x,y:q.y,a:q.a,dust:q.dust,u:Math.random()}});
+    /* početak: tačke izleću iz centra (kraj videa = crni ekran laptopa) */
+    SC=[];for(var i=0;i<N;i++){var an=Math.random()*6.283,rd=Math.random()*Math.min(W,H)*.04;SC.push({x:W/2+Math.cos(an)*rd,y:H*.46+Math.sin(an)*rd,a:false})}
+    P=[];for(var i=0;i<N;i++)P.push({d:Math.random(),ang:Math.random()*6.283,sp:.6+Math.random()*.8,ox:0,oy:0,j:(Math.random()-.5)})}
+
+  var GL='ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>',L={h:{el:$('th'),ms:34},p:{el:$('tp'),ms:13}};
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+  function say(k,t,d){L[k].t=t;L[k].st=performance.now()+(d||0)}
+  function text(now){for(var k in L){var l=L[k];if(!l.t)continue;var n=l.t.length,q=reduce?1:cl((now-l.st)/(n*l.ms)),dd=Math.floor(q*n),nz=(q<=0||q>=1)?0:Math.min(4,n-dd),z='';
+    for(var j=0;j<nz;j++){var ch=l.t[dd+j];z+=ch===' '?' ':GL[(Math.random()*GL.length)|0]}
+    var h=esc(l.t.slice(0,dd))+'<span class="noise">'+esc(z)+'</span><span class="rest">'+esc(l.t.slice(dd+nz))+'</span>';if(h!==l.h){l.el.innerHTML=h;l.h=h}}}
+  /* Ideje naslov: isti decode */
+  var IH={a:'Ideje nemaju ',b:'veličinu firme.',st:0,on:false,h:''};
+  function ideje(now){if(!IH.on)return;var full=IH.a+IH.b,n=full.length,q=reduce?1:cl((now-IH.st)/(n*30)),dd=Math.floor(q*n),nz=(q>=1)?0:Math.min(4,n-dd),z='';
+    for(var j=0;j<nz;j++){var ch=full[dd+j];z+=ch===' '?' ':GL[(Math.random()*GL.length)|0]}
+    function part(s,from,to){return esc(s.slice(from,to))}
+    var la=IH.a.length,shown=full.slice(0,dd),h='';
+    h+=esc(shown.slice(0,la));if(dd>la){h+='<br><em>'+esc(shown.slice(la))}else h+='<br><em>';
+    h+='<span class="noise">'+esc(z)+'</span></em>';
+    if(h!==IH.h){$('ih').innerHTML=h;IH.h=h}}
+
+  var mx=-999,my=-999;addEventListener('pointermove',function(e){var r=cv.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top});addEventListener('pointerleave',function(){mx=my=-999});
+
+  /* globalna vremenska linija:
+     0.00–0.09  video (zamena)            0.07–0.15  tačke iz ekrana → BULEVAR.IT
+     0.15–0.80  originalna O nama sekcija 0.80–0.95  polukrug → narandžasti mlaz (početak „Ideje“) */
+  var V1=.15, LA=.14, O0=.24, O1=.74, S1=.95;
+  var SEG=[[0,.13],[.19,.3],[.36,.47],[.53,.64],[.7,.8]],cur=-1;
+  function stateAt(Pp){for(var i=0;i<5;i++){if(Pp<SEG[i][1])return i===0||Pp>=SEG[i][0]?{a:i,b:i,t:0}:{a:i-1,b:i,t:(Pp-SEG[i-1][1])/(SEG[i][0]-SEG[i-1][1])}}
+    return Pp<.86?{a:4,b:4,t:0}:{a:4,b:5,t:cl((Pp-.86)/.12)}}
+
+  /* HERO VIDEO (Higgsfield / Kling 3.0): skrol pomera video kadar po kadar.
+     16:9 za široke ekrane, 9:16 za uspravne (telefon). Fajl se učita ceo (blob) da bi premotavanje bilo glatko. */
+  var HV=$('hv'),vReady=false,vT=0;
+  function pickVideo(){var src=innerWidth/innerHeight<.8?'hero-9x16.mp4':'hero-16x9.mp4';if(HV.dataset.src===src)return;HV.dataset.src=src;vReady=false;
+    fetch(src).then(function(r){if(!r.ok)throw 0;return r.blob()}).then(function(b){if(HV.dataset.src!==src)return;HV.src=URL.createObjectURL(b);HV.load()}).catch(function(){HV.src=src;HV.load()})}
+  HV.addEventListener('loadeddata',function(){vReady=true});
+  function videoScrub(G){var tgt=cl(G/V1);vT+=(tgt-vT)*(reduce?1:.22);if(Math.abs(tgt-vT)<.0005)vT=tgt;
+    if(vReady&&HV.duration){var tt=Math.min(HV.duration-.04,vT*HV.duration);if(!HV.seeking&&Math.abs(HV.currentTime-tt)>.02)HV.currentTime=tt}
+    HV.style.visibility=G<V1+.03?'visible':'hidden'}
+  pickVideo();
+
+  function frame(now){
+    var r=$('track').getBoundingClientRect(),tot=$('track').offsetHeight-innerHeight,G=cl(-r.top/tot);
+    if(r.bottom<0||r.top>innerHeight||!N){requestAnimationFrame(frame);return}
+    $('bar').style.width=(G*100)+'%';
+    var t=now/1000;
+    $('hint').style.opacity=G<.01?1:0;
+    videoScrub(G);
+    /* ---- FAZA A: video + izlet tačaka u BULEVAR.IT ---- */
+    if(G<O0){
+      x.clearRect(0,0,W,H);
+      var e0=reduce?1:cl((G-LA)/(O0-.02-LA));
+      $('cap').style.opacity=sm(LA+.03,O0,G).toFixed(3);
+      if(G>LA){ if(cur!==0&&e0>.75){cur=0;$('ci').textContent='01';say('h',F[0].h,80);say('p',F[0].p,80+F[0].h.length*20)}
+        for(var i=0;i<N;i++){var b=SH[0][i],p=P[i];
+          if(b.dust)continue;
+          var q=logoPos(b,e0,t);if(!q.vis)continue;
+          x.globalAlpha=Math.min(1,q.q===undefined?1:q.q*4);x.fillStyle=b.a?'#D9B25F':'#F3EEE3';x.beginPath();x.arc(q.x,q.y,LST*.4,0,6.283);x.fill()}
+        x.globalAlpha=1}
+      text(now);requestAnimationFrame(frame);return}
+
+    /* ---- FAZA B: originalna O nama (nepromenjena) ---- */
+    var Pp=cl((G-O0)/(O1-O0));
+    var stream=cl((G-O1)/(S1-O1)), se=eio(stream);
+    var s=stateAt(Pp),idx=s.t<.5?s.a:Math.min(4,s.b);
+    if(idx!==cur){cur=idx;$('ci').textContent='0'+(idx+1);L.h.t=L.p.t='';say('h',F[idx].h,80);say('p',F[idx].p,80+F[idx].h.length*34*.6)}
+    var moving=(s.t>0&&s.t<1)||(stream>0&&stream<1),blast=Math.sin(Math.PI*s.t);
+    $('cap').style.opacity=s.b===5?(1-sm(0,.5,s.t)).toFixed(3):1;
+    if(moving&&!reduce){x.fillStyle='rgba(8,12,20,.32)';x.fillRect(0,0,W,H)}else x.clearRect(0,0,W,H);
+    var gridA=.12*(1-se);x.fillStyle='rgba(184,146,90,'+gridA+')';if(gridA>.005)for(var gy=STEP*2;gy<H;gy+=STEP*3)for(var gx=STEP*2;gx<W;gx+=STEP*3)x.fillRect(gx,gy,1.2,1.2);
+    var A=SH[s.a],B=s.b<5?SH[s.b]:ARC,cxm=W/2,cym=H*.45;
+    /* geometrija mlaza (prvi kadar sekcije „Ideje“): luk koji ulazi gore levo, prolazi ispod i izlazi gore desno */
+    var mob=W<760,sCx=W*.46,sCy=-H*.3,sR=Math.max(W*.44,H*.68);
+    for(var i=0;i<N;i++){var a=A[i],b=B[i],p=P[i];
+      var e=reduce?(s.t>.5?1:0):sm(p.d*.35,p.d*.35+.65,s.t);
+      var ax=a.x,ay=a.y,bx=b.x,by=b.y;
+      if(s.a===0&&!a.dust&&a.L!==undefined){var qa=logoPos(a,1,t);ax=qa.x;ay=qa.y}
+      var px=ax+(bx-ax)*e,py=ay+(by-ay)*e;
+      if(!reduce&&blast>0){var dx=px-cxm,dy=py-cym,dl=Math.sqrt(dx*dx+dy*dy)+1,k=Math.sin(Math.PI*e)*(s.b===5?60:160)*p.sp;px+=dx/dl*k+Math.cos(p.ang)*k*.35;py+=dy/dl*k+Math.sin(p.ang)*k*.35}
+      var dust=(e<.5?a.dust:b.dust),acc=(e<.5?a.a:b.a),hidden=b.hide&&e>=1;
+      var col=(s.a===0&&e<.5&&!dust)?(acc?[217,178,95]:[243,238,227]):acc?[232,150,58]:[217,178,95],alpha=dust?.25:1,rad=(STEP*.36)*(dust?.5:1);
+      /* ---- FAZA C: tačke iz „1“ odlaze levo-gore, do početka luka, pa luk ide sleva nadesno (kao „Ideje“) ---- */
+      if(stream>0&&s.b===5){var q=ARC[i],qq=reduce?se:cl((stream-p.d*.3-q.u*.25)/.45);
+        var arcAt=function(u,th){var an=Math.PI*1.12+(Math.PI*.02-Math.PI*1.12)*u;return[sCx+Math.cos(an)*(sR+th),sCy+Math.sin(an)*(sR+th)]};
+        var thick=(mob?14:26)+(mob?40:90)*Math.pow(q.u,2.2),st0=arcAt(0,p.j*thick*.3),fin;
+        if(qq<.3){var k1=sm(0,.3,qq);px=q.x+(st0[0]-q.x)*k1;py=q.y+(st0[1]-q.y)*k1}
+        else{var k2=1-Math.pow(1-(qq-.3)/.7,2),uu=q.u*k2;if(qq>=1){uu=q.u+t*.035;uu-=Math.floor(uu)}fin=arcAt(uu,p.j*thick*(.3+.7*k2));px=fin[0];py=fin[1]}
+        var mix=sm(0,.4,qq);col=[217+(232-217)*mix,178+(150-178)*mix,95+(58-95)*mix];
+        alpha=q.dust?.25+.75*mix:1;var uq=qq>=1?uu:q.u;if(qq>=1){if(uu>.85)alpha*=cl((1-uu)/.15)*.8+.2;if(uu<.04)alpha*=uu/.04}
+        rad=(STEP*.36)*(q.dust?.5+.4*mix:1);hidden=false;dust=false}
+      if(hidden)continue;
+      if(b.hide&&stream===0){alpha=(1-e)*(dust?.25:1)}
+      var rx=px-mx,ry=py-my,rd=rx*rx+ry*ry,tx=0,ty=0;if(rd<8100&&!reduce){var f=(1-Math.sqrt(rd)/90)*26/(Math.sqrt(rd)+.01);tx=rx*f;ty=ry*f}
+      p.ox+=(tx-p.ox)*.18;p.oy+=(ty-p.oy)*.18;px+=p.ox;py+=p.oy;
+      if(dust&&!moving&&stream===0){x.globalAlpha=.08;x.fillStyle='#B8925A';x.fillRect(px,py,1.2,1.2);continue}
+      x.globalAlpha=alpha;x.fillStyle='rgb('+(col[0]|0)+','+(col[1]|0)+','+(col[2]|0)+')';
+      if(s.a===0&&s.b===0&&!dust){rad=LST*.4}else if(s.a===0&&!dust&&a.L!==undefined){rad=LST*.4+(STEP*.36-LST*.4)*e}
+      var rr=rad*(1+.12*Math.sin(t*2+p.ang)*(moving||s.a===0?0:1));x.beginPath();x.arc(px,py,rr,0,6.283);x.fill()}
+    x.globalAlpha=1;
+    /* sjaj iskre */
+    if(false){var gl=sm(.55,1,s.t)*(1-sm(.15,.6,stream)),pul=1+.15*Math.sin(t*6);
+      if(gl>.01){var rg=x.createRadialGradient(SPK.x,SPK.y,0,SPK.x,SPK.y,90*pul);rg.addColorStop(0,'rgba(255,190,110,'+(.55*gl)+')');rg.addColorStop(1,'rgba(232,150,58,0)');x.fillStyle=rg;x.beginPath();x.arc(SPK.x,SPK.y,90*pul,0,6.283);x.fill()}}
+    /* Ideje naslov */
+    var io=sm(.88,.94,G);$('ideje').style.opacity=io.toFixed(3);$('ideje').style.transform='translateY('+((1-io)*18).toFixed(1)+'px)';
+    if(io>.3&&!IH.on){IH.on=true;IH.st=now}if(io<.05&&IH.on){IH.on=false;IH.h='';$('ih').innerHTML=''}
+    text(now);ideje(now);requestAnimationFrame(frame)}
+  function go(){build();cur=-1;requestAnimationFrame(frame)}
+  addEventListener('resize',function(){pickVideo();build()});
+  var fr=document.fonts&&document.fonts.load?Promise.all([document.fonts.load('900 100px Montserrat'),document.fonts.ready]).catch(function(){}):Promise.resolve();
+  Promise.all([fr,LM.decode?LM.decode().catch(function(){}):new Promise(function(r){LM.onload=r})]).then(go);
+})();
+</script>
+</body>
+</html>

@@ -224,17 +224,18 @@ function initCounterAnimation() {
  */
 export function initServicesReveal(dotGrid) {
   const stage = document.querySelector('#services-stage');
-  const preTransition = document.querySelector('#services-pre-transition');
+  const idejePreTransition = document.querySelector('#ideje-pre-transition');
+  const servicesPreTransition = document.querySelector('#services-pre-transition');
   const services = document.querySelector('#services');
   const portfolio = document.querySelector('#portfolio');
   const canvasEl = document.querySelector('#services-dots');
-  if (!services) return;
+  if (!stage || !canvasEl || !dotGrid) return;
 
   const glassBlocks = services.querySelectorAll('.glass-block');
   const header = services.querySelector('.services__header');
 
   // BOON Reference Colors
-  const COLOR_NAVY = [24, 32, 50]; // #182032 (Hero & About Navy)
+  const COLOR_NAVY = [25, 31, 50]; // #191F32 (Kontakt Navy)
   const COLOR_BLACK = [8, 12, 20];  // #080C14 (Services Deep Space Black)
 
   function lerpColor(c1, c2, t) {
@@ -245,13 +246,43 @@ export function initServicesReveal(dotGrid) {
     return `rgb(${r}, ${g}, ${b})`;
   }
 
-  // 1. BOON-Style Clean Background & Particle Transition (About -> Services)
-  // Background switches cleanly to Deep Black via CSS class (no dirty lerp drag)
-  // Golden 3D sphere blooms outwards into the full-screen grid as user scrolls in
-  if (preTransition && dotGrid) {
+  // 1. Pre-Ideje Transition (About -> Ideje)
+  // Clean theme change; the dots emerging and sorting into building & road are rendered by #ideje-bg
+  if (idejePreTransition) {
     ScrollTrigger.create({
-      trigger: preTransition,
+      trigger: idejePreTransition,
       start: 'top 80%',
+      end: 'bottom 15%',
+      onEnter: () => {
+        document.body.style.backgroundColor = '';
+        document.body.classList.add('theme--black');
+        if (canvasEl) {
+          canvasEl.classList.remove('is-active');
+          canvasEl.style.opacity = '0';
+        }
+        if (dotGrid) dotGrid.setVisible(false);
+      },
+      onEnterBack: () => {
+        document.body.classList.add('theme--black');
+        if (canvasEl) {
+          canvasEl.classList.remove('is-active');
+          canvasEl.style.opacity = '0';
+        }
+        if (dotGrid) dotGrid.setVisible(false);
+      },
+      onLeaveBack: () => {
+        document.body.classList.remove('theme--black');
+      },
+    });
+  }
+
+  // 1.5 Pre-Services Transition (Ideje -> Services)
+  // NO SPHERE CIRCLE! As the floor expands from Ideje, it turns into Screenshot 3 (bloom = 0.48)
+  // and smoothly transitions to full-screen ambient grid (bloom = 1.0) as user reaches Services
+  if (servicesPreTransition && dotGrid) {
+    ScrollTrigger.create({
+      trigger: servicesPreTransition,
+      start: 'top 85%',
       end: 'bottom 15%',
       scrub: 0.35,
       onEnter: () => {
@@ -263,14 +294,15 @@ export function initServicesReveal(dotGrid) {
         }
         dotGrid.setVisible(true);
         dotGrid.resize();
+        // Immediately start at Screenshot 3 peak burst — NEVER show circle (0.0)!
+        dotGrid.setBloomImmediate(0.48);
       },
       onUpdate: (self) => {
-        // Bloom golden 3D sphere into full-screen dot grid
-        dotGrid.setBloom(self.progress);
+        // Smoothly expand from Screenshot 3 (0.48) to settled ambient grid (1.0)
+        const bloomVal = 0.48 + self.progress * 0.52;
+        dotGrid.setBloom(bloomVal);
       },
       onLeave: () => {
-        document.body.style.backgroundColor = '';
-        document.body.classList.add('theme--black');
         if (canvasEl) {
           canvasEl.classList.add('is-active');
           canvasEl.style.opacity = '1';
@@ -278,16 +310,21 @@ export function initServicesReveal(dotGrid) {
         dotGrid.setVisible(true);
         dotGrid.setBloom(1.0);
       },
+      onEnterBack: () => {
+        if (canvasEl) {
+          canvasEl.classList.add('is-active');
+          canvasEl.style.opacity = '1';
+        }
+        dotGrid.setVisible(true);
+      },
       onLeaveBack: () => {
-        document.body.style.backgroundColor = '';
-        // About section is now Deep Black, so body remains black
-        document.body.classList.add('theme--black');
+        // Scrolling up into Ideje: hide dotGrid so expanding floor handles reverse
         if (canvasEl) {
           canvasEl.classList.remove('is-active');
           canvasEl.style.opacity = '0';
         }
         dotGrid.setVisible(false);
-        dotGrid.setBloom(0.0);
+        dotGrid.setBloomImmediate(0.48);
       },
     });
   }
@@ -321,6 +358,15 @@ export function initServicesReveal(dotGrid) {
       }
       if (dotGrid) {
         dotGrid.setVisible(true);
+      }
+    },
+    onLeaveBack: () => {
+      if (canvasEl) {
+        canvasEl.classList.remove('is-active');
+        canvasEl.style.opacity = '0';
+      }
+      if (dotGrid) {
+        dotGrid.setVisible(false);
       }
     },
   });

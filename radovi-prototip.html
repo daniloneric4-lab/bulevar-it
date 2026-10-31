@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Radovi, glass boks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0A0F1E;--gold:#D9B25F;--line:#B8925A;--ink:#F3EEE3;--muted:#A7AEC2;--orange:#E8963A;
+  --glass:rgba(255,255,255,.055);--glass-b:rgba(255,255,255,.13);
+  --display:'Montserrat',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;color-scheme:dark}
+html,body{margin:0;background:var(--navy);color:var(--ink);font-family:var(--display)}
+html{overflow-x:clip}
+*{box-sizing:border-box}
+.spacer{height:60vh;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:0 16px;text-align:center}
+.pf{position:relative;height:420vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.hd{position:absolute;left:0;right:0;top:clamp(28px,6vh,64px);max-width:1180px;margin:0 auto;padding:0 max(16px,4vw);z-index:3}
+.hd .k{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--gold)}
+.hd .k b{color:var(--muted);font-weight:500;margin-right:10px}
+.hd h2{margin:8px 0 8px;font-weight:900;font-size:clamp(26px,3vw,40px);letter-spacing:-.01em}
+.hd h2 span{font-family:var(--mono);font-weight:500;color:var(--gold)}
+.hd p{margin:0;max-width:460px;color:var(--muted);font-size:clamp(13px,1.1vw,15px);line-height:1.5}
+.world{position:absolute;left:0;top:0;width:1500px;height:760px;transform-origin:0 0;will-change:transform}
+.world svg{position:absolute;left:0;top:0;overflow:visible}
+.node{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border:1.5px solid var(--line);transform:rotate(45deg);background:var(--navy)}
+.node::after{content:"";position:absolute;inset:4px;background:var(--gold);border-radius:50%}
+.dot{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;border:1.5px solid var(--line);background:var(--navy)}
+.dot::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:var(--gold)}
+.card{position:absolute;border-radius:10px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.card .chip{position:absolute;left:12px;bottom:12px;background:#0B0F1A;color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.14em;padding:7px 10px;border-radius:4px;border:1px solid rgba(255,255,255,.12)}
+.c1{background:#C2905C;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1.5px),radial-gradient(rgba(0,0,0,.07) 1px,transparent 1.5px);background-size:7px 7px,11px 11px;display:flex;align-items:center;justify-content:center}
+.c1 .w{font-weight:900;font-size:56px;letter-spacing:-.03em;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.c2{background:#F6F6F4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#111}
+.c2 .pin{width:70px;height:70px;border:9px solid #111;border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+.c2 .w{font-weight:700;font-size:56px;letter-spacing:-.02em}
+.lab{position:absolute;display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.lab a{color:var(--gold);text-decoration:none}
+/* GLASS BOKS ispod rada */
+.gbox{position:absolute;left:0;top:0;width:min(480px,calc(100vw - 32px));padding:18px 20px 16px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-b);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);box-shadow:0 24px 50px -24px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08);
+  opacity:0;transform:translateY(16px) scale(.98);filter:blur(6px);pointer-events:none;
+  transition:opacity .45s ease,transform .6s cubic-bezier(.2,.8,.2,1),filter .45s ease;z-index:4}
+.gbox.on{opacity:1;transform:none;filter:none;pointer-events:auto}
+.gbox::before{content:"";position:absolute;left:20px;top:-1px;height:1px;width:calc(100% - 40px);background:linear-gradient(90deg,var(--gold),transparent);transform:scaleX(0);transform-origin:left;transition:transform .7s .15s cubic-bezier(.2,.8,.2,1)}
+.gbox.on::before{transform:scaleX(1)}
+.gbox .row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;margin-bottom:10px;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .5s ease}
+.gbox.on .row{opacity:1;transform:none}
+.gbox.on .row:nth-child(1){transition-delay:.18s}.gbox.on .row:nth-child(2){transition-delay:.3s}
+.gbox .t{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);padding-top:3px}
+.gbox .row:nth-child(2) .t{color:var(--orange)}
+.gbox p{margin:0;font-size:14px;line-height:1.55;color:var(--ink)}
+.gbox .more{display:inline-flex;align-items:center;gap:8px;margin-top:4px;background:none;border:0;padding:6px 0;color:var(--gold);font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;opacity:0;transition:opacity .4s .42s}
+.gbox.on .more{opacity:1}
+.gbox .more i{display:inline-block;transition:transform .25s}
+.gbox .more:hover i{transform:translateX(4px)}
+.gbox .more:focus-visible,.mx button:focus-visible,.mx a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+/* VELIKI BOKS (modal) */
+dialog.mx{border:0;padding:0;background:transparent;color:var(--ink);max-width:none;max-height:none;width:100%;height:100%;overflow:auto;overscroll-behavior:contain}
+dialog.mx::backdrop{background:rgba(5,8,16,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.mx .panel{position:relative;width:min(860px,calc(100vw - 32px));margin:max(16px,7vh) auto;padding:clamp(22px,4vw,40px);border-radius:20px;background:rgba(18,24,42,.72);border:1px solid var(--glass-b);
+  -webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2);box-shadow:0 40px 90px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.08)}
+.mx[open] .panel{animation:pin .55s cubic-bezier(.2,.8,.2,1)}
+.mx.closing .panel{animation:pout .28s ease forwards}
+@keyframes pin{from{opacity:0;transform:translateY(24px) scale(.97);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+@keyframes pout{to{opacity:0;transform:translateY(14px) scale(.98)}}
+.mx .x{position:absolute;right:14px;top:14px;width:40px;height:40px;border-radius:50%;border:1px solid var(--glass-b);background:rgba(255,255,255,.04);color:var(--ink);font-size:20px;cursor:pointer}
+.mx .tag{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+.mx h3{margin:10px 0 6px;font-weight:900;font-size:clamp(26px,3.4vw,40px);letter-spacing:-.01em;padding-right:44px}
+.mx .lead{margin:0 0 24px;color:var(--muted);font-size:15px;line-height:1.6;max-width:640px}
+.mx .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mx .blk{padding:18px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+.mx .blk h4{margin:0 0 8px;font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.mx .blk:nth-child(2) h4{color:var(--orange)}
+.mx .blk p,.mx .blk li{margin:0;font-size:14.5px;line-height:1.6;color:var(--ink)}
+.mx .blk ul{margin:0;padding-left:18px}.mx .blk li+li{margin-top:4px}
+.mx .wide{grid-column:1/-1}
+.mx .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mx .stats div{font-size:13px;color:var(--muted);line-height:1.4}
+.mx .stats b{display:block;font-size:26px;font-weight:900;color:var(--ink)}
+.mx .act{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.mx .go{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#0A0F1E;font-weight:700;font-size:14px;padding:13px 20px;border-radius:999px;text-decoration:none}
+.mx .cl{background:transparent;border:1px solid var(--glass-b);color:var(--ink);font:500 14px var(--display);padding:13px 20px;border-radius:999px;cursor:pointer}
+.mx .blk,.mx .act{opacity:0;animation:rise .5s cubic-bezier(.2,.8,.2,1) forwards}
+.mx .blk:nth-child(1){animation-delay:.12s}.mx .blk:nth-child(2){animation-delay:.2s}.mx .blk:nth-child(3){animation-delay:.28s}.mx .blk:nth-child(4){animation-delay:.36s}.mx .act{animation-delay:.44s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media (max-width:640px){.mx .grid{grid-template-columns:1fr}.mx .stats{grid-template-columns:1fr 1fr 1fr}.mx .stats b{font-size:20px}.gbox{padding:16px}.gbox .row{grid-template-columns:1fr;gap:4px}}
+@media (prefers-reduced-motion:reduce){.gbox,.gbox .row,.gbox .more,.gbox::before{transition:none}.mx[open] .panel,.mx .blk,.mx .act{animation:none;opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="spacer">↓ skroluj · prototip: glass boks ispod rada + „Pročitaj više“</div>
+
+<section class="pf" id="pf"><div class="stage" id="stage">
+  <header class="hd" id="hd"><div class="k"><b>06</b>10 · Portfolio</div><h2>Naši radovi <span>(02)</span></h2><p>Odabrani sistemi, prodajne stranice i web aplikacije koje donose merljive rezultate klijentima.</p></header>
+
+  <!-- POSTOJEĆA animacija (ovde samo imitacija): zlatna linija ide od rada do rada -->
+  <div class="world" id="world" aria-hidden="false">
+    <svg width="1500" height="760" viewBox="0 0 1500 760" aria-hidden="true">
+      <path d="M80 300 H230 H710 H740 L790 350 H940 H1360 H1500" fill="none" stroke="rgba(184,146,90,.14)" stroke-width="1.5"/>
+      <path id="draw" d="M80 300 H230 H710 H740 L790 350 H940 H1360 H1500" fill="none" stroke="#B8925A" stroke-width="2"/>
+      <circle id="head" r="4" fill="#D9B25F"/>
+    </svg>
+    <span class="node" style="left:80px;top:300px"></span>
+    <span class="dot" style="left:905px;top:350px"></span>
+    <span class="node" style="left:1500px;top:350px"></span>
+
+    <article class="card c1" id="card0" style="left:230px;top:150px;width:480px;height:300px"><div class="w">MANGOEVENT</div><span class="chip">SISTEM ZA DOGAĐAJE</span></article>
+    <div class="lab" id="lab0" style="left:230px;top:462px;width:480px"><span>Mango Event System</span><a href="https://mangoevent.rs/" target="_blank" rel="noopener noreferrer">Poseti ↗</a></div>
+
+    <article class="card c2" id="card1" style="left:940px;top:180px;width:420px;height:340px"><div class="pin" aria-hidden="true"></div><div class="w">ti si ovde.</div><span class="chip">DIGITALNI SISTEM</span></article>
+    <div class="lab" id="lab1" style="left:940px;top:532px;width:420px"><span>Ti si ovde System</span><a href="https://tisiovde.com/" target="_blank" rel="noopener noreferrer">Poseti ↗</a></div>
+  </div>
+
+  <!-- NOVO: glass boksovi (zaseban sloj, prate rad, ne diraju animaciju) -->
+  <div class="gbox" id="box0" role="region" aria-label="Mango Event: problem i rešenje">
+    <div class="row"><div class="t">Problem</div><p>Organizatori su prijave, uplate i spiskove gostiju vodili ručno, kroz poruke i tabele, pa su se podaci gubili.</p></div>
+    <div class="row"><div class="t">Rešenje</div><p>Jedan sistem za događaje: online prijava, automatska potvrda i pregled svih gostiju na jednom mestu.</p></div>
+    <button class="more" type="button" data-open="0">Pročitaj više <i>→</i></button>
+  </div>
+  <div class="gbox" id="box1" role="region" aria-label="Ti si ovde: problem i rešenje">
+    <div class="row"><div class="t">Problem</div><p>Lokalna mesta nisu imala jednostavan način da ih ljudi pronađu i vide šta nude, baš kada su u blizini.</p></div>
+    <div class="row"><div class="t">Rešenje</div><p>Digitalni sistem koji povezuje lokacije, ponudu i korisnike, sa mapom i profilima koje vlasnici sami uređuju.</p></div>
+    <button class="more" type="button" data-open="1">Pročitaj više <i>→</i></button>
+  </div>
+</div></section>
+
+<div class="spacer">↓ dalje ide sledeća sekcija sajta</div>
+
+<!-- VELIKI BOKS -->
+<dialog class="mx" id="mx" aria-labelledby="mxT">
+  <div class="panel">
+    <button class="x" type="button" aria-label="Zatvori" data-close>×</button>
+    <div class="tag" id="mxTag"></div>
+    <h3 id="mxT"></h3>
+    <p class="lead" id="mxLead"></p>
+    <div class="grid">
+      <div class="blk"><h4>Problem</h4><p id="mxP"></p></div>
+      <div class="blk"><h4>Rešenje</h4><p id="mxR"></p></div>
+      <div class="blk wide"><h4>Šta smo napravili</h4><ul id="mxL"></ul></div>
+      <div class="blk wide"><h4>Rezultat</h4><div class="stats" id="mxS"></div></div>
+    </div>
+    <div class="act"><a class="go" id="mxGo" target="_blank" rel="noopener noreferrer">Poseti sajt ↗</a><button class="cl" type="button" data-close>Zatvori</button></div>
+  </div>
+</dialog>
+
+<script>
+/* TEKSTOVI (privremeni, menjaju se) */
+var WORKS=[
+  {tag:'Sistem za događaje',title:'Mango Event',url:'https://mangoevent.rs/',
+   lead:'Privremeni opis projekta. Ovde ide jedna do dve rečenice o tome ko je klijent i šta mu je bilo potrebno.',
+   p:'Prijave, uplate i spiskovi gostiju vodili su se ručno, kroz poruke, pozive i tabele. Svaki događaj je značio dane administracije, a greške u spiskovima su se primećivale tek na ulazu.',
+   r:'Napravili smo sistem u kome se gost prijavi online, odmah dobije potvrdu, a organizator u svakom trenutku vidi ko dolazi, ko je platio i koliko mesta je ostalo.',
+   list:['Stranica događaja sa online prijavom','Automatske potvrde i podsetnici','Pregled gostiju i uplata za organizatora','Izvoz spiskova za ulaz'],
+   stats:[['−70%','vremena na administraciju'],['24/7','prijave bez poziva'],['1','mesto za sve podatke']]},
+  {tag:'Digitalni sistem',title:'Ti si ovde',url:'https://tisiovde.com/',
+   lead:'Privremeni opis projekta. Ovde ide jedna do dve rečenice o ideji i ciljnoj grupi.',
+   p:'Ljudi u prolazu nisu imali brz način da vide šta se nalazi oko njih, a mala lokalna mesta nisu imala gde da se jednostavno predstave.',
+   r:'Sistem sa mapom i profilima lokacija. Vlasnici sami uređuju ponudu, a korisnik na jednom ekranu vidi šta je u blizini i kako da stigne.',
+   list:['Mapa sa lokacijama u blizini','Profili mesta koje vlasnici sami uređuju','Pretraga i filteri po kategorijama','Prilagođeno telefonu'],
+   stats:[['+120','lokacija u sistemu'],['3 s','do prvog rezultata'],['100%','na telefonu']]}
+];
+
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $=function(id){return document.getElementById(id)};
+  function cl(x){return Math.max(0,Math.min(1,x))}
+  function sm(a,b,x){x=cl((x-a)/(b-a));return x*x*(3-2*x)}
+  var pf=$('pf'),world=$('world'),draw=$('draw'),head=$('head'),L=draw.getTotalLength();
+  draw.style.strokeDasharray=L;
+  /* dužina linije na kojoj linija stiže do levog ivice rada */
+  var REACH=[150,150+480+30+Math.hypot(50,50)+150];
+  var CX=[470,1150],s=1,ty=0,cam=CX[0],shown=[false,false];
+
+  /* ---------- POSTOJEĆA ANIMACIJA (imitacija) ---------- */
+  function existingAnimation(p){
+    var len;
+    if(p<.06)len=0;else if(p<.32)len=REACH[0]*sm(.06,.32,p);else if(p<.46)len=REACH[0];
+    else if(p<.8)len=REACH[0]+(REACH[1]-REACH[0])*sm(.46,.8,p);else len=REACH[1]+(L-REACH[1])*sm(.86,.98,p);
+    draw.style.strokeDashoffset=L-len;var pt=draw.getPointAtLength(Math.max(.01,len));head.setAttribute('cx',pt.x);head.setAttribute('cy',pt.y);head.style.opacity=len>0?1:0;
+    var tgt=CX[0]+(CX[1]-CX[0])*sm(.46,.8,p);cam+=(tgt-cam)*(reduce?1:.18);
+    var vw=innerWidth,vh=innerHeight,hdB=$('hd').getBoundingClientRect().bottom;
+    s=Math.min(1,vw<760?(vw-24)/500:1,(vh-hdB-230)/400);s=Math.max(.5,s);
+    ty=hdB+16-140*s;world.style.transform='translate('+(vw/2-cam*s).toFixed(1)+'px,'+ty.toFixed(1)+'px) scale('+s.toFixed(3)+')';
+    return len}
+
+  /* ---------- NOVO: glass boks prati rad i pojavi se kad linija stigne ---------- */
+  function boxes(len){
+    for(var i=0;i<2;i++){var b=$('box'+i),lab=$('lab'+i).getBoundingClientRect(),card=$('card'+i).getBoundingClientRect();
+      var bw=b.offsetWidth,left=Math.max(16,Math.min(innerWidth-bw-16,card.left));
+      b.style.transform=b.classList.contains('on')?'':b.style.transform;
+      b.style.left=left.toFixed(1)+'px';b.style.top=(lab.bottom+14).toFixed(1)+'px';
+      var cc=(card.left+card.right)/2,inView=cc>innerWidth*.05&&cc<innerWidth*.95;
+      var on=len>=REACH[i]-1&&inView;if(on!==shown[i]){shown[i]=on;b.classList.toggle('on',on);b.setAttribute('aria-hidden',on?'false':'true');b.querySelector('.more').tabIndex=on?0:-1}}}
+
+  function frame(){var r=pf.getBoundingClientRect(),tot=pf.offsetHeight-innerHeight,p=cl(-r.top/tot);
+    var len=existingAnimation(p);boxes(len);requestAnimationFrame(frame)}
+  [0,1].forEach(function(i){$('box'+i).setAttribute('aria-hidden','true');$('box'+i).querySelector('.more').tabIndex=-1});
+  requestAnimationFrame(frame);
+
+  /* ---------- VELIKI BOKS ---------- */
+  var mx=$('mx'),opener=null;
+  function openW(i){var w=WORKS[i];opener=document.activeElement;
+    $('mxTag').textContent=w.tag;$('mxT').textContent=w.title;$('mxLead').textContent=w.lead;$('mxP').textContent=w.p;$('mxR').textContent=w.r;
+    $('mxL').innerHTML=w.list.map(function(t){return '<li>'+t+'</li>'}).join('');
+    $('mxS').innerHTML=w.stats.map(function(s){return '<div><b>'+s[0]+'</b>'+s[1]+'</div>'}).join('');
+    $('mxGo').href=w.url;$('mxGo').textContent='Poseti '+w.url.replace(/^https?:\/\//,'').replace(/\/$/,'')+' ↗';
+    document.documentElement.style.overflow='hidden';mx.classList.remove('closing');mx.showModal();mx.scrollTop=0}
+  function closeW(){if(!mx.open)return;if(reduce){fin();return}mx.classList.add('closing');setTimeout(fin,260)}
+  function fin(){mx.classList.remove('closing');mx.close();document.documentElement.style.overflow='';if(opener)opener.focus()}
+  document.addEventListener('click',function(e){var o=e.target.closest('[data-open]');if(o)openW(+o.dataset.open);if(e.target.closest('[data-close]'))closeW()});
+  mx.addEventListener('click',function(e){if(e.target===mx)closeW()});
+  mx.addEventListener('cancel',function(e){e.preventDefault();closeW()});
+})();
+</script>
+</body>
+</html>

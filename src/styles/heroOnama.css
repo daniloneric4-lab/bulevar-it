@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════════════════
+   HERO & O NAMA — Unified Pinned Video Scrub & Dot Figures Stage
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --navy: #080C14;
+  --black: #080C14;
+  --line: #2A3658;
+  --gold: #D9B25F;
+  --orange: #E8963A;
+  --ink: #F3EEE3;
+  --muted: #A7AEC2;
+  --display: 'Montserrat', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+
+.track--hero-onama {
+  position: relative;
+  height: 850vh;
+  /* providna: u poslednjih 100vh se preklapa sa sekcijom Ideje (margin-top:-100vh) i ne sme da je prekriva */
+  background-color: transparent !important;
+  color: var(--ink);
+  font-family: var(--display);
+  overflow-x: clip;
+  z-index: 10;
+}
+
+.stage--hero-onama {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #080C14 !important;
+}
+
+.stage--hero-onama .hv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #080C14 !important;
+  display: block;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Suppress WebKit / iOS Safari start-playback button and native controls */
+.stage--hero-onama .hv::-webkit-media-controls,
+.stage--hero-onama .hv::-webkit-media-controls-start-playback-button,
+.stage--hero-onama .hv::-webkit-media-controls-play-button,
+.stage--hero-onama .hv::-webkit-media-controls-panel,
+video::-webkit-media-controls,
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-panel,
+*::-webkit-media-controls-start-playback-button,
+*::-webkit-media-controls-play-button,
+*::-webkit-media-controls-panel {
+  display: none !important;
+  -webkit-appearance: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.stage--hero-onama canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 3;
+}
+
+.hero-onama-bar {
+  display: none !important;
+}
+
+.hero-onama-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(22px, 6vh, 64px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+  z-index: 10;
+}
+
+.hero-onama-cap .wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(16px, 4vw, 56px);
+  align-items: end;
+}
+
+.hero-onama-cap .meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hero-onama-cap .tag {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.hero-onama-cap .cnt {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-onama-cap .cnt b {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+.hero-onama-cap .txt {
+  max-width: 640px;
+}
+
+.hero-onama-cap .txt h2 {
+  margin: 0 0 8px;
+  font-weight: 900;
+  font-size: clamp(20px, 2.2vw, 32px);
+  line-height: 1.12;
+  letter-spacing: -.01em;
+  min-height: 1.15em;
+  color: var(--ink);
+}
+
+.hero-onama-cap .txt p {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.55;
+  min-height: 3.1em;
+}
+
+.hero-onama-cap .noise {
+  font-family: var(--mono);
+  color: var(--orange);
+}
+
+.hero-onama-cap .rest {
+  color: transparent;
+}
+
+.stage--hero-onama .hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 28px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgba(167, 174, 194, .75);
+  pointer-events: none;
+  transition: opacity .3s;
+  z-index: 15;
+}
+
+.stage--hero-onama .hint i {
+  display: block;
+  width: 1px;
+  height: 28px;
+  margin: 10px auto 0;
+  background: linear-gradient(var(--gold), transparent);
+  animation: heroHintAnim 1.6s ease-in-out infinite;
+}
+
+@keyframes heroHintAnim {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage--hero-onama .hint i {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-onama-cap .wrap {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .hero-onama-cap .meta {
+    flex-direction: row;
+    gap: 14px;
+    align-items: baseline;
+  }
+}

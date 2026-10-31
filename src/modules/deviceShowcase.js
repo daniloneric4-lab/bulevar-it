@@ -13,6 +13,9 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+// Feature toggle: Set to false to temporarily hide laptop per user request (can be set to true to restore instantly)
+export const SHOW_LAPTOP = false;
+
 export class DeviceShowcase {
   constructor(containerSelector, canvasSelector) {
     this.container = document.querySelector(containerSelector);
@@ -22,6 +25,8 @@ export class DeviceShowcase {
       console.warn('[DeviceShowcase] Container or canvas not found');
       return;
     }
+
+    this.showLaptop = SHOW_LAPTOP;
 
     this.scene = null;
     this.camera = null;
@@ -59,7 +64,7 @@ export class DeviceShowcase {
     this.isHoveringPhone = false;
 
     this.activeModal = null;
-    this.activeDevice = 'laptop';
+    this.activeDevice = this.showLaptop ? 'laptop' : 'phone';
     this.scrollProgress = 0;
     this.currentDevProg = 0;
     this.phoneBaseRotY = Math.PI;
@@ -69,21 +74,37 @@ export class DeviceShowcase {
     this.laptopBaseScale = 0.864; // Increased by 20% (from 0.72) for imposing desktop presence
     this.phoneBaseScale = 23.0;
     this.laptopRestY = -0.22;
-    this.phoneRestY = -0.55;
+    this.phoneRestY = this.showLaptop ? -0.55 : -0.12; // Elevated to laptop position when laptop is hidden
     this.deviceSeparation = 7.8;
-    this.targetLaptopY = this.laptopRestY;
-    this.targetPhoneY = this.phoneRestY - this.deviceSeparation;
+    this.targetLaptopY = this.showLaptop ? this.laptopRestY : 50;
+    this.targetPhoneY = this.showLaptop ? (this.phoneRestY - this.deviceSeparation) : this.phoneRestY;
+    this.isInView = false;
+    this._lastTexUpdate = 0;
 
     this.init();
   }
 
   init() {
+    this.setupVisibilityObserver();
     this.setupScene();
     this.setupLights();
     this.createScreenTextures();
     this.loadModels();
     this.bindEvents();
     this.animate();
+  }
+
+  setupVisibilityObserver() {
+    if (!this.container) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          this.isInView = entry.isIntersecting;
+        });
+      },
+      { rootMargin: '300px 0px' }
+    );
+    observer.observe(this.container);
   }
 
   setupScene() {
@@ -103,7 +124,7 @@ export class DeviceShowcase {
       powerPreference: 'high-performance',
     });
     this.renderer.setSize(width, height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.15;
 
@@ -113,7 +134,7 @@ export class DeviceShowcase {
     // Initial Dual Device positions: Laptop on top, Phone below with reduced gap
     this.laptopGroup.position.set(0, this.targetLaptopY, 0);
     this.laptopGroup.scale.set(this.laptopBaseScale, this.laptopBaseScale, this.laptopBaseScale);
-    this.laptopGroup.visible = true;
+    this.laptopGroup.visible = this.showLaptop;
 
     this.phoneGroup.position.set(0, this.targetPhoneY, 0.4);
     this.phoneGroup.scale.set(this.phoneBaseScale, this.phoneBaseScale, this.phoneBaseScale);
@@ -163,8 +184,10 @@ export class DeviceShowcase {
 
     this.desktopTexture = new THREE.CanvasTexture(this.desktopCanvas);
     this.desktopTexture.colorSpace = THREE.SRGBColorSpace;
-    this.desktopTexture.minFilter = THREE.LinearFilter;
+    this.desktopTexture.generateMipmaps = true;
+    this.desktopTexture.minFilter = THREE.LinearMipmapLinearFilter;
     this.desktopTexture.magFilter = THREE.LinearFilter;
+    this.desktopTexture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
 
     // 2. Mobile Master Website Canvas (720 x 4000) — Full rich mobile application experience
     this.mobileMasterCanvas = document.createElement('canvas');
@@ -182,8 +205,10 @@ export class DeviceShowcase {
     this.updateMobileScreen(0);
 
     this.mobileTexture = new THREE.CanvasTexture(this.mobileCanvas);
-    this.mobileTexture.minFilter = THREE.LinearFilter;
+    this.mobileTexture.generateMipmaps = true;
+    this.mobileTexture.minFilter = THREE.LinearMipmapLinearFilter;
     this.mobileTexture.magFilter = THREE.LinearFilter;
+    this.mobileTexture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
 
     // 3. Dark Titanium Backlit Keyboard Deck Texture
     this.keyboardTexture = this.createKeyboardTexture();
@@ -986,9 +1011,14 @@ export class DeviceShowcase {
         this.laptopGroup.add(model);
         this.isLaptopLoaded = true;
 
-        // Initial lid pose based on scroll
-        this.setLaptopOpen(0);
-        this.setDeviceScroll(this.scrollProgress || 0);
+        if (this.showLaptop) {
+          this.laptopGroup.visible = true;
+          this.setLaptopOpen(0);
+          this.setDeviceScroll(this.scrollProgress || 0);
+        } else {
+          this.laptopGroup.visible = false;
+          this.laptopGroup.position.set(0, 50, 0);
+        }
         console.log('[DeviceShowcase] New laptop model loaded with untouched native PBR materials, animated lid & scrolling screen');
       },
       undefined,
@@ -1034,8 +1064,15 @@ export class DeviceShowcase {
         this.phoneGroup.add(model);
         this.isPhoneLoaded = true;
 
-        // Initially parked out of view with screen off
-        this.setPhoneOpen(0);
+        if (this.showLaptop) {
+          // Initially parked out of view with screen off
+          this.setPhoneOpen(0);
+        } else {
+          // Immediately active & elevated at laptop position with full OLED brightness
+          this.phoneGroup.visible = true;
+          this.phoneGroup.position.set(0, this.phoneRestY, 0.4);
+          this.setPhoneOpen(1.0);
+        }
         console.log('[DeviceShowcase] iPhone loaded as Black Titanium model & mapped cleanly');
       },
       undefined,
@@ -1103,6 +1140,14 @@ export class DeviceShowcase {
     this.scrollProgress = progress;
     this.currentDevProg = progress;
 
+    if (!this.showLaptop) {
+      this.laptopGroup.visible = false;
+      this.phoneGroup.visible = true;
+      this.targetPhoneY = this.phoneRestY;
+      this.setPhoneOpen(1.0);
+      return;
+    }
+
     this.laptopGroup.visible = true;
     this.phoneGroup.visible = true;
 
@@ -1144,6 +1189,9 @@ export class DeviceShowcase {
    * The 3D model stands at 90° straight-on facing directly towards the viewer
    */
   openModal(type) {
+    if (!this.showLaptop) {
+      type = 'phone';
+    }
     this.activeModal = type;
     this.activeDevice = type;
 
@@ -1156,6 +1204,10 @@ export class DeviceShowcase {
     const switchPhone = document.getElementById('modal-switch-phone');
 
     if (!modal) return;
+
+    if (switchLaptop) {
+      switchLaptop.style.display = this.showLaptop ? '' : 'none';
+    }
 
     // Hide top navigation and section header while details modal is active
     document.body.classList.add('is-device-modal-open');
@@ -1289,11 +1341,13 @@ export class DeviceShowcase {
       this.laptopGroup.position.set(0, this.targetLaptopY, 0);
       this.laptopGroup.scale.set(this.laptopBaseScale, this.laptopBaseScale, this.laptopBaseScale);
       this.laptopGroup.rotation.set(0, 0, 0);
+      this.laptopGroup.visible = this.showLaptop;
     }
     if (this.phoneGroup) {
       this.phoneGroup.position.set(0, this.targetPhoneY, 0.4);
       this.phoneGroup.scale.set(this.phoneBaseScale, this.phoneBaseScale, this.phoneBaseScale);
       this.phoneGroup.rotation.set(this.phoneBaseRotX, this.phoneBaseRotY, 0);
+      this.phoneGroup.visible = true;
     }
 
     // Restore exact scroll stage positions
@@ -1327,7 +1381,9 @@ export class DeviceShowcase {
     // Clicking active device opens the details modal
     this.container.addEventListener('click', (e) => {
       if (e.target.closest('#device-modal') || e.target.closest('#device-click-hint')) return;
-      if (this.isHoveringPhone && this.phoneGroup?.visible) {
+      if (!this.showLaptop) {
+        this.openModal('phone');
+      } else if (this.isHoveringPhone && this.phoneGroup?.visible) {
         this.openModal('phone');
       } else {
         this.openModal('laptop');
@@ -1339,7 +1395,11 @@ export class DeviceShowcase {
     if (hintBtn) {
       hintBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.openModal('laptop');
+        if (!this.showLaptop) {
+          this.openModal('phone');
+        } else {
+          this.openModal('laptop');
+        }
       });
     }
 
@@ -1397,6 +1457,11 @@ export class DeviceShowcase {
   animate() {
     requestAnimationFrame(this.animate.bind(this));
 
+    // When device section is not in view and no modal is active, skip all rendering and updates
+    if (!this.isInView && !this.activeModal) {
+      return;
+    }
+
     this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.06;
     this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.06;
 
@@ -1429,16 +1494,21 @@ export class DeviceShowcase {
       }
     }
 
-    // ─── Continuous Independent Auto-Scrolling of Full Websites on Both Devices ───
-    const maxDesktopScroll = 3600 - 800; // 2800px
-    this.desktopScrollY = (this.desktopScrollY + 0.55) % maxDesktopScroll;
-    this.updateDesktopScreen(this.desktopScrollY);
-    if (this.desktopTexture) this.desktopTexture.needsUpdate = true;
+    // ─── Continuous Independent Auto-Scrolling of Full Websites on Both Devices (throttled to ~25 FPS) ───
+    const now = performance.now();
+    if (!this._lastTexUpdate || now - this._lastTexUpdate > 40) {
+      this._lastTexUpdate = now;
 
-    const maxMobileScroll = 4000 - 1520; // 2480px
-    this.mobileScrollY = (this.mobileScrollY + 0.70) % maxMobileScroll;
-    this.updateMobileScreen(this.mobileScrollY);
-    if (this.mobileTexture) this.mobileTexture.needsUpdate = true;
+      const maxDesktopScroll = 3600 - 800; // 2800px
+      this.desktopScrollY = (this.desktopScrollY + 1.2) % maxDesktopScroll;
+      this.updateDesktopScreen(this.desktopScrollY);
+      if (this.desktopTexture) this.desktopTexture.needsUpdate = true;
+
+      const maxMobileScroll = 4000 - 1520; // 2480px
+      this.mobileScrollY = (this.mobileScrollY + 1.5) % maxMobileScroll;
+      this.updateMobileScreen(this.mobileScrollY);
+      if (this.mobileTexture) this.mobileTexture.needsUpdate = true;
+    }
 
     // Raycast hover detection on active visible devices only
     if (!this.activeModal && this.camera && this.mouseCoords.x > -900) {

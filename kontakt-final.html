@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bulevar.IT kontakt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#191F32;--gold:#D9B25F;--or:#E8963A;--ink:#F3EEE3;--mut:#A7AEC2;--line:#2A3658}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--navy:#191F32}}
+:root[data-theme="dark"]{--navy:#191F32}
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:clip}
+html,body{background:#0B1020;color:var(--ink);font-family:Montserrat,system-ui,sans-serif}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+.kontakt{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:12vh 6vw 8vh;border-bottom:1px solid var(--line)}
+.kontakt .lbl{font-size:12px;letter-spacing:.18em;color:var(--mut);text-transform:uppercase;margin-bottom:22px}
+.kontakt h2{font-weight:900;font-size:clamp(34px,6vw,84px);line-height:.98;letter-spacing:-.02em;max-width:14ch}
+.kontakt h2 em{font-style:normal;color:var(--gold)}
+.kontakt .ph{margin-top:44px;border:1px dashed var(--line);border-radius:18px;padding:34px;color:var(--mut);font-size:13px;max-width:640px}
+.kontakt .hint{margin-top:56px;color:var(--mut);font-size:12px;letter-spacing:.14em;display:flex;gap:10px;align-items:center}
+.kontakt .hint i{display:inline-block;width:1px;height:38px;background:linear-gradient(var(--gold),transparent);animation:drip 1.6s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+.ft{position:relative;height:270vh}
+/* pozadina footera = tačno teget iz logoa, da logo izgleda identično */
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--navy)}
+.glow{position:absolute;left:50%;top:48%;width:110vmax;height:64vmax;transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,rgba(217,178,95,.22),rgba(232,150,58,.05) 45%,transparent 70%);opacity:0;pointer-events:none}
+.logo{position:relative;width:min(980px,92vw);will-change:transform;transform-origin:50% 55%}
+.logo svg{display:block;width:100%;height:auto;overflow:visible}
+.glyph{font-family:Montserrat,sans-serif;font-weight:900;fill:#E8963A}
+.sub{margin-top:22px;text-align:center;font-size:clamp(10px,1.1vw,13px);letter-spacing:.32em;color:var(--mut);white-space:nowrap}
+.sub span{display:inline-block;min-width:.3em}
+.sub .r{color:var(--or)} .sub .h{color:transparent}
+
+.meta{position:absolute;left:0;right:0;bottom:0;padding:22px 6vw 26px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-size:12px;color:var(--mut);border-top:1px solid rgba(167,174,194,.14);opacity:0;transform:translateY(16px)}
+.meta a{color:var(--mut);text-decoration:none;margin-left:22px}
+.meta a:first-child{margin-left:0}
+.meta a:hover{color:var(--gold)}
+
+
+@media (max-width:640px){
+  .logo{width:96vw}
+  .meta{justify-content:center;text-align:center}
+  .meta a{margin-left:14px}
+  .sub{letter-spacing:.16em;font-size:9px}
+}
+/* ================= KONTAKT (clean + iOS liquid glass) ================= */
+.kf{--spring:cubic-bezier(.2,1.25,.35,1);position:relative;background:#191F32;padding:18vh 6vw 16vh;overflow:hidden;overflow:clip}
+.kf-grid{position:relative;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-areas:"head form" "dir form";column-gap:7vw;align-items:start}
+.kf-head{grid-area:head}.kf-wrap{grid-area:form;position:relative}.kf-dir{grid-area:dir}
+.kf .lbl{font-size:12px;letter-spacing:.18em;color:var(--mut);text-transform:uppercase;margin-bottom:24px}
+.kf h2{font-weight:900;font-size:clamp(40px,4.6vw,68px);line-height:1.02;letter-spacing:-.025em}
+.kf h2>span{display:block}
+.kf h2>.g{color:var(--gold)}
+.kf .lead{margin-top:24px;max-width:36ch;color:var(--mut);font-size:16px;line-height:1.6}
+.dec .r{color:var(--or)} .dec .h{color:transparent}
+
+/* direktni kontakti: čista lista, bez kutija */
+.kf-dir{margin-top:56px;border-top:1px solid rgba(255,255,255,.08)}
+.dl{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.08);
+  color:var(--ink);text-decoration:none}
+.dl .ic{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--gold);
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.32);-webkit-backdrop-filter:blur(24px) saturate(200%);backdrop-filter:blur(24px) saturate(200%);
+  transition:background .35s,color .35s,border-color .35s,box-shadow .35s,transform .5s var(--spring)}
+.dl .ic svg{width:20px;height:20px;color:inherit;transform:none!important}
+.dl:hover .ic{background:rgba(217,178,95,.16);border-color:rgba(255,255,255,.65);box-shadow:0 0 16px rgba(217,178,95,.25);transform:scale(1.06)}
+.dl .tx{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.dl .k{font-size:11px;letter-spacing:.16em;color:var(--mut)}
+.dl .v{flex:1;font-size:clamp(17px,1.5vw,20px);font-weight:600;transition:color .3s,transform .5s var(--spring)}
+.dl .go{width:18px;height:18px;color:var(--mut);transition:transform .5s var(--spring),color .3s;align-self:center}
+.dl:hover .v{color:var(--gold);transform:translateX(6px)}
+.dl:hover .go{color:var(--gold);transform:translate(3px,-3px)}
+
+/* staklo treba nešto iza sebe: dve meke, spore mrlje samo iza kartice */
+.kf-wrap .fx{position:absolute;inset:-12%;pointer-events:none;z-index:0}
+.kf-wrap .fx i{position:absolute;border-radius:50%;filter:blur(60px);animation:kdrift 18s ease-in-out infinite alternate}
+.kf-wrap .fx i:nth-child(1){width:60%;height:55%;right:-4%;top:2%;background:radial-gradient(circle,rgba(217,178,95,.42),transparent 70%)}
+.kf-wrap .fx i:nth-child(2){width:62%;height:60%;left:-6%;bottom:0;background:radial-gradient(circle,rgba(70,96,170,.55),transparent 70%);animation-duration:24s}
+@keyframes kdrift{to{transform:translate(-8%,6%) scale(1.12)}}
+
+/* ---------- iOS liquid glass (kao ranije) ---------- */
+.lg{position:relative;z-index:1;border-radius:32px;
+  background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.035) 45%,rgba(255,255,255,.07));
+  -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(255,255,255,.06),0 30px 70px -25px rgba(0,0,0,.65);
+  overflow:hidden;overflow:clip;isolation:isolate;padding:30px}
+.lg:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.07) 45%,transparent 55%)}
+
+/* iOS grupisana polja */
+.grp{border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+.row{position:relative;display:flex;align-items:center;gap:14px;padding:0 18px;min-height:60px}
+.row+.row:before{content:"";position:absolute;top:0;left:18px;right:0;height:1px;background:rgba(255,255,255,.09)}
+.row label{flex:none;width:86px;font-size:14px;font-weight:600;color:var(--ink)}
+.row input{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--ink);font:500 16px Montserrat,sans-serif;padding:18px 0}
+.row input::placeholder{color:rgba(167,174,194,.55)}
+.row .pre{color:var(--mut);font:500 16px Montserrat,sans-serif;margin-right:-6px}
+.row:focus-within{background:rgba(255,255,255,.04)}
+.row .err{position:absolute;right:16px;font-size:12px;color:var(--or);opacity:0;transition:opacity .25s;pointer-events:none}
+.row.bad .err{opacity:1}.row.bad input::placeholder{color:transparent}
+.row.bad{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+
+.q{font-size:13px;color:var(--mut);margin:24px 4px 10px}
+
+/* izbor: pill dugmići isti kao na sajtu (uloga-chip) */
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font:500 11px "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);
+  padding:10px 14px;border-radius:999px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.32);
+  -webkit-backdrop-filter:blur(24px) saturate(200%);backdrop-filter:blur(24px) saturate(200%);
+  transition:color .3s,background .3s,border-color .3s,box-shadow .3s,transform .45s var(--spring)}
+.pill:hover{color:var(--ink);border-color:rgba(255,255,255,.5)}
+.pill:active{transform:scale(.96)}
+.pill.on{color:var(--gold);background:rgba(217,178,95,.16);border-color:rgba(255,255,255,.65);box-shadow:0 0 16px rgba(217,178,95,.18)}
+
+.pnl{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .55s cubic-bezier(.2,1,.3,1),opacity .35s}
+.pnl>div{overflow:hidden}
+.pnl.open{grid-template-rows:1fr;opacity:1}
+.pnl .inner{padding-top:12px}
+.pnl textarea{display:block;width:100%;min-height:104px;resize:none;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+  color:var(--ink);font:500 15px/1.5 Montserrat,sans-serif;padding:16px 18px;outline:none}
+.pnl textarea::placeholder{color:rgba(167,174,194,.55)}
+.pnl textarea:focus{background:rgba(255,255,255,.08)}
+.pnl .note{font-size:14px;line-height:1.55;color:var(--mut);margin:2px 4px 12px}
+.pnl .note b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+/* čipovi problema = isti pill stil */
+
+.send{margin-top:26px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;
+  font:800 15px Montserrat,sans-serif;color:#0B1020;padding:17px 24px;border-radius:999px;background:#D9B25F;
+  transition:transform .45s var(--spring),background .3s}
+.send:hover{background:#E4C273;transform:translateY(-1px)}
+.send:active{transform:scale(.98)}
+.send svg{width:17px;height:17px;transition:transform .4s}
+.send:hover svg{transform:translateX(4px)}
+.send .dots{display:none;gap:6px}
+.send.load{pointer-events:none}.send.load .t{display:none}.send.load .dots{display:flex}
+.send .dots i{width:6px;height:6px;border-radius:50%;background:#0B1020;animation:bop .9s infinite}
+.send .dots i:nth-child(2){animation-delay:.12s}.send .dots i:nth-child(3){animation-delay:.24s}
+@keyframes bop{50%{transform:translateY(-5px);opacity:.5}}
+.legal{margin-top:12px;font-size:11.5px;color:rgba(167,174,194,.6);line-height:1.5;text-align:center}
+.hp{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
+
+/* uspeh */
+.done{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;opacity:0;pointer-events:none;transition:opacity .5s}
+.lg.sent .done{opacity:1;pointer-events:auto}
+.lg form{transition:opacity .4s,transform .6s,filter .4s}
+.lg.sent form{opacity:0;transform:scale(.97);filter:blur(8px);pointer-events:none}
+.done svg{width:84px;height:84px;margin-bottom:20px}
+.done circle,.done path{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.done circle{stroke-dasharray:283;stroke-dashoffset:283}.done path{stroke-dasharray:60;stroke-dashoffset:60}
+.lg.sent .done circle{transition:stroke-dashoffset .9s .15s cubic-bezier(.6,0,.2,1);stroke-dashoffset:0}
+.lg.sent .done path{transition:stroke-dashoffset .5s .9s cubic-bezier(.6,0,.2,1);stroke-dashoffset:0}
+.done h4{font-weight:900;font-size:clamp(30px,3vw,42px);letter-spacing:-.02em}
+.done p{margin-top:12px;color:var(--mut);max-width:32ch;line-height:1.6}
+.done p b{color:var(--ink)}
+.done button{margin-top:24px}
+
+/* ulazak: kartica ulazi kao AirDrop (isto kao glass blokovi), levo blagi fade */
+.kf-head,.kf-dir{opacity:0;transform:translateY(24px);transition:opacity .8s,transform 1s var(--spring)}
+.kf-head.in,.kf-dir.in{opacity:1;transform:none}
+.kf-wrap .lg{opacity:0}
+.kf-wrap.in .lg{animation:airdropR 1.05s var(--spring) both}
+@keyframes airdropR{
+  0%{opacity:0;transform:translateX(40vw) scale(.18);filter:blur(22px) brightness(1.8);border-radius:999px}
+  35%{opacity:1;filter:blur(8px) brightness(1.4)}
+  62%{transform:translateX(-1.5%) scale(1.03);filter:blur(0) brightness(1.08)}
+  80%{transform:translateX(.4%) scale(.995)}
+  100%{opacity:1;transform:none;filter:none}}
+.ripple{position:absolute;left:50%;top:50%;width:140%;aspect-ratio:1;border-radius:50%;pointer-events:none;z-index:2;transform:translate(-50%,-50%) scale(0);
+  background:radial-gradient(circle,transparent 58%,rgba(217,178,95,.45) 63%,rgba(255,255,255,.25) 64.5%,transparent 70%);opacity:0}
+.kf-wrap.in .ripple{animation:ripple .9s .5s ease-out both}
+@keyframes ripple{0%{opacity:.9;transform:translate(-50%,-50%) scale(.15)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+
+@media (max-width:900px){
+  .kf{padding:12vh 16px 10vh}
+  .kf-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "form" "dir";row-gap:36px}
+  .kf-dir{margin-top:8px}
+  .lg{padding:20px;border-radius:28px}
+  .row label{width:72px;font-size:13px}
+}
+@media (prefers-reduced-motion: reduce){.kf-head,.kf-dir,.kf-wrap .lg{opacity:1;transform:none;animation:none!important}.kf-wrap .fx i{animation:none}}
+
+</style>
+</head>
+<body>
+
+<section class="kf" id="kontakt">
+  <div class="kf-grid">
+
+    <div class="kf-head">
+      <p class="lbl mono">10 — Kontakt</p>
+      <h2><span class="dec" data-t="Imate ideju?">Imate ideju?</span>
+        <span class="dec g" data-t="Ili je sklapamo zajedno.">Ili je sklapamo zajedno.</span></h2>
+      <p class="lead">Ostavite ime i broj. Javljamo se u roku od 24 sata, a prvi razgovor je besplatan.</p>
+    </div>
+
+    <div class="kf-wrap">
+      <div class="fx"><i></i><i></i></div>
+      <div class="lg" id="kfCard"><span class="ripple"></span>
+        <form id="kfForm" novalidate>
+          <div class="grp">
+            <div class="row" data-req="ime"><label for="f-ime">Ime</label>
+              <input id="f-ime" name="ime" autocomplete="name" placeholder="Marko Marković"><span class="err">Obavezno</span></div>
+            <div class="row" data-req="tel"><label for="f-tel">Telefon</label><span class="pre">+381</span>
+              <input id="f-tel" name="telefon" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="60 123 4567"><span class="err">Proverite broj</span></div>
+            <div class="row" data-req="mail"><label for="f-mail">Email</label>
+              <input id="f-mail" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ime@firma.rs"><span class="err">Proverite email</span></div>
+          </div>
+
+          <p class="q">Imate li već neku ideju?</p>
+          <div class="pills" id="seg">
+            <button type="button" class="pill" data-v="da">Imam ideju</button>
+            <button type="button" class="pill" data-v="ne">Još nemam</button>
+          </div>
+
+          <div class="pnl" id="pDa"><div><div class="inner">
+            <textarea id="f-ideja" name="ideja" placeholder="Šta ste zamislili? Ukratko, npr. sajt za apartmane sa rezervacijama bez provizije…"></textarea>
+          </div></div></div>
+
+          <div class="pnl" id="pNe"><div><div class="inner">
+            <p class="note"><b>Nema problema, za to smo tu.</b> Označite šta vas muči, a ideju sklapamo zajedno.</p>
+            <div class="pills" id="muke">
+              <button type="button" class="pill">Nemam sajt</button>
+              <button type="button" class="pill">Sajt ne donosi upite</button>
+              <button type="button" class="pill">Zavisim od Booking-a / Wolt-a</button>
+              <button type="button" class="pill">Previše ručnog posla</button>
+              <button type="button" class="pill">Želim više kupaca</button>
+            </div>
+          </div></div></div>
+
+          <p class="q">Kako da vas kontaktiramo?</p>
+          <div class="pills" id="kanal">
+            <button type="button" class="pill on" data-k="poziv">Poziv</button>
+            <button type="button" class="pill" data-k="WhatsApp">WhatsApp</button>
+            <button type="button" class="pill" data-k="email">Email</button>
+          </div>
+
+          <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="send" type="submit"><span class="t">Pošaljite upit</span>
+            <svg class="t" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8h11M9.5 4l4 4-4 4"/></svg>
+            <span class="dots"><i></i><i></i><i></i></span></button>
+          <p class="legal">Slanjem pristajete da vas kontaktiramo u vezi sa upitom.</p>
+        </form>
+
+        <div class="done" aria-live="polite">
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45"/><path d="M30 52 L44 65 L71 37"/></svg>
+          <h4 class="dec" id="doneH" data-t="Stiglo je.">Stiglo je.</h4>
+          <p id="doneP">Hvala! Javljamo se u roku od 24 sata.</p>
+          <button type="button" class="pill" id="again">Pošaljite još jednu</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="kf-dir">
+      <a class="dl" href="tel:+381600000000"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><span class="tx"><span class="k mono">TELEFON</span><span class="v">+381 60 000 0000</span></span>
+        <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
+      <a class="dl" href="mailto:kontakt@bulevar.it"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span class="tx"><span class="k mono">EMAIL</span><span class="v">kontakt@bulevar.it</span></span>
+        <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
+      <a class="dl" href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".9" fill="currentColor" stroke="none"/></svg></span><span class="tx"><span class="k mono">INSTAGRAM</span><span class="v">@bulevar.it</span></span>
+        <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
+    </div>
+
+  </div>
+</section>
+
+
+<footer class="ft" id="ft">
+  <div class="stage">
+    <div class="glow" id="glow"></div>
+
+    <div class="logo" id="logo">
+      <svg viewBox="320 60 1310 960" aria-label="Bulevar.IT">
+        <defs>
+          <linearGradient id="gB" gradientUnits="userSpaceOnUse" x1="0" y1="200" x2="0" y2="732">
+            <stop offset="0" stop-color="#F6EFC4"/><stop offset=".42" stop-color="#F2E7B8"/>
+            <stop offset=".62" stop-color="#D9C08A"/><stop offset=".76" stop-color="#C9AA72"/><stop offset="1" stop-color="#C7A770"/>
+          </linearGradient>
+          <linearGradient id="gA" gradientUnits="userSpaceOnUse" x1="0" y1="77" x2="0" y2="700">
+            <stop offset="0" stop-color="#F7F1CB"/><stop offset=".55" stop-color="#EBDDAA"/><stop offset="1" stop-color="#C9AA72"/>
+          </linearGradient>
+          <linearGradient id="gArc" gradientUnits="userSpaceOnUse" x1="0" y1="722" x2="0" y2="770">
+            <stop offset="0" stop-color="#D2B47C"/><stop offset="1" stop-color="#C4A26B"/>
+          </linearGradient>
+          <linearGradient id="gT" gradientUnits="userSpaceOnUse" x1="0" y1="792" x2="0" y2="1004">
+            <stop offset="0" stop-color="#F4EEBF"/><stop offset=".3" stop-color="#E8D9A8"/><stop offset=".6" stop-color="#D6BB86"/><stop offset="1" stop-color="#C8A673"/>
+          </linearGradient>
+          <clipPath id="bldClip"><rect x="642.7" y="200" width="136" height="531"/><rect x="830.2" y="200" width="135" height="531"/><rect x="1005.2" y="200" width="150" height="531"/><rect x="1191.7" y="200" width="135" height="531"/></clipPath>
+          <clipPath id="ground"><rect x="0" y="-400" width="2000" height="1131"/></clipPath>
+          <mask id="arcMask" maskUnits="userSpaceOnUse" x="300" y="680" width="1350" height="110">
+            <path id="arcRev" d="M336 766 Q975 690 1615 768" stroke="#fff" stroke-width="90" fill="none"/>
+          </mask>
+          <mask id="arrMask" maskUnits="userSpaceOnUse" x="380" y="40" width="1100" height="700">
+            <path id="arrRev" d="M425 690 L799 517 L833 537 L978 405 L1013 426 L1352 136" stroke="#fff" stroke-width="84" stroke-linecap="butt" stroke-linejoin="round" fill="none"/>
+          </mask>
+        </defs>
+
+        <g id="dust"></g>
+        <g clip-path="url(#ground)"><g id="blds"></g></g>
+        <path id="arc" d="M336.0 766.5 L336.0 763.6 L340.0 763.0 L344.0 762.5 L348.0 761.9 L352.0 761.4 L356.0 760.8 L360.0 760.3 L364.0 759.7 L368.0 759.2 L372.0 758.7 L376.0 758.2 L380.0 757.6 L384.0 757.1 L388.0 756.6 L392.0 756.1 L396.0 755.6 L400.0 755.1 L404.0 754.6 L408.0 754.2 L412.0 753.7 L416.0 753.2 L420.0 752.7 L424.0 752.3 L428.0 751.8 L432.0 751.3 L436.0 750.9 L440.0 750.4 L444.0 750.0 L448.0 749.6 L452.0 749.1 L456.0 748.7 L460.0 748.3 L464.0 747.8 L468.0 747.4 L472.0 747.0 L476.0 746.6 L480.0 746.2 L484.0 745.8 L488.0 745.4 L492.0 745.0 L496.0 744.6 L500.0 744.2 L504.0 743.8 L508.0 743.4 L512.0 743.1 L516.0 742.7 L520.0 742.3 L524.0 742.0 L528.0 741.6 L532.0 741.3 L536.0 740.9 L540.0 740.6 L544.0 740.2 L548.0 739.9 L552.0 739.5 L556.0 739.2 L560.0 738.9 L564.0 738.6 L568.0 738.2 L572.0 737.9 L576.0 737.6 L580.0 737.3 L584.0 737.0 L588.0 736.7 L592.0 736.4 L596.0 736.1 L600.0 735.8 L604.0 735.5 L608.0 735.2 L612.0 735.0 L616.0 734.7 L620.0 734.4 L624.0 734.1 L628.0 733.9 L632.0 733.6 L636.0 733.4 L640.0 733.1 L644.0 732.9 L648.0 732.6 L652.0 732.4 L656.0 732.1 L660.0 731.9 L664.0 731.6 L668.0 731.4 L672.0 731.2 L676.0 731.0 L680.0 730.7 L684.0 730.5 L688.0 730.3 L692.0 730.1 L696.0 729.9 L700.0 729.7 L704.0 729.5 L708.0 729.3 L712.0 729.1 L716.0 728.9 L720.0 728.7 L724.0 728.5 L728.0 728.3 L732.0 728.2 L736.0 728.0 L740.0 727.8 L744.0 727.7 L748.0 727.5 L752.0 727.3 L756.0 727.2 L760.0 727.0 L764.0 726.9 L768.0 726.7 L772.0 726.6 L776.0 726.4 L780.0 726.3 L784.0 726.1 L788.0 726.0 L792.0 725.9 L796.0 725.7 L800.0 725.6 L804.0 725.5 L808.0 725.4 L812.0 725.3 L816.0 725.2 L820.0 725.0 L824.0 724.9 L828.0 724.8 L832.0 724.7 L836.0 724.6 L840.0 724.5 L844.0 724.4 L848.0 724.4 L852.0 724.3 L856.0 724.2 L860.0 724.1 L864.0 724.0 L868.0 724.0 L872.0 723.9 L876.0 723.8 L880.0 723.8 L884.0 723.7 L888.0 723.6 L892.0 723.6 L896.0 723.5 L900.0 723.5 L904.0 723.4 L908.0 723.4 L912.0 723.3 L916.0 723.3 L920.0 723.3 L924.0 723.2 L928.0 723.2 L932.0 723.2 L936.0 723.2 L940.0 723.1 L944.0 723.1 L948.0 723.1 L952.0 723.1 L956.0 723.1 L960.0 723.1 L964.0 723.1 L968.0 723.1 L972.0 723.1 L976.0 723.1 L980.0 723.1 L984.0 723.1 L988.0 723.1 L992.0 723.1 L996.0 723.1 L1000.0 723.2 L1004.0 723.2 L1008.0 723.2 L1012.0 723.2 L1016.0 723.3 L1020.0 723.3 L1024.0 723.4 L1028.0 723.4 L1032.0 723.4 L1036.0 723.5 L1040.0 723.5 L1044.0 723.6 L1048.0 723.7 L1052.0 723.7 L1056.0 723.8 L1060.0 723.8 L1064.0 723.9 L1068.0 724.0 L1072.0 724.1 L1076.0 724.1 L1080.0 724.2 L1084.0 724.3 L1088.0 724.4 L1092.0 724.5 L1096.0 724.6 L1100.0 724.7 L1104.0 724.8 L1108.0 724.9 L1112.0 725.0 L1116.0 725.1 L1120.0 725.2 L1124.0 725.3 L1128.0 725.4 L1132.0 725.5 L1136.0 725.7 L1140.0 725.8 L1144.0 725.9 L1148.0 726.0 L1152.0 726.2 L1156.0 726.3 L1160.0 726.5 L1164.0 726.6 L1168.0 726.8 L1172.0 726.9 L1176.0 727.1 L1180.0 727.2 L1184.0 727.4 L1188.0 727.5 L1192.0 727.7 L1196.0 727.9 L1200.0 728.0 L1204.0 728.2 L1208.0 728.4 L1212.0 728.6 L1216.0 728.8 L1220.0 728.9 L1224.0 729.1 L1228.0 729.3 L1232.0 729.5 L1236.0 729.7 L1240.0 729.9 L1244.0 730.1 L1248.0 730.3 L1252.0 730.6 L1256.0 730.8 L1260.0 731.0 L1264.0 731.2 L1268.0 731.4 L1272.0 731.7 L1276.0 731.9 L1280.0 732.1 L1284.0 732.4 L1288.0 732.6 L1292.0 732.9 L1296.0 733.1 L1300.0 733.4 L1304.0 733.6 L1308.0 733.9 L1312.0 734.2 L1316.0 734.4 L1320.0 734.7 L1324.0 735.0 L1328.0 735.2 L1332.0 735.5 L1336.0 735.8 L1340.0 736.1 L1344.0 736.4 L1348.0 736.7 L1352.0 737.0 L1356.0 737.3 L1360.0 737.6 L1364.0 737.9 L1368.0 738.2 L1372.0 738.5 L1376.0 738.8 L1380.0 739.2 L1384.0 739.5 L1388.0 739.8 L1392.0 740.2 L1396.0 740.5 L1400.0 740.8 L1404.0 741.2 L1408.0 741.5 L1412.0 741.9 L1416.0 742.2 L1420.0 742.6 L1424.0 743.0 L1428.0 743.3 L1432.0 743.7 L1436.0 744.1 L1440.0 744.5 L1444.0 744.9 L1448.0 745.2 L1452.0 745.6 L1456.0 746.0 L1460.0 746.4 L1464.0 746.8 L1468.0 747.2 L1472.0 747.7 L1476.0 748.1 L1480.0 748.5 L1484.0 748.9 L1488.0 749.3 L1492.0 749.8 L1496.0 750.2 L1500.0 750.7 L1504.0 751.1 L1508.0 751.6 L1512.0 752.0 L1516.0 752.5 L1520.0 752.9 L1524.0 753.4 L1528.0 753.9 L1532.0 754.3 L1536.0 754.8 L1540.0 755.3 L1544.0 755.8 L1548.0 756.3 L1552.0 756.8 L1556.0 757.3 L1560.0 757.8 L1564.0 758.3 L1568.0 758.8 L1572.0 759.3 L1576.0 759.9 L1580.0 760.4 L1584.0 760.9 L1588.0 761.5 L1592.0 762.0 L1596.0 762.6 L1600.0 763.1 L1604.0 763.7 L1608.0 764.2 L1612.0 764.8 L1615.0 768.0 L1612.0 768.8 L1608.0 768.8 L1604.0 768.8 L1600.0 768.8 L1596.0 768.2 L1592.0 768.2 L1588.0 767.7 L1584.0 767.7 L1580.0 767.7 L1576.0 767.2 L1572.0 767.2 L1568.0 767.2 L1564.0 766.7 L1560.0 766.7 L1556.0 766.1 L1552.0 766.1 L1548.0 765.6 L1544.0 765.6 L1540.0 765.6 L1536.0 765.1 L1532.0 765.1 L1528.0 764.6 L1524.0 764.6 L1520.0 764.1 L1516.0 764.1 L1512.0 764.1 L1508.0 763.5 L1504.0 763.5 L1500.0 763.0 L1496.0 763.0 L1492.0 762.5 L1488.0 762.5 L1484.0 762.5 L1480.0 762.0 L1476.0 762.0 L1472.0 761.5 L1468.0 761.5 L1464.0 761.5 L1460.0 760.9 L1456.0 760.9 L1452.0 760.4 L1448.0 760.4 L1444.0 760.4 L1440.0 759.9 L1436.0 759.9 L1432.0 759.4 L1428.0 759.4 L1424.0 759.4 L1420.0 758.9 L1416.0 758.9 L1412.0 758.9 L1408.0 758.3 L1404.0 758.3 L1400.0 758.3 L1396.0 757.8 L1392.0 757.8 L1388.0 757.3 L1384.0 757.3 L1380.0 757.3 L1376.0 756.8 L1372.0 756.8 L1368.0 756.8 L1364.0 756.8 L1360.0 756.2 L1356.0 756.2 L1352.0 755.7 L1348.0 755.7 L1344.0 755.7 L1340.0 755.7 L1336.0 755.2 L1332.0 755.2 L1328.0 755.2 L1324.0 754.7 L1320.0 754.7 L1316.0 754.7 L1312.0 754.2 L1308.0 754.2 L1304.0 754.2 L1300.0 754.2 L1296.0 753.6 L1292.0 753.6 L1288.0 753.6 L1284.0 753.1 L1280.0 753.1 L1276.0 753.1 L1272.0 753.1 L1268.0 753.1 L1264.0 752.6 L1260.0 752.6 L1256.0 752.6 L1252.0 752.1 L1248.0 752.1 L1244.0 752.1 L1240.0 752.1 L1236.0 752.1 L1232.0 751.6 L1228.0 751.6 L1224.0 751.6 L1220.0 751.6 L1216.0 751.0 L1212.0 751.0 L1208.0 751.0 L1204.0 751.0 L1200.0 751.0 L1196.0 751.0 L1192.0 750.5 L1188.0 750.5 L1184.0 750.5 L1180.0 750.5 L1176.0 750.5 L1172.0 750.5 L1168.0 750.0 L1164.0 750.0 L1160.0 750.0 L1156.0 750.0 L1152.0 750.0 L1148.0 749.5 L1144.0 749.5 L1140.0 749.5 L1136.0 749.5 L1132.0 749.5 L1128.0 749.5 L1124.0 749.5 L1120.0 749.5 L1116.0 749.0 L1112.0 749.0 L1108.0 749.0 L1104.0 749.0 L1100.0 749.0 L1096.0 749.0 L1092.0 749.0 L1088.0 749.0 L1084.0 748.4 L1080.0 748.4 L1076.0 748.4 L1072.0 748.4 L1068.0 748.4 L1064.0 748.4 L1060.0 748.4 L1056.0 748.4 L1052.0 748.4 L1048.0 748.4 L1044.0 748.4 L1040.0 748.4 L1036.0 747.9 L1032.0 747.9 L1028.0 747.9 L1024.0 747.9 L1020.0 747.9 L1016.0 747.9 L1012.0 747.9 L1008.0 747.9 L1004.0 747.9 L1000.0 747.9 L996.0 747.9 L992.0 747.9 L988.0 747.9 L984.0 747.9 L980.0 747.9 L976.0 747.9 L972.0 747.9 L968.0 747.9 L964.0 747.9 L960.0 747.9 L956.0 747.9 L952.0 747.9 L948.0 747.9 L944.0 747.9 L940.0 747.9 L936.0 747.9 L932.0 747.9 L928.0 747.9 L924.0 747.9 L920.0 747.9 L916.0 747.9 L912.0 747.9 L908.0 747.9 L904.0 747.9 L900.0 747.9 L896.0 747.9 L892.0 748.4 L888.0 748.4 L884.0 748.4 L880.0 748.4 L876.0 748.4 L872.0 748.4 L868.0 748.4 L864.0 748.4 L860.0 748.4 L856.0 748.4 L852.0 748.4 L848.0 748.4 L844.0 748.4 L840.0 748.4 L836.0 749.0 L832.0 749.0 L828.0 749.0 L824.0 749.0 L820.0 749.0 L816.0 749.0 L812.0 749.0 L808.0 749.0 L804.0 749.5 L800.0 749.5 L796.0 749.5 L792.0 749.5 L788.0 749.5 L784.0 749.5 L780.0 749.5 L776.0 749.5 L772.0 750.0 L768.0 750.0 L764.0 750.0 L760.0 750.0 L756.0 750.0 L752.0 750.5 L748.0 750.5 L744.0 750.5 L740.0 750.5 L736.0 750.5 L732.0 750.5 L728.0 751.0 L724.0 751.0 L720.0 751.0 L716.0 751.0 L712.0 751.0 L708.0 751.6 L704.0 751.6 L700.0 751.6 L696.0 751.6 L692.0 751.6 L688.0 752.1 L684.0 752.1 L680.0 752.1 L676.0 752.1 L672.0 752.1 L668.0 752.6 L664.0 752.6 L660.0 752.6 L656.0 753.1 L652.0 753.1 L648.0 753.1 L644.0 753.1 L640.0 753.6 L636.0 753.6 L632.0 753.6 L628.0 753.6 L624.0 754.2 L620.0 754.2 L616.0 754.2 L612.0 754.2 L608.0 754.7 L604.0 754.7 L600.0 754.7 L596.0 755.2 L592.0 755.2 L588.0 755.2 L584.0 755.7 L580.0 755.7 L576.0 755.7 L572.0 755.7 L568.0 756.2 L564.0 756.2 L560.0 756.8 L556.0 756.8 L552.0 756.8 L548.0 756.8 L544.0 757.3 L540.0 757.3 L536.0 757.8 L532.0 757.8 L528.0 757.8 L524.0 757.8 L520.0 758.3 L516.0 758.3 L512.0 758.9 L508.0 758.9 L504.0 758.9 L500.0 759.4 L496.0 759.4 L492.0 759.4 L488.0 759.9 L484.0 759.9 L480.0 760.4 L476.0 760.4 L472.0 760.4 L468.0 760.9 L464.0 760.9 L460.0 761.5 L456.0 761.5 L452.0 761.5 L448.0 762.0 L444.0 762.0 L440.0 762.5 L436.0 762.5 L432.0 762.5 L428.0 763.0 L424.0 763.0 L420.0 763.5 L416.0 763.5 L412.0 763.5 L408.0 764.1 L404.0 764.1 L400.0 764.6 L396.0 764.6 L392.0 765.1 L388.0 765.1 L384.0 765.1 L380.0 765.6 L376.0 765.6 L372.0 765.6 L368.0 766.1 L364.0 766.1 L360.0 766.1 L356.0 766.7 L352.0 766.7 L348.0 766.7 L344.0 767.2 L340.0 767.2 L336.0 766.1Z" fill="url(#gArc)" mask="url(#arcMask)"/>
+
+        <g mask="url(#arrMask)">
+          <!-- teget procep ispod strelice, samo preko zgrada, kao u logou -->
+          <polygon clip-path="url(#bldClip)" fill="#191F32" points="425,690 800,535 835,555 978,425 1013,444 1365,150 1365,176 1013,470 978,451 835,581 800,561 452,705"/>
+          <polygon id="shaft" fill="url(#gA)" points="425,690 797,497 831,517 978,383 1013,407 1338,122 1352,136 1365,150 1013,444 978,425 835,555 800,535"/>
+        </g>
+        <g id="headG" style="transform-origin:1380px 120px">
+          <polygon fill="#191F32" points="1288,92 1425,77 1388,207 1365,176 1365,150 1338,122" opacity="0"/>
+          <polygon fill="url(#gA)" points="1288,92 1425,77 1388,207 1365,150 1338,122"/>
+        </g>
+
+        <g id="letters" fill="url(#gT)"><path fill-rule="evenodd" d="M367.2 799.5 L367.2 1003.1 L439.1 1002.6 L466.7 997.9 L485.4 990.1 L494.3 983.9 L502.6 975.5 L507.3 968.8 L512.5 956.8 L514.6 945.8 L513.5 927.6 L507.8 913.5 L496.4 900.0 L487.5 893.8 L500.0 879.2 L506.8 862.0 L506.8 846.4 L504.7 838.0 L500.0 828.1 L493.2 819.8 L480.7 810.4 L470.8 805.7 L456.2 801.6 L428.6 799.0ZM408.9 912.0 L409.9 910.9 L441.1 912.0 L452.6 915.1 L462.0 920.3 L467.2 925.5 L471.4 935.9 L471.4 944.8 L467.7 954.2 L460.4 961.5 L447.4 967.2 L434.4 969.3 L409.9 969.3 L408.9 968.2ZM408.9 834.9 L412.5 833.3 L435.9 833.3 L446.9 835.4 L455.2 839.1 L460.9 844.3 L464.6 852.1 L464.6 861.5 L461.5 868.2 L455.7 874.0 L445.3 879.2 L434.4 881.2 L409.9 881.2 L408.9 880.2Z"/><path fill-rule="evenodd" d="M529.2 852.1 L529.2 948.4 L533.3 968.2 L542.7 984.9 L549.5 991.7 L559.9 998.4 L580.2 1004.2 L591.1 1004.7 L607.3 1002.6 L619.3 998.4 L628.1 993.2 L629.7 995.3 L630.2 1001.6 L670.3 1001.6 L671.4 852.6 L625.5 852.1 L625.5 941.7 L624.5 947.9 L619.3 956.2 L610.9 962.5 L603.6 965.1 L593.2 965.6 L584.9 962.5 L580.7 958.9 L575.5 946.4 L574.5 934.4 L574.5 852.1Z"/><path fill-rule="evenodd" d="M695.8 791.1 L695.8 1001.0 L696.9 1002.1 L741.1 1002.1 L742.2 1001.0 L742.2 791.7 L741.1 790.6Z"/><path fill-rule="evenodd" d="M783.3 866.1 L771.9 878.1 L765.6 888.0 L759.4 903.6 L756.2 921.9 L756.2 935.4 L759.9 954.7 L765.1 966.7 L772.9 978.1 L782.8 987.5 L793.2 994.3 L808.3 1000.5 L822.4 1003.6 L851.6 1004.2 L877.1 1000.0 L897.4 992.7 L897.9 990.6 L888.0 957.3 L858.9 965.6 L832.3 966.1 L822.4 963.5 L815.1 959.9 L808.9 954.2 L803.1 944.3 L803.6 941.1 L901.0 941.1 L904.2 928.1 L903.1 904.2 L897.9 887.5 L888.5 871.9 L878.1 862.0 L865.6 854.7 L854.7 851.0 L842.2 849.0 L826.6 849.0 L808.3 852.6 L794.8 858.3ZM799.5 906.2 L802.6 899.0 L810.9 889.1 L818.2 884.4 L829.2 881.8 L840.6 882.3 L850.0 885.9 L858.9 895.3 L862.5 905.2 L861.5 908.3 L800.5 908.3Z"/><path fill-rule="evenodd" d="M895.3 852.1 L894.8 853.6 L958.9 1001.6 L996.4 1001.6 L1060.9 856.8 L1062.0 852.1 L1012.5 852.6 L979.2 938.0 L977.6 937.0 L945.3 852.6Z"/><path fill-rule="evenodd" d="M1070.3 865.1 L1069.8 867.7 L1082.8 900.0 L1100.5 890.6 L1117.7 886.5 L1137.5 887.5 L1141.7 889.6 L1147.9 897.9 L1146.4 899.5 L1120.3 902.1 L1101.0 907.3 L1085.9 914.6 L1074.5 924.0 L1065.6 937.0 L1060.9 955.2 L1064.1 972.9 L1071.9 986.5 L1080.2 994.3 L1087.0 998.4 L1106.2 1004.2 L1117.7 1004.7 L1131.8 1003.1 L1142.2 1000.0 L1152.6 994.8 L1154.2 995.8 L1154.7 1001.6 L1194.3 1001.6 L1194.8 903.6 L1190.6 884.9 L1182.3 869.8 L1170.8 859.4 L1162.0 854.7 L1151.0 851.0 L1138.0 849.0 L1120.8 849.0 L1101.0 852.1 L1086.5 856.8ZM1153.6 932.3 L1153.6 950.0 L1152.6 954.2 L1149.0 959.9 L1142.2 966.1 L1130.7 970.8 L1118.2 971.4 L1110.9 968.8 L1106.2 964.6 L1103.6 957.8 L1104.2 950.0 L1106.2 945.3 L1112.0 939.6 L1117.7 936.5 L1131.2 932.8 L1152.6 931.2Z"/><path fill-rule="evenodd" d="M1308.9 851.0 L1297.9 849.0 L1280.7 850.0 L1272.4 852.6 L1260.9 859.4 L1259.4 857.3 L1258.9 852.1 L1218.2 852.1 L1217.7 978.6 L1218.8 1001.6 L1263.0 1001.6 L1264.1 1000.5 L1264.1 917.2 L1265.1 911.5 L1270.8 900.0 L1280.7 892.7 L1286.5 891.1 L1296.9 891.1 L1307.8 893.8 L1309.9 892.7 L1309.9 852.1Z"/><path fill-rule="evenodd" d="M1313.0 952.1 L1304.2 956.8 L1298.4 963.0 L1295.8 968.2 L1294.3 975.0 L1294.3 981.8 L1295.8 987.5 L1300.0 994.8 L1309.4 1002.1 L1321.9 1004.7 L1333.3 1002.6 L1344.3 994.3 L1348.4 986.5 L1349.5 973.4 L1346.9 965.1 L1340.6 957.3 L1331.2 952.1 L1326.6 951.0Z"/><path fill-rule="evenodd" d="M1364.1 800.0 L1364.1 1001.6 L1409.4 1002.1 L1409.9 800.5Z"/><path fill-rule="evenodd" d="M1418.2 801.0 L1418.2 840.1 L1478.6 840.1 L1479.7 841.1 L1479.7 1000.5 L1480.7 1001.6 L1525.0 1001.6 L1526.0 1000.5 L1526.0 841.1 L1527.1 840.1 L1587.5 840.1 L1588.0 801.0Z"/></g>
+        <g id="glyphs"></g>
+      </svg>
+      <div class="sub mono" id="sub"></div>
+    </div>
+
+    <div class="meta mono" id="meta">
+      <span>© 2026 Bulevar.IT · Novi Sad</span>
+      <span><a href="#">Usluge</a><a href="#">Radovi</a><a href="#">Kontakt</a></span>
+      <span><a href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu">Instagram</a><a href="tel:+381600000000">+381 60 000 0000</a><a href="mailto:kontakt@bulevar.it">kontakt@bulevar.it</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(()=>{
+const NS='http://www.w3.org/2000/svg', GROUND=731;
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const seg=(p,a,b)=>clamp((p-a)/(b-a));
+const eOut=t=>1-Math.pow(1-t,3);
+const eInOut=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const backOut=(t,s=1.25)=>1+(s+1)*Math.pow(t-1,3)+s*Math.pow(t-1,2);
+const mix=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+const rgb=c=>`rgb(${c[0]},${c[1]},${c[2]})`;
+let seed=11; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const el=(tag,attrs,parent)=>{const n=document.createElementNS(NS,tag);for(const k in attrs)n.setAttribute(k,attrs[k]);parent&&parent.appendChild(n);return n};
+
+/* ---- zgrade: mere preuzete 1:1 iz logoa ---- */
+const B=[
+  {x:642.7,x2:778.6,top:462,cols:[667,704,741],rows:[496,538,579,620,662]},
+  {x:830.2,x2:965.1,top:334,cols:[852.5,889,926.5],rows:[372,414,454,496,538,578,620,661]},
+  {x:1005.2,x2:1154.7,top:206,cols:[1035,1072,1109],rows:[245,286,328,369,409,451,492,534,576,617,658]},
+  {x:1191.7,x2:1326.6,top:292,cols:[1216.5,1254,1291.5],rows:[329,371,412,454,495,537,578,620,660]},
+];
+const WIN_FINAL=[58,52,44], WIN_OFF=[26,32,51], WIN_LIT=[255,243,200];
+const blds=document.getElementById('blds'), dustG=document.getElementById('dust');
+B.forEach((b,i)=>{
+  b.a=.10+i*.075; b.b=b.a+.21; b.w=b.x2-b.x; b.h=GROUND-b.top;
+  const g=el('g',{},blds); b.g=g;
+  b.body=el('rect',{x:b.x,y:b.top,width:b.w,height:b.h+4,fill:'url(#gB)','fill-opacity':0,stroke:'#5B6687','stroke-width':2},g);
+  b.win=[];
+  b.rows.forEach(r=>b.cols.forEach(c=>{
+    const w=el('rect',{x:c-9.7,y:r,width:19.4,height:23,fill:rgb(WIN_OFF)},g);
+    b.win.push({n:w,t:rnd()*.8});
+  }));
+  b.dust=[];
+  for(let j=0;j<14;j++) b.dust.push({n:el('circle',{r:2.5+rnd()*3.5,fill:'#B8925A',opacity:0},dustG),
+    x:b.x+rnd()*b.w, dir:rnd()<.5?-1:1, spd:30+rnd()*110, up:14+rnd()*70, d:rnd()*.45});
+});
+
+const arc=document.getElementById('arcRev'), arcLen=arc.getTotalLength();
+arc.style.strokeDasharray=arcLen;
+const arr=document.getElementById('arrRev'), aLen=arr.getTotalLength();
+arr.style.strokeDasharray=aLen;
+const headG=document.getElementById('headG');
+
+/* ---- slova: prava slova iz logoa (vektorizovana), decode ide preko njih ---- */
+const L=[...document.querySelectorAll('#letters path')];
+const glyphs=document.getElementById('glyphs');
+const GL='ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';
+const G=L.map(p=>{const bb=p.getBBox();return el('text',{class:'glyph',x:bb.x+bb.width/2,y:1003,'text-anchor':'middle','font-size':200,opacity:0},glyphs)});
+const sub=document.getElementById('sub');
+const S=[...'DIGITALNI SISTEM KOJI OSTAJE U VAŠIM RUKAMA'].map(ch=>{const s=document.createElement('span');s.textContent=ch===' '?' ':ch;s.dataset.c=s.textContent;sub.appendChild(s);return s});
+let lastGl=0;
+function decodeLogo(prog,refresh){
+  const n=L.length, k=prog>=1?n:Math.floor(prog*(n+4))-4;
+  L.forEach((p,i)=>{
+    const on=i<k; p.style.opacity=on?1:0;
+    const g=G[i], isG=!on&&i<k+4&&prog>0;
+    g.setAttribute('opacity',isG?1:0);
+    if(isG&&refresh) g.textContent=GL[Math.floor(Math.random()*GL.length)];
+  });
+}
+function decodeSub(prog,refresh){
+  const n=S.length, k=prog>=1?n:Math.floor(prog*(n+5))-5;
+  S.forEach((s,i)=>{
+    if(i<k){ if(s.className!=='f'){s.className='f';s.textContent=s.dataset.c} }
+    else if(i<k+5&&prog>0){ s.className='r'; if(refresh) s.textContent=s.dataset.c===' '?' ':GL[Math.floor(Math.random()*GL.length)] }
+    else if(s.className!=='h'){s.className='h';s.textContent=s.dataset.c}
+  });
+}
+
+const ft=document.getElementById('ft'), logo=document.getElementById('logo'), glow=document.getElementById('glow'),
+      meta=document.getElementById('meta');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let cur=0;
+function target(){
+  if(reduce) return 1;
+  const r=ft.getBoundingClientRect(), span=ft.offsetHeight-innerHeight;
+  return clamp((-r.top+innerHeight*.15)/span);
+}
+function render(p,t){
+  arc.style.strokeDashoffset=arcLen*(1-eInOut(seg(p,.02,.16)));
+
+  const col=eInOut(seg(p,.35,.70));
+  B.forEach(b=>{
+    const lt=seg(p,b.a,b.b), e=backOut(lt,1.1);
+    b.g.setAttribute('transform',`translate(0 ${((1-e)*(b.h+60)).toFixed(2)})`);
+    b.body.setAttribute('fill-opacity',col.toFixed(3));
+    b.body.setAttribute('stroke-opacity',(1-col).toFixed(3));
+    const wp=seg(p,.42,.80);
+    b.win.forEach(w=>{
+      /* prozor se upali pa se smiri u tačnu boju iz logoa */
+      const u=clamp((wp-w.t)/.2);
+      const base=mix(WIN_OFF,WIN_FINAL,col);
+      const lit=u>0&&u<1?Math.sin(u*Math.PI):0;
+      w.n.setAttribute('fill',rgb(mix(base,WIN_LIT,lit*.9)));
+    });
+    b.dust.forEach(d=>{
+      const u=clamp((lt-d.d)/.55);
+      if(u<=0||u>=1){d.n.setAttribute('opacity',0);return}
+      d.n.setAttribute('cx',(d.x+d.dir*d.spd*eOut(u)).toFixed(1));
+      d.n.setAttribute('cy',(GROUND-d.up*Math.sin(u*Math.PI*.85)).toFixed(1));
+      d.n.setAttribute('opacity',((1-u)*.85).toFixed(2));
+    });
+  });
+
+  arr.style.strokeDashoffset=aLen*(1-eInOut(seg(p,.56,.76)));
+  const hs=seg(p,.74,.81);
+  headG.style.opacity=hs>0?1:0;
+  headG.style.transform=`scale(${hs>0?backOut(hs,2.4):0})`;
+
+  const g=eOut(seg(p,0,.88));
+  logo.style.transform=`translateY(${(1-g)*5}vh) scale(${(.66+.34*g).toFixed(4)})`;
+  glow.style.opacity=(col*(1-seg(p,.86,1))).toFixed(3);
+
+  const refresh=t-lastGl>55; if(refresh) lastGl=t;
+  decodeLogo(seg(p,.72,.90),refresh);
+  decodeSub(seg(p,.84,.97),refresh);
+
+  const m=eOut(seg(p,.9,1));
+  meta.style.opacity=m; meta.style.transform=`translateY(${(1-m)*16}px)`;
+}
+function loop(t){
+  const tg=target();
+  cur+=(tg-cur)*.11; if(Math.abs(tg-cur)<.0005) cur=tg;
+  render(cur,t);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+<script>
+(()=>{
+const GL='ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';
+function decodeEl(el,dur=900){
+  const txt=el.dataset.t, n=txt.length; el.innerHTML='';
+  const sp=[...txt].map(c=>{const s=document.createElement('span');s.textContent=c;s.dataset.c=c;el.appendChild(s);return s});
+  const t0=performance.now();
+  (function f(t){
+    const p=Math.min(1,(t-t0)/dur), k=Math.floor(p*(n+5))-5;
+    sp.forEach((s,i)=>{
+      if(p>=1||i<k){s.className='';s.textContent=s.dataset.c}
+      else if(i<k+5&&s.dataset.c!==' '){s.className='r';s.textContent=GL[Math.random()*GL.length|0]}
+      else{s.className='h';s.textContent=s.dataset.c}
+    });
+    if(p<1) requestAnimationFrame(f);
+  })(t0);
+}
+
+/* ulazak */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  e.target.classList.add('in'); io.unobserve(e.target);
+  if(e.target.classList.contains('kf-head'))
+    e.target.querySelectorAll('.dec').forEach((el,i)=>setTimeout(()=>decodeEl(el,700+i*200),250+i*300));
+  if(e.target.classList.contains('kf-wrap')) setTimeout(()=>document.querySelectorAll('.seg').forEach(placeThumb),50);
+}),{threshold:.2});
+['.kf-head','.kf-wrap','.kf-dir'].forEach((s,i)=>{const el=document.querySelector(s);el.style.transitionDelay=(i*.15)+'s';io.observe(el)});
+
+/* iOS segmented: palac klizi ispod izabranog dugmeta */
+function placeThumb(seg){
+  const on=seg.querySelector('button.on'), th=seg.querySelector('.thumb');
+  if(!on) return;
+  if(th){th.style.width=on.offsetWidth+'px';th.style.transform=`translateX(${on.offsetLeft-3}px)`;}
+}
+function pick(seg,b){
+  seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  seg.classList.add('picked'); placeThumb(seg);
+}
+addEventListener('resize',()=>document.querySelectorAll('.seg').forEach(placeThumb));
+
+const seg=document.getElementById('seg'), kanal=document.getElementById('kanal');
+const pDa=document.getElementById('pDa'), pNe=document.getElementById('pNe');
+let ideja=null;
+seg.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  ideja=b.dataset.v; pick(seg,b);
+  pDa.classList.toggle('open',ideja==='da'); pNe.classList.toggle('open',ideja==='ne');
+  if(ideja==='da') setTimeout(()=>document.getElementById('f-ideja').focus({preventScroll:true}),350);
+});
+kanal.querySelectorAll('button').forEach(b=>b.onclick=()=>pick(kanal,b));
+placeThumb(kanal);
+document.querySelectorAll('#muke .pill').forEach(c=>c.onclick=()=>c.classList.toggle('on'));
+
+/* validacija + slanje */
+const form=document.getElementById('kfForm'), card=document.getElementById('kfCard');
+const val={ime:v=>v.trim().length>1, tel:v=>v.replace(/\D/g,'').length>=8, mail:v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())};
+const rows=[...form.querySelectorAll('.row[data-req]')];
+rows.forEach(r=>r.querySelector('input').addEventListener('input',()=>r.classList.remove('bad')));
+
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  let ok=true;
+  rows.forEach(r=>{const g=val[r.dataset.req](r.querySelector('input').value);r.classList.remove('bad');void r.offsetWidth;if(!g){r.classList.add('bad');ok=false}});
+  if(!ok||form.website.value) return;
+  const data={
+    ime:form.ime.value.trim(), telefon:'+381 '+form.telefon.value.trim(), email:form.email.value.trim(),
+    imaIdeju:ideja==='da'?'Da':(ideja==='ne'?'Još nema':'Nije odabrao'), ideja:form.ideja.value.trim(),
+    problemi:[...document.querySelectorAll('#muke .pill.on')].map(c=>c.textContent),
+    kontakt:kanal.querySelector('button.on').dataset.k,
+  };
+  console.log('[prototip] ovo bi otišlo na email + WhatsApp:',data);
+  const btn=form.querySelector('.send'); btn.classList.add('load');
+  setTimeout(()=>{ // prototip: simulacija slanja
+    btn.classList.remove('load');
+    const ime=data.ime.split(' ')[0].replace(/[<>&]/g,'');
+    const kako={poziv:'pozivamo vas',WhatsApp:'pišemo vam na WhatsApp',email:'pišemo vam na email'}[data.kontakt];
+    document.getElementById('doneP').innerHTML=`Hvala, <b>${ime}</b>! U roku od 24 sata ${kako}.`;
+    card.classList.add('sent'); decodeEl(document.getElementById('doneH'),800);
+    /* ovde Google Ads konverzija: gtag('event','conversion',{send_to:'AW-XXXX/XXXX'}) */
+  },1300);
+});
+document.getElementById('again').onclick=()=>{
+  form.reset(); card.classList.remove('sent'); ideja=null;
+  seg.classList.remove('picked'); seg.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+  pDa.classList.remove('open'); pNe.classList.remove('open');
+  document.querySelectorAll('#muke .pill').forEach(c=>c.classList.remove('on'));
+  pick(kanal,kanal.querySelector('button'));
+};
+})();
+
+</script>
+</body>
+</html>

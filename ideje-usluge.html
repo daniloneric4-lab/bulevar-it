@@ -1,0 +1,246 @@
+<title>Ideje u usluge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one pinned stage, one particle system. Scroll drives five states:
+   half circle out of "O nama" → city on the grid (grows) → all dots pulled into the road line → line stretches down over the screen → dots settle into the Usluge grid + symbol. */
+:root{
+  --navy:#0B1020; --gold:#D9B25F; --orange:#E8963A; --ink:#F3EEE3; --muted:#A7AEC2; --line:#2A3658; --card:#121A30;
+  --display:'Montserrat',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--navy);color:var(--ink)}
+body{font-family:var(--display)}
+*{box-sizing:border-box}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.spacer{min-height:55vh;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.track{position:relative;height:900vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.layer{position:absolute;inset:0;pointer-events:none}
+.layer.on{pointer-events:auto}
+
+/* ideje copy */
+.ideje{display:flex;align-items:flex-start;padding-top:12vh;opacity:var(--o,0);transition:opacity .2s}
+.copy{max-width:520px;display:flex;flex-direction:column;gap:16px;margin-left:max(0px,calc((100vw - 1400px)/2))}
+.tag{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+h2{margin:0;font-weight:900;font-size:clamp(34px,4.6vw,66px);line-height:.98;letter-spacing:-.025em;text-wrap:balance}
+h2 em{font-style:normal;color:var(--gold)}
+.lvl{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;align-items:center}
+.lvl b{color:var(--ink);font-weight:600}.lvl i{flex:1;height:1px;background:var(--line)}
+.case{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;row-gap:8px;align-items:baseline;margin:0}
+.case dt{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.case dd{margin:0;font-size:clamp(15px,1.4vw,18px);font-weight:700;line-height:1.35}
+.case dd.idea{color:var(--gold)}
+.noise{font-family:var(--mono);color:var(--orange)}.rest{color:transparent}
+.core{position:absolute;transform:translateY(-50%);display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.3em;color:var(--gold);opacity:var(--co,0);white-space:nowrap}
+.core i{display:block;width:28px;height:1px;background:var(--gold);opacity:.6}
+
+/* usluge */
+.usluge{opacity:var(--u,0);display:flex;flex-direction:column;align-items:center;padding-top:6vh}
+.uh{text-align:center;display:flex;flex-direction:column;gap:8px}
+.uh h3{margin:0;font-weight:800;font-size:clamp(28px,3.6vw,52px);letter-spacing:-.02em}
+.uh h3 em{font-style:normal;color:var(--gold)}
+.cards{position:absolute;left:0;right:0;top:22vh;bottom:6vh;display:flex;justify-content:space-between;max-width:1600px;margin:0 auto}
+.col{display:flex;flex-direction:column;gap:2.4vh;width:min(310px,24vw)}
+.card{border:1px solid #2b3555;border-radius:18px;background:rgba(18,26,48,.88);padding:18px 20px;display:flex;flex-direction:column;gap:8px;transform:translateY(calc((1 - var(--u,0))*24px))}
+.card b{font-size:17px}
+.card p{margin:0;font-size:13px;line-height:1.45;color:#c6cbe0}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pills span{font-family:var(--mono);font-size:11px;border:1px solid #2b3555;border-radius:12px;padding:3px 8px}
+.phase{position:absolute;right:16px;bottom:16px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:rgba(11,16,32,.7);border:1px solid var(--line);border-radius:14px;padding:6px 10px}
+.phase b{color:var(--orange)}
+.sw{position:absolute;right:16px;top:16px;display:flex;flex-wrap:wrap;gap:6px;z-index:5}
+.sw button{font-family:var(--display);font-weight:700;font-size:12px;height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line);background:rgba(11,16,32,.8);color:var(--muted);cursor:pointer}
+.sw button[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:var(--navy)}
+.sw button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (max-width:860px){
+  .ideje{padding-top:9vh}
+  .cards{display:none}
+  .uh{padding-top:4vh}
+}
+</style>
+
+<div class="spacer pad">↑ 02 · O nama · skrolujte ↓</div>
+
+<div class="track" id="track">
+  <div class="stage" id="stage">
+    <canvas id="c" aria-hidden="true"></canvas>
+
+    <div class="layer ideje pad" id="ideje">
+      <div class="copy">
+        <div class="tag">03 · Za svaku veličinu</div>
+        <h2>Ideje nemaju <em>veličinu firme.</em></h2>
+        <div class="lvl">Veličina: <b id="lv"></b><i></i></div>
+        <dl class="case" aria-live="polite">
+          <dt>Ko</dt><dd id="who"></dd>
+          <dt>Problem</dt><dd id="prob"></dd>
+          <dt>Ideja</dt><dd id="idea" class="idea"></dd>
+        </dl>
+      </div>
+      <div class="core" id="core"><i></i><span id="coreT"></span></div>
+    </div>
+
+    <div class="layer usluge pad" id="usluge">
+      <div class="uh"><div class="tag">04 · Usluge</div><h3>Šta radimo za <em>vaš biznis</em></h3></div>
+      <div class="cards pad">
+        <div class="col">
+          <div class="card"><b>Web &amp; Development</b><p>Sajtovi i aplikacije koji rade za vaš cilj.</p><div class="pills"><span>Web sajtovi</span><span>Web apps</span></div></div>
+          <div class="card"><b>Marketing &amp; Growth</b><p>Google i Meta kampanje i SEO.</p><div class="pills"><span>Google Ads</span><span>Meta Ads</span></div></div>
+          <div class="card"><b>Social Media</b><p>Sadržaj i vođenje mreža.</p><div class="pills"><span>Instagram</span><span>TikTok</span></div></div>
+        </div>
+        <div class="col">
+          <div class="card"><b>Automation &amp; Systems</b><p>Automatizacija, chatbotovi i CRM.</p><div class="pills"><span>AI</span><span>Workflows</span></div></div>
+          <div class="card"><b>Branding &amp; Design</b><p>Vizuelni identitet i dizajn.</p><div class="pills"><span>Logo</span><span>UI/UX</span></div></div>
+          <div class="card"><b>Održavanje &amp; Podrška</b><p>Hosting, backup i podrška.</p><div class="pills"><span>Hosting</span><span>24/7</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase" id="phase"></div>
+  </div>
+</div>
+
+<div class="spacer pad">↓ 05 · Put kupca</div>
+
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cv=document.getElementById('c'),ctx=cv.getContext('2d'),track=document.getElementById('track');
+  var W,H,S,N,cols,rows,P=0,parts=[],roadRow,cityCol,gridCells=[],symbol=[],B=[];
+  var OR=[232,150,58],GO=[217,178,95],DI=[184,146,90];
+  var DATA=[
+    ['1 lokal','Frizerski salon u kraju','Termini se dogovaraju telefonom i porukama.','Online zakazivanje sa podsetnikom.'],
+    ['1 objekat · 12 ljudi','Restoran u centru','Gosti dolaze preko platformi, a restoran ih ne poznaje.','Sopstvene rezervacije i baza gostiju.'],
+    ['magacin + web','Online prodavnica','Ljudi kupe jednom i ne vrate se.','Podsetnici, lojalnost i preporuke.'],
+    ['više sektora','Veća firma','Pet alata koji ne pričaju međusobno.','Jedan povezan sistem i jasni podaci.']
+  ];
+  /* IDEJA mark variants, all built from the same dots; the mark never changes size */
+  var VAR='okvir',MARKN=64,wordPts=[];
+  var FONT={I:['###','.#.','.#.','.#.','###'],D:['##.','#.#','#.#','#.#','##.'],E:['###','#..','##.','#..','###'],J:['..#','..#','..#','#.#','.#.'],A:['.#.','#.#','###','#.#','#.#']};
+  function rnd(i){var x=Math.sin(i*12.9898+78.233)*43758.5453;return x-Math.floor(x)}
+  function sm(a,b,x){var t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)}
+  function cell(c,r){return [c*S+S/2,r*S+S/2]}
+
+  function build(){
+    var dpr=Math.min(2,devicePixelRatio||1),rc=cv.getBoundingClientRect();W=rc.width;H=rc.height;
+    cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    var mob=W<860;S=mob?22:31;N=mob?700:1300;cols=Math.floor(W/S);rows=Math.floor(H/S);
+    roadRow=Math.round(H*(mob?.88:.84)/S);cityCol=Math.round(cols*(mob?.5:.66));
+    B=[{x0:cityCol-2,w:5,h:10,a:0,first:true}];var maxH=Math.floor(rows*.45),seed=1;
+    function gen(dir){var x=dir>0?cityCol+4:cityCol-3;
+      while(dir>0?x<cols:x>=0){var w=3+Math.floor(rnd(seed++)*3),gap=1+Math.floor(rnd(seed++)*2),h=Math.min(maxH,5+Math.floor(rnd(seed++)*10));
+        var x0=dir>0?x:x-w+1,d=Math.abs(x0+w/2-cityCol)/Math.max(cityCol,cols-cityCol);
+        B.push({x0:x0,w:w,h:h,a:.12+.75*d});x=dir>0?x+w+gap:x-w-gap;}}
+    gen(1);gen(-1);
+    /* word IDEJA in a 3x5 dot font at half grid spacing */
+    wordPts=[];var hs=S/2,wx0=cityCol*S+S/2-(19*hs)/2,wy0=(roadRow-15)*S;
+    'IDEJA'.split('').forEach(function(ch,li){FONT[ch].forEach(function(line,ry){for(var cx=0;cx<3;cx++)if(line[cx]==='#')wordPts.push([wx0+(li*4+cx)*hs+hs/2,wy0+ry*hs])})});
+    var slots=[];for(var m=0;m<MARKN;m++)slots.push({mark:m});
+    B.forEach(function(b,bi){for(var r=1;r<=b.h;r++)for(var c=b.x0;c<b.x0+b.w;c++){if(c>=0&&c<cols)slots.push({b:bi,c:c,lvl:r})}});
+    for(var c=0;c<cols;c++)slots.push({road:true,c:c});
+    gridCells=[];for(var y=1;y<rows;y++)for(var x=0;x<cols;x++)gridCells.push([x,y]);
+    var SYM=['...X......X...','..X....X...X..','.X....X.....X.','X....X.......X','.X..X.......X.','..XX.......X..','...X......X...'];
+    symbol=[];var sc=Math.round(cols*.42),sr=Math.round(rows*.36);
+    SYM.forEach(function(line,ry){for(var cx=0;cx<line.length;cx++)if(line[cx]==='X')symbol.push([sc+cx,sr+ry])});
+    var keep=parts;parts=[];
+    for(var k=0;k<N;k++){var o=keep[k];parts.push({x:o?o.x:W/2,y:o?o.y:-40,a:o?o.a:0,r:o?o.r:1,c:o?o.c:OR.slice(),
+      sz:1.4+rnd(k+9)*3.6,sp:.07+rnd(k+3)*.07,j:rnd(k+7),f:rnd(k+51),slot:k<slots.length?slots[k]:null,
+      g:gridCells[Math.floor(rnd(k+13)*gridCells.length)],sym:k<symbol.length?symbol[k]:null});}
+  }
+  function bH(b,g){return b.first?Math.round(5+5*sm(0,.9,g)):Math.round(b.h*sm(b.a,b.a+.2,g))}
+  function mix(A,Bt,m){if(m<=0)return A;if(m>=1)return Bt;return {x:A.x+(Bt.x-A.x)*m,y:A.y+(Bt.y-A.y)*m,a:A.a+(Bt.a-A.a)*m,r:A.r+(Bt.r-A.r)*m,
+    c:[A.c[0]+(Bt.c[0]-A.c[0])*m,A.c[1]+(Bt.c[1]-A.c[1])*m,A.c[2]+(Bt.c[2]-A.c[2])*m]}}
+
+  var markPos=[0,0];
+  function markT(i,now,on,g){
+    var cx=cityCol*S+S/2,cy=(roadRow-14)*S;markPos=[cx,cy];
+    if(VAR==='rec'){if(i>=wordPts.length)return null;var w=wordPts[i],sh=.75+.25*Math.sin(now/380-w[0]/40);
+      return {x:w[0],y:w[1],a:on,r:Math.max(1.8,S*.08)*sh+.8,c:i%3===0?[255,226,160]:OR}}
+    if(VAR==='orbita'){if(i===0)return {x:cx,y:cy,a:on,r:7,c:[255,226,160]};
+      if(i<=12){var t=(i/12)*6.283+now/1800;return {x:cx+Math.cos(t)*S*1.4,y:cy+Math.sin(t)*S*1.4,a:on,r:3.4,c:OR}}
+      if(i<=32){var t=((i-12)/20)*6.283-now/2600;return {x:cx+Math.cos(t)*S*2.5,y:cy+Math.sin(t)*S*2.5,a:on*.7,r:2.4,c:GO}}
+      return null}
+    if(VAR==='svetionik'){if(i===0)return {x:cx,y:cy,a:on,r:9+Math.sin(now/600),c:OR};
+      if(i<=8){var t=(i/8)*6.283;return {x:cx+Math.cos(t)*S*1.1,y:cy+Math.sin(t)*S*1.1,a:on*(.4+.6*Math.max(0,Math.sin(now/500+i))),r:2.6,c:GO}}
+      var roof=(roadRow-bH(B[0],g))*S,yy=cy+S*1.6+(i-9)*S/2;if(yy>roof-S*.3)return null;
+      var run=((now/30-(i-9)*12)%200+200)%200<26;return {x:cx,y:yy,a:on*(run?1:.45),r:run?3.4:2.2,c:run?[255,226,160]:OR}}
+    if(VAR==='okvir'){var half=S*3.5,cnr=[[-1,-1],[1,-1],[1,1],[-1,1]];if(i>=24)return null;var ci=Math.floor(i/6),k=i%6,dx=cnr[ci][0],dy=cnr[ci][1];
+      var along=(k<3)?[dx*(half-k*S*.5),dy*half]:[dx*half,dy*(half-(k-2)*S*.5)];
+      var br=1+.04*Math.sin(now/700);return {x:cx+along[0]*br,y:cy+along[1]*br,a:on,r:3.6,c:OR}}
+    return null}
+  /* the five states */
+  function sArc(k,p,now){var q=sm(0,.08,P),u=k/N,cx=W/2,cy=-H*.06,R=Math.min(W*.46,H*.9),th=Math.PI*(1-u),t=(rnd(k+41)-.5)*S*1.4;
+    if(u<=q)return {x:cx+(R+t)*Math.cos(th),y:cy+(R+t)*Math.sin(th),a:.95,r:p.sz,c:OR};
+    return {x:cx-R,y:cy,a:0,r:p.sz,c:OR}}
+  function sCity(k,p,now,g){
+    var s=p.slot,road=cell(s&&s.c!=null?s.c:Math.floor(p.j*cols),roadRow);
+    var hid={x:road[0],y:road[1],a:0,r:2,c:OR};
+    if(!s)return hid;
+    if(s.road)return {x:road[0],y:road[1],a:1,r:3.6,c:OR};
+    if(s.mark!=null){var mt=markT(s.mark,now,sm(0,.12,g),g);return mt||hid}
+    var b=B[s.b],h=bH(b,g);
+    if(s.lvl>h)return hid;
+    var top=s.lvl===h,edge=s.c===b.x0||s.c===b.x0+b.w-1,win=!top&&!edge&&s.lvl%2===0&&(s.c-b.x0)%2===1,xy=cell(s.c,roadRow-s.lvl);
+    var a=(W>=860&&xy[0]<Math.min(W*.4,620))?.35:1;
+    if(top||edge)return {x:xy[0],y:xy[1],a:a,r:4.6,c:OR};
+    if(win)return {x:xy[0],y:xy[1],a:.8*a,r:2.8,c:GO};
+    return hid}
+  function sLine(k,p){return {x:(k+.5)/N*W,y:roadRow*S+S/2,a:.95,r:2+p.sz*.25,c:OR}}
+  function sLineTop(k,p){return {x:(k+.5)/N*W,y:H*.08,a:.95,r:2+p.sz*.25,c:DI}}
+  function sSpread(k,p,now){return {x:(k+.5)/N*W+(rnd(k+61)-.5)*S*1.6,y:H*.08+p.f*H*.9+Math.sin(now/1300+k)*3,a:.8,r:1.2+p.j*3.4,c:DI}}
+  function sGrid(k,p){if(p.sym){var xy=cell(p.sym[0],p.sym[1]);return {x:xy[0],y:xy[1],a:1,r:5,c:OR}}
+    var xy=cell(p.g[0],p.g[1]);return {x:xy[0],y:xy[1],a:.55,r:1.4+p.j*2.2,c:DI}}
+
+  var GL='ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>',lines=[],stage=-1;
+  ['lv','who','prob','idea','coreT'].forEach(function(id){lines.push({el:document.getElementById(id)})});
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+  function say(j,t,delay){lines[j].t=t;lines[j].st=performance.now()+(delay||0)}
+  function text(now){lines.forEach(function(l){if(!l.t)return;var n=l.t.length,k=reduce?1:Math.min(1,Math.max(0,(now-l.st)/(n*28))),d=Math.floor(k*n),nz=(k<=0||k>=1)?0:Math.min(5,n-d),z='';
+    for(var j=0;j<nz;j++){var ch=l.t[d+j];z+=ch===' '?' ':GL[(Math.random()*GL.length)|0]}
+    var h=esc(l.t.slice(0,d))+'<span class="noise">'+esc(z)+'</span><span class="rest">'+esc(l.t.slice(d+nz))+'</span>';if(h!==l.h){l.el.innerHTML=h;l.h=h}})}
+
+  var coreShown=false;
+  function frame(now){
+    var rc=track.getBoundingClientRect(),tot=track.offsetHeight-innerHeight;P=Math.max(0,Math.min(1,-rc.top/tot));
+    var g=sm(.12,.56,P);
+    /* overlapping blends instead of hard cuts; d/f stagger each dot so the swarm moves as a wave */
+    ctx.clearRect(0,0,W,H);
+    var gb=sm(.80,.90,P);
+    if(gb>0){for(var i=0;i<gridCells.length;i++){var q=gridCells[i],xy=cell(q[0],q[1]);ctx.globalAlpha=gb*(.25+rnd(i)*.35);ctx.fillStyle='rgb(184,146,90)';ctx.beginPath();ctx.arc(xy[0],xy[1],1.4+rnd(i+2)*2,0,6.283);ctx.fill();}}
+    for(var k=0;k<N;k++){
+      var p=parts[k],d=p.j,t;
+      t=sArc(k,p,now);
+      t=mix(t,sCity(k,p,now,g),sm(.085+d*.03,.13+d*.03,P));
+      t=mix(t,sLine(k,p),sm(.565+d*.04,.625+d*.04,P));
+      t=mix(t,sLineTop(k,p),sm(.66,.70,P));
+      t=mix(t,sSpread(k,p,now),sm(.69,.79,P));
+      t=mix(t,sGrid(k,p),sm(.785+p.f*.05,.84+p.f*.05,P));
+      var e=reduce?1:p.sp;
+      p.x+=(t.x-p.x)*e;p.y+=(t.y-p.y)*e;p.a+=(t.a-p.a)*e;p.r+=(t.r-p.r)*e;
+      for(var ci=0;ci<3;ci++)p.c[ci]+=(t.c[ci]-p.c[ci])*e;
+      if(p.a<.02)continue;
+      ctx.globalAlpha=Math.min(1,p.a);ctx.fillStyle='rgb('+(p.c[0]|0)+','+(p.c[1]|0)+','+(p.c[2]|0)+')';
+      ctx.beginPath();ctx.arc(p.x,p.y,Math.max(.5,p.r),0,6.283);ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    var co=sm(.12,.16,P)*(1-sm(.55,.58,P));
+    var ide=document.getElementById('ideje');ide.style.setProperty('--co',co.toFixed(3));
+    var core=document.getElementById('core');core.style.display=VAR==='rec'?'none':'flex';core.style.left=(markPos[0]+S*(VAR==='okvir'?4:3))+'px';core.style.top=markPos[1]+'px';
+    if(co>.5&&!coreShown){coreShown=true;say(4,'IDEJA',150)}if(co<.1&&coreShown){coreShown=false;lines[4].t='';lines[4].el.innerHTML=''}
+    var io=sm(.09,.13,P)*(1-sm(.55,.59,P));ide.style.setProperty('--o',io.toFixed(3));ide.classList.toggle('on',io>.5);
+    var uo=sm(.86,.92,P),us=document.getElementById('usluge');us.style.setProperty('--u',uo.toFixed(3));us.classList.toggle('on',uo>.5);
+    var st=Math.min(3,Math.floor(g*4.2));if(st!==stage){stage=st;DATA[st].forEach(function(s,j){say(j,s,j*140)})}
+    text(now);
+    var ph=P<.1?'polukrug iz „O nama“':P<.57?'grad raste':P<.66?'grad se sliva u liniju':P<.79?'linija se razvlači nadole':'usluge';
+    document.getElementById('phase').innerHTML='Faza: <b>'+ph+'</b>';
+    requestAnimationFrame(frame);
+  }
+  var sw=document.createElement('div');sw.className='sw';sw.setAttribute('role','group');sw.setAttribute('aria-label','Varijanta znaka IDEJA');
+  [['rec','Reč od tačkica'],['orbita','Orbita'],['svetionik','Svetionik'],['okvir','Okvir']].forEach(function(v){var b=document.createElement('button');b.textContent=v[1];b.setAttribute('aria-pressed',v[0]===VAR);
+    b.onclick=function(){VAR=v[0];[].forEach.call(sw.children,function(x){x.setAttribute('aria-pressed','false')});b.setAttribute('aria-pressed','true')};sw.appendChild(b)});
+  document.getElementById('stage').appendChild(sw);
+  addEventListener('resize',build);build();requestAnimationFrame(frame);
+})();
+</script>

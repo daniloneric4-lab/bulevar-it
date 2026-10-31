@@ -1,0 +1,287 @@
+/* ═══════════════════════════════════════════════════════════
+   07 · KAKO RAZMIŠLJAMO (#kako-razmisljamo)
+   Pinned stage with 7-step climbing staircase, decode text,
+   growing gold line, loop and traveling dot.
+   ═══════════════════════════════════════════════════════════ */
+
+#kako-razmisljamo {
+  position: relative;
+  z-index: 25;
+  margin-top: 0;
+}
+
+#kako-razmisljamo .kr-track {
+  position: relative;
+  height: calc(7 * 70vh + 300vh);
+}
+
+/* The Rise: slides up over the completed portfolio seamlessly (no ears, no top shadow) */
+#kako-razmisljamo .kr-track.rise {
+  background: #182032;
+  border-radius: 0;
+  box-shadow: none;
+  border-top: none;
+}
+
+#kako-razmisljamo .kr-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+  border-radius: 0;
+  background: #182032;
+}
+
+#kako-razmisljamo .kr-wrap {
+  position: relative;
+  height: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  --px: clamp(20px, 4.5vw, 64px);
+  padding-left: var(--px);
+  padding-right: var(--px);
+  opacity: var(--in, 1);
+  transform: translateY(calc((1 - var(--in, 1)) * 60px));
+}
+
+#kako-razmisljamo .kr-head {
+  position: absolute;
+  left: var(--px);
+  top: 9vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 520px;
+  z-index: 2;
+}
+
+#kako-razmisljamo .kr-tag {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold, #D9B25F);
+}
+
+#kako-razmisljamo h2 {
+  margin: 0;
+  font-family: var(--display, 'Montserrat', sans-serif);
+  font-weight: 900;
+  font-size: clamp(26px, 2.8vw, 42px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ink, #F3EEE3);
+}
+
+#kako-razmisljamo h2 em {
+  font-style: normal;
+  color: var(--gold, #D9B25F);
+}
+
+#kako-razmisljamo .kr-sub {
+  margin: 0;
+  color: var(--muted, #A7AEC2);
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 44ch;
+}
+
+#kako-razmisljamo svg.kr-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#kako-razmisljamo .kr-w {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: opacity 0.5s ease;
+  z-index: 2;
+}
+
+#kako-razmisljamo .kr-w .n {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--muted, #A7AEC2);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
+}
+
+#kako-razmisljamo .kr-w .t {
+  font-family: var(--display, 'Montserrat', sans-serif);
+  font-weight: 900;
+  font-size: clamp(30px, 4.6vw, 72px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #3a4566;
+  transition: color 0.5s ease;
+}
+
+#kako-razmisljamo .kr-w .q {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gold, #D9B25F);
+  width: 32ch;
+  min-height: 3em;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+@media (min-width: 861px) {
+  #kako-razmisljamo .kr-w .q {
+    position: absolute;
+    left: calc(100% + 28px);
+    top: 22px;
+  }
+}
+
+#kako-razmisljamo .kr-w.seen .t {
+  color: #6f7a99;
+}
+
+#kako-razmisljamo .kr-w.act .t {
+  color: var(--ink, #F3EEE3);
+}
+
+#kako-razmisljamo .kr-w.act .n {
+  color: var(--orange, #E8963A);
+}
+
+#kako-razmisljamo .kr-w.act .q {
+  opacity: 1;
+}
+
+#kako-razmisljamo .kr-w.last.act .t {
+  color: var(--gold, #D9B25F);
+}
+
+#kako-razmisljamo .noise {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  color: var(--orange, #E8963A);
+}
+
+#kako-razmisljamo .rest {
+  color: transparent;
+}
+
+#kako-razmisljamo .kr-end {
+  position: absolute;
+  right: var(--px);
+  bottom: 8vh;
+  max-width: 480px;
+  text-align: right;
+  font-family: var(--display, 'Montserrat', sans-serif);
+  font-size: clamp(18px, 1.8vw, 24px);
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--ink, #F3EEE3);
+  opacity: var(--e, 0);
+  transform: translateY(calc((1 - var(--e, 0)) * 14px));
+  z-index: 2;
+}
+
+#kako-razmisljamo .kr-end em {
+  font-style: normal;
+  color: var(--gold, #D9B25F);
+}
+
+#kako-razmisljamo .kr-dots {
+  position: absolute;
+  left: var(--px);
+  bottom: 3vh;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+#kako-razmisljamo .kr-dots i {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line, #2A3658);
+  transition: background 0.4s ease;
+}
+
+#kako-razmisljamo .kr-dots i.on {
+  background: var(--gold, #D9B25F);
+}
+
+@media (max-width: 860px) {
+  #kako-razmisljamo {
+    margin-top: 0;
+    z-index: 25;
+  }
+  #kako-razmisljamo .kr-track.rise,
+  #kako-razmisljamo .kr-stage {
+    border-radius: 0;
+    box-shadow: none;
+    border-top: none;
+  }
+  #kako-razmisljamo .kr-head {
+    top: clamp(88px, 11vh, 98px);
+    gap: 6px;
+  }
+  #kako-razmisljamo .kr-dots {
+    display: none !important;
+  }
+  #kako-razmisljamo .kr-sub {
+    display: none;
+  }
+  #kako-razmisljamo h2 {
+    font-size: clamp(20px, 5.6vw, 26px);
+  }
+  #kako-razmisljamo .kr-w .t {
+    font-size: clamp(26px, 8.4vw, 38px);
+  }
+  #kako-razmisljamo .kr-w .q {
+    font-size: 11.5px;
+    max-width: 26ch;
+  }
+  #kako-razmisljamo .kr-end {
+    left: var(--px);
+    right: var(--px);
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    text-align: left;
+    font-size: 16px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 400px) {
+  #kako-razmisljamo .kr-head {
+    top: clamp(88px, 11vh, 98px);
+    gap: 4px;
+  }
+  #kako-razmisljamo h2 {
+    font-size: 19px;
+  }
+  #kako-razmisljamo .kr-w .t {
+    font-size: 24px;
+  }
+  #kako-razmisljamo .kr-w .q {
+    font-size: 10.5px;
+    max-width: 28ch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #kako-razmisljamo .kr-w,
+  #kako-razmisljamo .kr-w .t,
+  #kako-razmisljamo .kr-w .q,
+  #kako-razmisljamo .kr-dots i {
+    transition: none;
+  }
+}

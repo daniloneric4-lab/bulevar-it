@@ -232,7 +232,7 @@ export class DotGrid {
     this.parallaxRotY = 0;
     this.parallaxRotX = 0;
 
-    this.isVisible = true;
+    this.isVisible = false;
     this.animId = null;
     this.time = 0;
 
@@ -507,6 +507,12 @@ export class DotGrid {
   setBloom(t) {
     const clampedT = Math.max(0, Math.min(1, t));
     this.targetBloom = clampedT * clampedT * (3.0 - 2.0 * clampedT);
+  }
+
+  setBloomImmediate(t) {
+    const clampedT = Math.max(0, Math.min(1, t));
+    this.targetBloom = clampedT * clampedT * (3.0 - 2.0 * clampedT);
+    this.currentBloom = this.targetBloom;
   }
 
   /**

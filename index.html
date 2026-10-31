@@ -28,339 +28,476 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Montserrat:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
 
   <!-- Styles -->
+  <link rel="stylesheet" href="/src/styles/index.css" />
 
 </head>
-<body>
+<body style="background-color: #080C14; color: #F3EEE3;">
 
   <!-- ═══════════════════════════════════════════════════ -->
   <!-- NAVIGATION                                          -->
   <!-- ═══════════════════════════════════════════════════ -->
   <nav id="main-nav" class="nav">
     <div class="nav__inner">
+      <a href="#hero" class="nav__logo" aria-label="Bulevar.IT Početna">
+        <span class="nav__logo-text">Bulevar</span><span class="nav__logo-accent">.IT</span>
+      </a>
       <button id="nav-toggle" class="nav__toggle" aria-label="Otvori meni" aria-expanded="false">
         <span class="nav__toggle-bar"></span>
         <span class="nav__toggle-bar"></span>
         <span class="nav__toggle-bar"></span>
       </button>
-      <ul id="nav-links" class="nav__links">
-        <li><a href="#o-nama" class="nav__link">O nama</a></li>
-        <li><a href="#services" class="nav__link">Usluge</a></li>
-        <li><a href="#devices" class="nav__link">Responzivnost</a></li>
-        <li><a href="#portfolio" class="nav__link">Portfolio</a></li>
-        <li><a href="#contact" class="nav__link nav__link--cta">Kontakt</a></li>
-      </ul>
+      <div class="nav__menu-wrapper" id="nav-menu-wrapper">
+        <ul id="nav-links" class="nav__links">
+          <span class="nav__blob" id="nav-blob" aria-hidden="true"></span>
+          <li>
+            <a href="#o-nama" class="nav__link">
+              <span class="nav__link-idx">01</span>
+              <span class="nav__link-text" data-i18n="nav.about">O nama</span>
+              <span class="nav__link-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#services" class="nav__link">
+              <span class="nav__link-idx">02</span>
+              <span class="nav__link-text" data-i18n="nav.services">Usluge</span>
+              <span class="nav__link-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#put-kupca" class="nav__link">
+              <span class="nav__link-idx">03</span>
+              <span class="nav__link-text" data-i18n="nav.journey">Put kupca</span>
+              <span class="nav__link-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#portfolio" class="nav__link">
+              <span class="nav__link-idx">04</span>
+              <span class="nav__link-text" data-i18n="nav.portfolio">Radovi</span>
+              <span class="nav__link-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#kako-razmisljamo" class="nav__link">
+              <span class="nav__link-idx">05</span>
+              <span class="nav__link-text" data-i18n="nav.approach">Kako radimo</span>
+              <span class="nav__link-arrow">→</span>
+            </a>
+          </li>
+          <li>
+            <a href="#contact" class="nav__link nav__link--cta">
+              <span class="nav__link-idx">06</span>
+              <span class="nav__link-text" data-i18n="nav.contact">Kontakt</span>
+              <span class="nav__link-arrow">→</span>
+            </a>
+          </li>
+        </ul>
+        <div class="nav__mobile-footer">
+          <div class="nav__mobile-tag">Studio za digitalni rast</div>
+          <div class="nav__mobile-contacts">
+            <a href="tel:+381665852052" class="nav__mobile-contact-link">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>066 5852 052</span>
+            </a>
+            <a href="mailto:office@bulevar.it" class="nav__mobile-contact-link">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>office@bulevar.it</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════ -->
-  <!-- 1. HERO / INTRO — Frame-sequence scroll video       -->
+  <!-- 1. HERO & 2. O NAMA — Video Scrub & Dot Figures Stage -->
   <!-- ═══════════════════════════════════════════════════ -->
-  <section id="hero" class="hero">
-    <canvas id="hero-video" class="hero__canvas"></canvas>
-
-    <!-- Scanline / glitch overlay -->
-    <div class="hero__overlay" aria-hidden="true"></div>
-
-    <!-- Headline (animated per-letter on scroll) -->
-    <div class="hero__content">
-      <h1 id="hero-headline" class="hero__headline" aria-label="Gradimo digitalni bulevar vašeg biznisa">
-        <span class="hero__headline-line">Gradimo digitalni</span>
-        <span class="hero__headline-line hero__headline-line--accent">bulevar</span>
-        <span class="hero__headline-line">vašeg biznisa</span>
-      </h1>
-      <p class="hero__sub">Web sajtovi · Aplikacije · Automatizacija · Marketing</p>
-      <a href="#contact" class="btn btn--primary hero__cta">Započnite projekat</a>
+  <section id="hero" class="track track--hero-onama">
+    <span id="o-nama" class="onama-anchor" aria-hidden="true"></span>
+    <div class="stage stage--hero-onama" id="hero-stage">
+      <video class="hv" id="hero-video-player" muted playsinline webkit-playsinline autoplay loop preload="auto" aria-hidden="true" disablepictureinpicture disableremoteplayback>
+        <source src="/hero-9x16.mp4" type="video/mp4" media="(max-aspect-ratio: 4/5)">
+        <source src="/hero-16x9.mp4" type="video/mp4">
+      </video>
+      <canvas id="hero-onama-cv" aria-hidden="true"></canvas>
+      <div class="hero-onama-cap pad" id="hero-onama-cap" style="opacity: 0;">
+        <div class="wrap">
+          <div class="meta">
+            <div class="tag">02 · O nama</div>
+            <div class="cnt"><b id="hero-onama-ci">01</b> / 04</div>
+          </div>
+          <div class="txt" aria-live="polite">
+            <h2 id="hero-onama-th"></h2>
+            <p id="hero-onama-tp"></p>
+          </div>
+        </div>
+      </div>
+      <div class="hint" id="hero-hint">Skroluj<i></i></div>
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════════ -->
-  <!-- ═══════════════════════════════════════════════════ -->
-  <!-- 2. O NAMA — Scroll-Locked Typewriter & Ground-Emerging Blocks -->
-  <!-- ═══════════════════════════════════════════════════ -->
-  <section id="o-nama" class="section section--dark about">
-    <!-- Anchor alias for #about URLs / legacy links -->
-    <span id="about" class="about-anchor" aria-hidden="true"></span>
 
-    <!-- Content in Background (z-index: 1, Pure Deep Black #080C14) -->
-    <div class="about__bg-content">
-      <div class="container about__container">
-        <div class="about__header">
-          <div class="section__label about__section-label"><span class="section__label-number">01</span> O nama</div>
-          <h2 class="about__heading">Tim koji stoji iza <span class="text-accent">rezultata</span></h2>
-          <p class="about__description" id="about-description">
-            Bulevar.IT je tim mladih stručnjaka iz Novog Sada koji već više od 3 godine pomaže lokalnim biznisima da izgledaju ozbiljno online i privuku više klijenata. Radili smo sa restoranima, salonima, teretanama, e-commerce brendovima — i svima im je zajedničko jedno: hteli su više od lepog sajta. Hteli su rezultate. I to isporučujemo.
-          </p>
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 2. IDEJE & USLUGE — Unified Continuous Particle Stage -->
+  <!-- Identical to prototype ideje-usluge.html             -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="track track--ideje-usluge" id="track">
+    <div class="stage" id="stage">
+      <canvas id="c" aria-hidden="true"></canvas>
+
+      <!-- Layer 1: Ideje nemaju veličinu firme -->
+      <div class="layer ideje pad" id="ideje">
+        <div class="copy">
+          <div class="tag" data-i18n="ideje.tag">03 · Za svaku veličinu</div>
+          <div class="copy-body">
+            <h2 id="ideje-title" aria-label="Ideje nemaju veličinu firme."><span id="h1a" aria-hidden="true">Ideje nemaju</span><br><em id="h1b" aria-hidden="true">veličinu firme.</em></h2>
+            <div class="cases" id="cases">
+              <div class="lvl"><span data-i18n="ideje.size">Veličina:</span> <b id="lv"></b><i></i></div>
+              <dl class="case" aria-live="polite">
+                <dt data-i18n="ideje.who">Ko</dt><dd id="who"></dd>
+                <dt data-i18n="ideje.prob">Problem</dt><dd id="prob"></dd>
+                <dt data-i18n="ideje.idea">Ideja</dt><dd id="idea" class="idea"></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="core" id="core"><i></i><span id="coreT"></span></div>
+      </div>
+
+      <!-- Layer 1.5: Manifesto / Ključni stav (Screenshot 2 & 3) -->
+      <div class="layer manifesto pad" id="manifesto">
+        <div class="manifesto__wrap">
+          <h3 class="manifesto__heading">
+            <span id="man-a" class="manifesto__line"></span><br class="manifesto__br">
+            <span id="man-b" class="manifesto__line manifesto__line--accent"></span>
+          </h3>
+        </div>
+      </div>
+
+      <!-- Layer 2: Usluge -->
+      <div class="layer usluge pad" id="usluge">
+        <span id="services" class="services-anchor" aria-hidden="true"></span>
+        <div class="uh">
+          <div class="tag" data-i18n="usluge.tag">04 · Usluge</div>
+          <h3 data-i18n="usluge.heading">Šta radimo za <em>vaš biznis</em></h3>
         </div>
 
-        <!-- 4 Metric Columns matching reference design with vertical dividers & hover glow -->
-        <div class="about__stats" id="about-stats">
-          <!-- Block 1 -->
-          <div class="stat-block" data-stat="1">
-            <div class="stat-block__inner">
-              <div class="stat-block__metric">
-                <span class="stat-block__number">3+</span>
-                <span class="stat-block__unit">Godine</span>
-              </div>
-              <p class="stat-block__desc">
-                Iskustva u kreiranju modernih digitalnih proizvoda koji donose merljive rezultate
-              </p>
+        <!-- Veliki 3D simbol u centru (znak je veći) -->
+        <div class="usluge-symbol-area" id="usluge-symbol-area" aria-hidden="true"></div>
+
+        <!-- 3 Nove Usluge poredjane kao 3 bloka u donjem delu u starom stilu kao i onih 6 što su bili -->
+        <div class="services-blocks-row" id="services-blocks-row">
+          <!-- Blok 01: Digitalna iskustva -->
+          <article class="glass-block drop is-active" data-from="l" data-service="digitalna" data-idx="0" tabindex="0" style="animation-delay: 0s;">
+            <span class="ripple" aria-hidden="true"></span>
+            <div class="glass-block__glow"></div>
+            <div class="glass-block__header">
+              <span class="glass-block__num">01</span>
+              <h3 class="glass-block__title" data-i18n="usluge.b1.title" data-dec="Digitalna iskustva">Digitalna iskustva</h3>
+            </div>
+            <p class="glass-block__desc" data-i18n="usluge.b1.desc" data-dec="Internet sajtovi, prodajne stranice, web i mobilne aplikacije i online prodavnice. Rešava problem nejasne ponude i zbunjenih posetilaca.">Internet sajtovi, prodajne stranice, web i mobilne aplikacije i online prodavnice. Rešava problem nejasne ponude i zbunjenih posetilaca.</p>
+            <ul class="glass-block__tags">
+              <li data-i18n="usluge.b1.t1">Internet sajtovi</li>
+              <li data-i18n="usluge.b1.t2">Prodajne stranice</li>
+              <li data-i18n="usluge.b1.t3">Web aplikacije</li>
+              <li data-i18n="usluge.b1.t4">Dizajn interfejsa</li>
+            </ul>
+          </article>
+
+          <!-- Blok 02: Sistemi rasta -->
+          <article class="glass-block drop" data-from="l" data-service="rasta" data-idx="1" tabindex="0" style="animation-delay: 0.12s;">
+            <span class="ripple" aria-hidden="true"></span>
+            <div class="glass-block__glow"></div>
+            <div class="glass-block__header">
+              <span class="glass-block__num">02</span>
+              <h3 class="glass-block__title" data-i18n="usluge.b2.title" data-dec="Sistemi rasta">Sistemi rasta</h3>
+            </div>
+            <p class="glass-block__desc" data-i18n="usluge.b2.desc" data-dec="Ciljane Google i Meta kampanje, SEO optimizacija, analitika i konverzije. Konstantan priliv pravih i dugoročnih kupaca.">Ciljane Google i Meta kampanje, SEO optimizacija, analitika i konverzije. Konstantan priliv pravih i dugoročnih kupaca.</p>
+            <ul class="glass-block__tags">
+              <li data-i18n="usluge.b2.t1">Google oglasi</li>
+              <li data-i18n="usluge.b2.t2">Meta oglasi</li>
+              <li data-i18n="usluge.b2.t3">SEO optimizacija</li>
+              <li data-i18n="usluge.b2.t4">Analitika i povrat</li>
+            </ul>
+          </article>
+
+          <!-- Blok 03: Automatizacija & Integracije -->
+          <article class="glass-block drop from-r" data-from="r" data-service="automatizacija" data-idx="2" tabindex="0" style="animation-delay: 0.24s;">
+            <span class="ripple" aria-hidden="true"></span>
+            <div class="glass-block__glow"></div>
+            <div class="glass-block__header">
+              <span class="glass-block__num">03</span>
+              <h3 class="glass-block__title" data-i18n="usluge.b3.title" data-dec="Automatizacija &amp; Integracije">Automatizacija &amp; Integracije</h3>
+            </div>
+            <p class="glass-block__desc" data-i18n="usluge.b3.desc" data-dec="AI automatizacija procesa, pametni asistenti, CRM i povezivanje sistema. Štedi vreme timu i sprečava gubljenje upita.">AI automatizacija procesa, pametni asistenti, CRM i povezivanje sistema. Štedi vreme timu i sprečava gubljenje upita.</p>
+            <ul class="glass-block__tags">
+              <li data-i18n="usluge.b3.t1">AI asistenti</li>
+              <li data-i18n="usluge.b3.t2">CRM sistemi</li>
+              <li data-i18n="usluge.b3.t3">Povezivanje alata</li>
+              <li data-i18n="usluge.b3.t4">24/7 procesi</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 05. PREKIDAČ & SEKCIJA: PREUZMITE PUT KUPCA         -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="ojsw" role="group" aria-label="Primer koji se prikazuje">
+    <span data-i18n="oj.primer">Primer</span>
+    <button type="button" data-v="stay" data-i18n="oj.stay">Smeštaj</button>
+    <button type="button" data-v="food" data-i18n="oj.food">Dostava hrane</button>
+  </div>
+
+  <div id="put-kupca" class="own-journey-wrapper">
+
+
+    <!-- 1. Pinned 3D Phone & Day-to-Night Portal Stage -->
+    <div class="track--oj" id="oj-track">
+      <div class="stage--oj" id="oj-stage">
+        <canvas id="oj-gl" aria-label="Telefon sa aplikacijom platforme: lista istih kartica"></canvas>
+        <div class="oj-intro pad">
+          <div class="wrap">
+            <div class="in" id="oj-introIn">
+              <div class="tag" data-i18n="oj.tag">Preuzmite put kupca</div>
+              <h1 id="oj-h1"></h1>
+              <p id="oj-ip"></p>
             </div>
           </div>
+        </div>
 
-          <!-- Block 2 -->
-          <div class="stat-block" data-stat="2">
-            <div class="stat-block__inner">
-              <div class="stat-block__metric">
-                <span class="stat-block__number">87+</span>
-                <span class="stat-block__unit">Projekata</span>
-              </div>
-              <p class="stat-block__desc">
-                Uspešno lansiranih sajtova, e-commerce platformi i custom web rešenja
-              </p>
-            </div>
+        <div class="oj-portal" id="oj-portal">
+          <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop id="s0" offset="0"/>
+                <stop id="s1" offset="1"/>
+              </linearGradient>
+            </defs>
+            <rect width="1600" height="900" fill="url(#sky)"/>
+            <g id="stars"></g>
+            <circle id="sun" r="48"/>
+            <g id="far"><path id="farP" d="M-100 520 C200 440 380 470 560 430 C760 390 900 450 1080 420 C1260 390 1420 440 1800 410 L1800 900 L-100 900Z"/></g>
+            <g id="mid">
+              <path id="midP" d="M-100 640 C150 560 420 600 640 560 C860 520 1050 600 1300 560 C1480 530 1650 580 1800 560 L1800 900 L-100 900Z"/>
+              <g id="vine"></g>
+              <g id="house" transform="translate(-200 22)">
+                <rect id="hb" x="1010" y="512" width="86" height="52"/>
+                <polygon id="hr" points="998,514 1053,478 1108,514"/>
+                <rect class="win" x="1024" y="528" width="15" height="15"/>
+                <rect class="win" x="1064" y="528" width="15" height="15"/>
+              </g>
+            </g>
+            <g id="city" style="display:none">
+              <g id="cfar"></g>
+              <g id="cmid"></g>
+              <rect id="cground" x="-100" y="700" width="1900" height="200"/>
+              <g id="resto"></g>
+              <g id="clights"></g>
+            </g>
+            <g id="near">
+              <path id="nearP" d="M-100 780 C200 720 420 760 700 740 C980 720 1200 780 1500 750 C1650 735 1750 760 1900 750 L1900 900 L-100 900Z"/>
+              <g id="trees"></g>
+            </g>
+          </svg>
+          <div class="scrim"></div>
+          <div class="ptop pad">
+            <div class="brand" id="ojBrand">Kuća pod Fruškom<small>primer · izmišljen smeštaj</small></div>
+            <div class="tag" style="color:var(--ink)">vaš sajt</div>
           </div>
-
-          <!-- Block 3 -->
-          <div class="stat-block" data-stat="3">
-            <div class="stat-block__inner">
-              <div class="stat-block__metric">
-                <span class="stat-block__number">100%</span>
-                <span class="stat-block__unit">Rokovi</span>
-              </div>
-              <p class="stat-block__desc">
-                Isporuka na vreme bez kompromisa i direktna komunikacija sa timom
-              </p>
-            </div>
-          </div>
-
-          <!-- Block 4 -->
-          <div class="stat-block" data-stat="4">
-            <div class="stat-block__inner">
-              <div class="stat-block__metric">
-                <span class="stat-block__number">6k+</span>
-                <span class="stat-block__unit">Sati</span>
-              </div>
-              <p class="stat-block__desc">
-                Posvećenosti razvoju, dizajnu korisničkog iskustva i podršci klijentima
-              </p>
+          <div class="chap pad">
+            <div class="n" id="oj-cn"></div>
+            <h2 id="oj-ch"></h2>
+            <p id="oj-cp"></p>
+            <div class="book" id="oj-book">
+              <button class="chip" aria-pressed="false">Pet 13. – Ned 15.</button>
+              <button class="chip" aria-pressed="true">Pet 20. – Ned 22.</button>
+              <button class="chip" aria-pressed="false">Pet 27. – Ned 29.</button>
+              <button class="go" id="oj-go">Rezerviši direktno</button>
+              <div class="note" id="oj-note" aria-live="polite"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Parallax Image Composition Stage (z-index: 10, covers entire viewport) -->
-    <div class="about-parallax" aria-hidden="true">
-      <!-- Soft top fade from hero navy -->
-      <div class="about-parallax__top-fade"></div>
-
-      <!-- Large clean white bold title "O NAMA" on the left side of the image -->
-      <div class="about-parallax__title-wrap">
-        <span class="about-parallax__title">O NAMA</span>
-      </div>
-
-      <!-- Unified 2528x1696 Master Coordinate Stage (100% seamless, perfectly centered) -->
-      <div class="about-parallax__stage">
-        <!-- Sloj 1: Gornja osnova (y: 0 to 1131, x: 0 to 2528) -->
-        <div class="about-parallax__layer about-parallax__layer--1">
-          <img src="/01-osnova-gornja.jpg" alt="Bulevar IT - Gornja osnova" class="about-parallax__img about-parallax__img--1" />
-        </div>
-
-        <!-- Sloj 3: Donji levi blok (y: 1131 to 1696, x: 0 to 1517) -->
-        <div class="about-parallax__layer about-parallax__layer--3">
-          <img src="/02-donji-levi.jpg" alt="Bulevar IT - Donji levi blok" class="about-parallax__img about-parallax__img--3" />
-        </div>
-
-        <!-- Sloj 4: Donji desni blok (y: 1131 to 1696, x: 1116 to 2528) -->
-        <div class="about-parallax__layer about-parallax__layer--4">
-          <img src="/04-donji-desni.jpg" alt="Bulevar IT - Donji desni blok" class="about-parallax__img about-parallax__img--4" />
-        </div>
-
-        <!-- Sloj 2: Srednji levi prozor (y: 848 to 1413, x: 0 to 1116) -->
-        <div class="about-parallax__layer about-parallax__layer--2">
-          <img src="/03-srednji-levi.jpg" alt="Bulevar IT - Srednji levi blok" class="about-parallax__img about-parallax__img--2" />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════ -->
-  <!-- 3. USLUGE & GALAXY SWIRL STAGE                      -->
-  <!-- ═══════════════════════════════════════════════════ -->
-  <div id="services-stage" class="services-stage">
-    <!-- Dot-grid canvas (pozadina, iza blokova i transition sekcije) -->
-    <canvas id="services-dots" class="services__dots-canvas" aria-hidden="true"></canvas>
-
-    <!-- 2.5 PRE-SERVICES TRANSITION (Prazan prostor gde se pozadina pretvara u crnu i tačkice pale pre usluga) -->
-    <div id="services-pre-transition" class="services-pre-transition" aria-hidden="true"></div>
-
-    <section id="services" class="section services">
-      <div class="container services__container">
-        <div class="services__header">
-          <div class="section__label"><span class="section__label-number">02</span> Usluge</div>
-          <h2 class="section__heading">Šta radimo za <span class="text-accent">vaš biznis</span></h2>
-        </div>
-
-        <div class="services__layout">
-          <!-- Leva kolona: 3 bloka -->
-          <div class="services__column services__column--left">
-            <article class="glass-block" data-service="web" tabindex="0">
-              <div class="glass-block__glow"></div>
-              <div class="glass-block__header">
-                <h3 class="glass-block__title">Web & Development</h3>
-              </div>
-              <p class="glass-block__desc">Profesionalna izrada modernih, ultra brzih i responzivnih sajtova i aplikacija.</p>
-              <ul class="glass-block__tags">
-                <li>Web sajtovi</li>
-                <li>Web apps</li>
-                <li>E-commerce</li>
-              </ul>
-            </article>
-
-            <article class="glass-block" data-service="marketing" tabindex="0">
-              <div class="glass-block__glow"></div>
-              <div class="glass-block__header">
-                <h3 class="glass-block__title">Marketing & Growth</h3>
-              </div>
-              <p class="glass-block__desc">Ciljane Google i Meta kampanje sa merljivim ROI i konstantnim rastom novih klijenata.</p>
-              <ul class="glass-block__tags">
-                <li>Google Ads</li>
-                <li>Meta Ads</li>
-                <li>SEO optimizacija</li>
-              </ul>
-            </article>
-
-            <article class="glass-block" data-service="social" tabindex="0">
-              <div class="glass-block__glow"></div>
-              <div class="glass-block__header">
-                <h3 class="glass-block__title">Social Media</h3>
-              </div>
-              <p class="glass-block__desc">Kreiranje atraktivnog sadržaja i strateško vođenje društvenih mreža koje gradi zajednicu.</p>
-              <ul class="glass-block__tags">
-                <li>Instagram</li>
-                <li>TikTok</li>
-                <li>Content kreacija</li>
-              </ul>
-            </article>
+    <!-- 2. Blok: Od jedne rezervacije do celog vikenda / Od jedne porudžbine do cele večeri -->
+    <section class="blk pad" id="exp">
+      <div class="wrap">
+        <div class="tag" data-i18n="oj.contTag">Put kupca · nastavak</div>
+        <h2 id="x-h"></h2>
+        <p class="lead2" id="x-lead"></p>
+        <div class="board">
+          <div class="panel glass drop" data-from="l">
+            <span class="ripple" aria-hidden="true"></span>
+            <div class="bk">
+              <div><b id="x-bn"></b><span id="x-bs"></span></div>
+              <div class="pr" id="x-bp"></div>
+            </div>
+            <div class="q" id="x-q"></div>
+            <div class="adds" id="adds"></div>
           </div>
-
-          <!-- Centralni prostor (za rotirajuće 3D simbole pri hoveru) -->
-          <div class="services__center" aria-hidden="true"></div>
-
-          <!-- Desna kolona: 3 bloka -->
-          <div class="services__column services__column--right">
-            <article class="glass-block" data-service="automation" tabindex="0">
-              <div class="glass-block__glow"></div>
-              <div class="glass-block__header">
-                <h3 class="glass-block__title">Automation & Systems</h3>
+          <div class="panel plan glass drop from-r" data-from="r" aria-live="polite">
+            <span class="ripple" aria-hidden="true"></span>
+            <h3 id="x-ph"></h3>
+            <p class="ps" id="ps"></p>
+            <div id="days"></div>
+            <div class="val">
+              <div class="row">
+                <span class="k" id="x-vl"></span>
+                <span class="tot" id="tot"></span>
               </div>
-              <p class="glass-block__desc">Automatizacija procesa, AI chatbotovi i pametni CRM sistemi koji drastično štede vreme.</p>
-              <ul class="glass-block__tags">
-                <li>AI automatizacija</li>
-                <li>Chatbotovi</li>
-                <li>Workflows</li>
-              </ul>
-            </article>
-
-            <article class="glass-block" data-service="branding" tabindex="0">
-              <div class="glass-block__glow"></div>
-              <div class="glass-block__header">
-                <h3 class="glass-block__title">Branding & Design</h3>
+              <div class="bar">
+                <div class="a" id="ba" style="flex-basis:100%"></div>
+                <div class="b" id="bb" style="flex-basis:0%"></div>
               </div>
-              <p class="glass-block__desc">Autentičan vizuelni identitet, upečatljiv logo i dizajn koji ostavlja dugotrajan utisak.</p>
-              <ul class="glass-block__tags">
-                <li>Izrada logotipa</li>
-                <li>Vizuelni identitet</li>
-                <li>UI/UX dizajn</li>
-              </ul>
-            </article>
-
-            <article class="glass-block" data-service="support" tabindex="0">
-              <div class="glass-block__glow"></div>
-              <div class="glass-block__header">
-                <h3 class="glass-block__title">Održavanje & Podrška</h3>
+              <div class="leg">
+                <span><b style="background:#5d6788"></b><span id="x-l1"></span></span>
+                <span><b style="background:var(--gold)"></b><span id="x-l2"></span></span>
               </div>
-              <p class="glass-block__desc">Pouzdana tehnička podrška, sigurnosni backup, stabilan hosting i redovna optimizacija.</p>
-              <ul class="glass-block__tags">
-                <li>Hosting & backup</li>
-                <li>Sigurnost sajta</li>
-                <li>24/7 podrška</li>
-              </ul>
-            </article>
+            </div>
+            <div class="note2" id="x-note"></div>
+          </div>
+        </div>
+        <p class="msg" id="x-msg"></p>
+        <div class="tag" style="margin-top:28px">Šta dobro osmišljen sistem može da otvori</div>
+        <div class="ben" id="x-ben"></div>
+        <p class="other" id="x-other"></p>
+      </div>
+    </section>
+
+    <!-- 3. Kalkulator provizije -->
+    <section class="blk pad" id="calc">
+      <div class="wrap">
+        <div class="tag">Koliko košta posrednik</div>
+        <h2>
+          <span data-m="stay">Svaka rezervacija preko platforme <em>ima svoj procenat.</em></span>
+          <span data-m="food">Svaka porudžbina preko aplikacije <em>ima svoj procenat.</em></span>
+        </h2>
+        <p class="lead" data-m="stay">Booking obično uzima oko 15% po rezervaciji, a Airbnb do 15,5% kod modela gde domaćin plaća celu naknadu. Pomerite klizače i pogledajte koliko je to za vas.</p>
+        <p class="lead" data-m="food">Wolt i Glovo uzimaju procenat od svake porudžbine. Tačan iznos zavisi od vašeg ugovora, zato ga ovde podesite sami.</p>
+        <div class="calc">
+          <div class="sl glass drop" data-from="l">
+            <span class="ripple" aria-hidden="true"></span>
+            <div>
+              <label for="pr">
+                <span><span data-m="stay">Prosečna cena noćenja</span><span data-m="food">Prosečna porudžbina</span></span>
+                <output id="prO"></output>
+              </label>
+              <input type="range" id="pr" min="30" max="300" step="5" value="80">
+            </div>
+            <div>
+              <label for="nt">
+                <span><span data-m="stay">Noćenja preko platforme godišnje</span><span data-m="food">Porudžbine preko aplikacije godišnje</span></span>
+                <output id="ntO"></output>
+              </label>
+              <input type="range" id="nt" min="20" max="330" step="5" value="150">
+            </div>
+            <div>
+              <label for="pc">Provizija platforme <output id="pcO"></output></label>
+              <input type="range" id="pc" min="10" max="25" step=".5" value="15">
+            </div>
+          </div>
+          <div class="res glass drop from-r" data-from="r" aria-live="polite">
+            <span class="ripple" aria-hidden="true"></span>
+            <div class="k"><span data-m="stay" data-dec="Platformi godišnje ode">Platformi godišnje ode</span><span data-m="food" data-dec="Aplikaciji godišnje ode">Aplikaciji godišnje ode</span></div>
+            <div class="big" id="fee"></div>
+            <p id="feeN"></p>
+            <p data-m="stay">Uz to platforma zadržava i kontakt gosta, pa sledeći put on opet kreće od pretrage, a ne od vas.</p>
+            <p data-m="food">Uz to aplikacija zadržava i kontakt gosta, pa sledeći put on opet bira iz iste liste, a ne kod vas.</p>
+            <small data-m="stay">Ovo je okvirni račun. I sopstveni sajt ima troškove: izradu, održavanje, naplatu karticom i oglase. Razlika je u tome što ti troškovi ne rastu sa svakom rezervacijom.</small>
+            <small data-m="food">Ovo je okvirni račun. I sopstveni sistem ima troškove: izradu, održavanje, naplatu karticom i oglase, a dostavu organizujete sami ili preko partnera. Razlika je u tome što ti troškovi ne rastu procentom sa svakom porudžbinom.</small>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Post-transition spacer to allow background color to return to navy before Portfolio -->
-    <div id="services-post-transition" class="services-post-transition" aria-hidden="true"></div>
   </div>
 
   <!-- ═══════════════════════════════════════════════════ -->
-  <!-- 4. 3D UREĐAJI — IGLOO.INC STYLE CENTERED SHOWCASE   -->
-  <!-- ═══════════════════════════════════════════════════ -->
-  <!-- ═══════════════════════════════════════════════════ -->
-  <!-- 4. 3D UREĐAJI & SELECTED WORK — UNIFIED CONTINUOUS STAGE -->
+  <!-- 06. PORTFOLIO & POREĐENJE — Unified Horizontal Track -->
   <!-- ═══════════════════════════════════════════════════ -->
   <section id="devices" class="unified-showcase-stage">
     <div id="portfolio" class="portfolio-anchor"></div>
     <div class="unified-showcase__pin-container">
 
-      <!-- Top Section Header -->
-      <div class="unified-showcase__header">
-        <div class="section__label"><span class="section__label-number">03</span> Responzivnost</div>
-        <h2 class="unified-showcase__title">Savršenstvo na <span class="text-accent">svakom ekranu</span></h2>
-        <p class="unified-showcase__subtitle">Besprikorno korisničko iskustvo od 4K desktop radnih stanica do mobilnih telefona</p>
-      </div>
-
-      <!-- Floating Pointer Hint pointing at devices (Refined Thin Circuit Gold Style) -->
-      <button id="device-click-hint" class="device-click-hint" aria-label="Kliknite za više detalja">
-        <div class="hint-circuit-arrow-wrap">
-          <svg class="hint-circuit-svg" viewBox="0 0 74 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="hintGlowThin" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-              </filter>
-            </defs>
-            <!-- 45° Thin gold circuit line pointing towards device on the left -->
-            <path d="M 70 8 L 36 8 L 16 28 L 5 28" stroke="#C9A063" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-            <!-- Refined sharp arrowhead pointing to device -->
-            <path d="M 11 23 L 4 28 L 11 33" stroke="#F0D9A0" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-            <!-- Circuit origin junction dot on the right -->
-            <circle cx="70" cy="8" r="2.5" fill="#F0D9A0" filter="url(#hintGlowThin)" />
-            <circle cx="70" cy="8" r="5" fill="none" stroke="#C9A063" stroke-width="0.8" opacity="0.6" />
-          </svg>
-        </div>
-        <div class="hint-body">
-          <div class="hint-title-row">
-            <span class="hint-text">KLIKNI ZA DETALJE</span>
-          </div>
-          <div class="hint-gold-line"></div>
-        </div>
-      </button>
-
-      <!-- 2. Portfolio Intro Header ("Naši radovi") - Kept anchored at top-left throughout horizontal scroll -->
-      <div id="portfolio-intro-header" class="portfolio-intro-header">
-        <div class="section__label"><span class="section__label-number">04</span> Portfolio</div>
-        <h2 class="portfolio-intro__title">Naši radovi <span class="portfolio-curtis__counter">(09)</span></h2>
-        <p class="portfolio-intro__subtitle">Izdvojeni radovi i digitalne platforme sa merljivim rezultatima</p>
-      </div>
-
-      <!-- Continuous Motion Track: 3D Dual Devices on Left, Curtis Nguyen Horizontal Projects on Right -->
+      <!-- Continuous Motion Track: #vs on Left, Portfolio Works on Right -->
       <div id="unified-motion-track" class="unified-motion-track">
 
-        <!-- 1. Dual 3D Devices Pane (Laptop on top, Telefon below) -->
-        <div id="devices-3d-container" class="devices-3d-pane">
-          <canvas id="devices-3d-canvas" class="devices-3d-canvas"></canvas>
-          <div class="devices-3d-glow" aria-hidden="true"></div>
+        <!-- 1. Pane 1: Poređenje (Na platformi / U aplikaciji vs Na vašem sajtu) -->
+        <div class="vs-pane" id="vs-pane">
+          <section class="blk pad" id="vs">
+            <div class="wrap" data-m="stay">
+              <div class="tag">Oglas ili iskustvo</div>
+              <h2>Na platformi ste oglas. <em>Na sajtu ste mesto.</em></h2>
+              <div class="vs">
+                <div class="col plat glass drop" data-from="l">
+                  <span class="ripple" aria-hidden="true"></span>
+                  <h3 data-dec="Na platformi">Na platformi</h3>
+                  <dl>
+                    <div><dt data-dec="Izgled">Izgled</dt><dd>Isti šablon kao kod svakog drugog oglasa. Gost vas poredi po ceni i zvezdicama.</dd></div>
+                    <div><dt data-dec="Priča">Priča</dt><dd>Lista pogodnosti: Wi-Fi, parking, terasa.</dd></div>
+                    <div><dt data-dec="Provizija">Provizija</dt><dd>Procenat od svake rezervacije.</dd></div>
+                    <div><dt data-dec="Gost posle boravka">Gost posle boravka</dt><dd>Ostaje kontakt platforme. Sledeći put kreće od pretrage.</dd></div>
+                  </dl>
+                </div>
+                <div class="col own glass drop from-r" data-from="r">
+                  <span class="ripple" aria-hidden="true"></span>
+                  <h3 data-dec="Na vašem sajtu"><span class="gold-spark">✦</span>Na vašem sajtu</h3>
+                  <dl>
+                    <div><dt data-dec="Izgled">Izgled</dt><dd><strong class="highlight-gold">Vaš dizajn, vaše fotografije, vaš ritam.</strong> Gost oseti mesto pre nego što stigne.</dd></div>
+                    <div><dt data-dec="Priča">Priča</dt><dd>Kako izgleda jutro, <span class="gold-accent">gde je najbolja vinarija</span>, koja staza vodi do vidikovca.</dd></div>
+                    <div><dt data-dec="Provizija">Provizija</dt><dd><strong class="highlight-gold">Nema procenta po rezervaciji.</strong> Plaćate sajt, a ne svako noćenje.</dd></div>
+                    <div><dt data-dec="Gost posle boravka">Gost posle boravka</dt><dd><strong class="highlight-gold">Kontakt ostaje vama:</strong> poruka za sledeću sezonu, popust za povratak, preporuka prijatelju.</dd></div>
+                  </dl>
+                </div>
+              </div>
+              <p class="fair">Ne kažemo da treba da odete sa platformi. One su dobre za prvi susret sa gostom. <strong class="highlight-gold">Sajt je mesto gde taj gost postaje vaš.</strong></p>
+            </div>
+            <div class="wrap" data-m="food">
+              <div class="tag">Kartica ili lokal</div>
+              <h2>U aplikaciji ste kartica. <em>Na sajtu ste lokal.</em></h2>
+              <div class="vs">
+                <div class="col plat glass drop" data-from="l">
+                  <span class="ripple" aria-hidden="true"></span>
+                  <h3 data-dec="U aplikaciji">U aplikaciji</h3>
+                  <dl>
+                    <div><dt data-dec="Izgled">Izgled</dt><dd>Ista kartica kao kod svakog lokala. Gost vas poredi po ceni i vremenu dostave.</dd></div>
+                    <div><dt data-dec="Priča">Priča</dt><dd>Lista jela sa sličicom.</dd></div>
+                    <div><dt data-dec="Provizija">Provizija</dt><dd>Procenat od svake porudžbine.</dd></div>
+                    <div><dt data-dec="Gost posle porudžbine">Gost posle porudžbine</dt><dd>Ostaje kontakt aplikacije. Sledeći put bira iz iste liste.</dd></div>
+                  </dl>
+                </div>
+                <div class="col own glass drop from-r" data-from="r">
+                  <span class="ripple" aria-hidden="true"></span>
+                  <h3 data-dec="Na vašem sajtu"><span class="gold-spark">✦</span>Na vašem sajtu</h3>
+                  <dl>
+                    <div><dt data-dec="Izgled">Izgled</dt><dd><strong class="highlight-gold">Vaš dizajn, vaše fotografije, vaša priča.</strong> Gost oseti lokal pre prvog zalogaja.</dd></div>
+                    <div><dt data-dec="Priča">Priča</dt><dd>Po čemu ste poznati, <span class="gold-accent">šta je preporuka kuće</span>, šta je novo ove nedelje.</dd></div>
+                    <div><dt data-dec="Provizija">Provizija</dt><dd><strong class="highlight-gold">Nema procenta po porudžbini.</strong> Plaćate sistem, a ne svaki obrok.</dd></div>
+                    <div><dt data-dec="Gost posle porudžbine">Gost posle porudžbine</dt><dd><strong class="highlight-gold">Kontakt ostaje vama:</strong> novi meni, akcija, poziv za rođendan ili proslavu.</dd></div>
+                  </dl>
+                </div>
+              </div>
+              <p class="fair">Ne kažemo da treba da odete sa aplikacija. One su dobre za prvi susret sa gostom. <strong class="highlight-gold">Sajt je mesto gde taj gost postaje vaš.</strong></p>
+            </div>
+          </section>
         </div>
 
-        <!-- 2. Curtis Nguyen Horizontal Portfolio Track -->
+        <!-- 2. Pane 2: Curtis Nguyen Horizontal Portfolio Track (stands to the right of #vs) -->
         <div class="portfolio-pane">
+          <!-- Portfolio Intro Header ("Naši radovi") unutar portfolio pane-a -->
+          <div id="portfolio-intro-header" class="portfolio-intro-header">
+            <div class="section__label"><span class="section__label-number">06</span> <span data-i18n="port.tag">Radovi</span></div>
+            <h2 class="portfolio-intro__title"><span data-i18n="port.h">Naši radovi</span> <span class="portfolio-curtis__counter">(02)</span></h2>
+            <p class="portfolio-intro__subtitle" data-i18n="port.p">Izdvojeni radovi i digitalne platforme sa merljivim rezultatima</p>
+          </div>
+
           <!-- SVG Circuit lines behind cards -->
           <svg class="portfolio-circuit-svg" aria-hidden="true" preserveAspectRatio="none"></svg>
 
@@ -395,7 +532,7 @@
         </div>
 
         <div class="device-modal__body">
-          <span class="device-modal__category" id="modal-category">////// SUMMARY: DESKTOP PERFORMANCE</span>
+          <span class="device-modal__category" id="modal-category">////// PREGLED: RAČUNARI I VELIKI EKRANI</span>
           <h3 class="device-modal__title" id="modal-title">100% Optimizovano za <span class="text-accent">Desktop i 4K ekrane</span></h3>
           <p class="device-modal__lead" id="modal-lead">
             Kreiramo desktop sajtove koji ostavljaju bez daha na prvom ekranu — od standardnih laptopa do gigantskih 4K i UltraWide monitora.
@@ -409,144 +546,243 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════ -->
-  <!-- 5. PINNED OVERLAP-REVEAL CURTAIN TRANSITION         -->
-  <!-- Section A: Full-height navy intro/outro visual       -->
-  <!-- Section B: Full-width obsidian Kontakt & Footer      -->
+  <!-- 07. KAKO RAZMIŠLJAMO — Pinned Staircase & Decode Text -->
   <!-- ═══════════════════════════════════════════════════ -->
-  <div class="overlap-wrap" id="overlap-wrap">
-    <!-- Section A: Pinned full-viewport moment -->
-    <section class="overlap-a portfolio-outro" id="portfolio-outro">
-      <div class="container portfolio-outro__container">
-        <div class="section__label"><span class="section__label-number">04.1</span> Sledeći korak</div>
-        <h2 class="overlap-a__title">Spremni da stvorimo <span class="text-accent">nešto zajedno?</span></h2>
-        <p class="overlap-a__subtitle">Pretvaramo vaše ideje u brze, skalabilne i vizuelno impresivne digitalne platforme.</p>
+  <section id="kako-razmisljamo">
+    <div id="ne-trazimo" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;opacity:0;"></div>
+    <div class="kr-track rise" id="kr-track">
+      <div class="kr-stage">
+        <div class="kr-wrap" id="kr-wrap">
+          <div class="kr-head">
+            <div class="kr-tag" data-i18n="kr.tag">07 · Kako razmišljamo</div>
+            <h2><span data-i18n="kr.h">Bolja pitanja vode do <em>boljih sistema.</em></span></h2>
+            <p class="kr-sub" data-i18n="kr.sub">Ne počinjemo pitanjem „koji sajt želite?“, nego pitanjem šta vaš biznis pokušava da postigne.</p>
+          </div>
+          <svg class="kr-path" id="kr-svg" aria-hidden="true">
+            <path id="kr-stair" fill="none" stroke="#D9B25F" stroke-width="1.5" stroke-dasharray="3 7" opacity=".55"></path>
+            <path id="kr-loop" fill="none" stroke="#D9B25F" stroke-width="1.5" opacity=".9"></path>
+            <circle id="kr-tip" r="4" fill="#E8963A"></circle>
+          </svg>
+          <div id="kr-words"></div>
+          <p class="kr-end" id="kr-end" data-i18n="kr.end">Ne diktiramo šta treba da želite.<br><em>Rešenje gradimo zajedno.</em> Pa opet od 1.</p>
+          <div class="kr-dots" id="kr-dots" aria-hidden="true"></div>
+        </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Section B: Curtain sheet rising up and covering Section A -->
-    <section class="overlap-b contact-footer-sheet" id="contact-footer-sheet">
-      <!-- 5. KONTAKT -->
-      <section id="contact" class="section contact">
-      <div class="container contact__container">
-        <div class="contact__header">
-          <div class="section__label contact__section-label"><span class="section__label-number">05</span> Kontakt</div>
-          <h2 class="section__heading contact__heading">Započnimo <span class="text-accent">saradnju</span></h2>
-          <p class="contact__description">
-            Imate ideju, novi projekat ili želite da unapredite svoje online prisustvo? Javite nam se na način koji vam najviše odgovara — odgovaramo u roku od par sati.
-          </p>
-        </div>
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 08 & 09. UNIFIED 3D LAPTOP STAGE                   -->
+  <!-- Section 08: Sistem iza ekrana                      -->
+  <!-- Section 09: Uloga sajta / Zašto imate sajt?        -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="laptop-master-stage" id="laptop-master-stage">
+    <!-- Shared Sticky 3D Canvas Layer (z-index: 20, stays ABOVE Section 09 sheet) -->
+    <div class="laptop-sticky-viewport" id="laptop-sticky-viewport">
+      <canvas id="s-gl" aria-label="3D laptop sa interaktivnim slojevima i ulogama sajta"></canvas>
+    </div>
 
-        <!-- Contact Form -->
-        <div class="contact__form-wrap">
-          <form id="contact-form" class="contact__form" action="https://formspree.io/f/placeholder" method="POST">
-            <div class="contact__form-grid">
-              <div class="form-group">
-                <label for="contact-name" class="form-label">Ime</label>
-                <input type="text" id="contact-name" name="name" class="form-input" placeholder="Vaše ime" required />
-              </div>
-              <div class="form-group">
-                <label for="contact-email" class="form-label">Email</label>
-                <input type="email" id="contact-email" name="email" class="form-input" placeholder="vas@email.com" required />
-              </div>
-              <div class="form-group">
-                <label for="contact-phone" class="form-label">Telefon</label>
-                <input type="tel" id="contact-phone" name="phone" class="form-input" placeholder="+381 ..." />
-              </div>
-              <div class="form-group form-group--full">
-                <label for="contact-message" class="form-label">Poruka</label>
-                <textarea id="contact-message" name="message" class="form-input form-textarea" placeholder="Opišite vaš projekat..." rows="4" required></textarea>
+    <!-- Section 08: Sistem iza ekrana -->
+    <section id="sis" class="sis-section">
+      <div id="sistem-iza-ekrana" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;opacity:0;"></div>
+      <div id="sta-ako" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;opacity:0;"></div>
+      <div class="track" id="s-track">
+        <div class="stage" id="s-stage">
+          <div class="txt" id="s-txt">
+            <div class="wrap">
+              <div class="in">
+                <div class="tag" id="s-tg" data-i18n="sis.tag">08 · Sistem iza ekrana</div>
+                <h2 id="s-h"><span id="s-h1"></span><span id="s-h2" class="g"></span></h2>
+                <p class="sub" id="s-p"></p>
               </div>
             </div>
-            <div class="contact__submit-wrap">
-              <button type="submit" id="contact-submit" class="btn btn--primary contact__submit">
-                <span>Pošalji upit</span>
-                <svg class="btn__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- 4 Contact Columns matching "O nama" style -->
-        <div class="about__stats contact__stats">
-          <!-- Box 1: Gmail -->
-          <a href="mailto:bulevarit@gmail.com" class="stat-block contact-card" data-contact="email" title="Pošaljite nam email">
-            <div class="stat-block__inner contact-card__inner">
-              <div class="contact-card__icon-box">
-                <svg class="contact-card__icon" width="38" height="38" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-.4 4.25l-7.07 4.42c-.32.2-.74.2-1.06 0L4.4 8.25c-.25-.16-.4-.44-.4-.75 0-.67.73-1.07 1.3-.72L12 11.02l6.7-4.24c.57-.35 1.3.05 1.3.72 0 .31-.15.59-.4.75z"/>
-                </svg>
-              </div>
-              <span class="contact-card__sub">bulevarit@gmail.com</span>
-            </div>
-          </a>
-
-          <!-- Box 2: Poziv -->
-          <a href="tel:+381665852052" class="stat-block contact-card" data-contact="phone" title="Pozovite nas">
-            <div class="stat-block__inner contact-card__inner">
-              <div class="contact-card__icon-box">
-                <svg class="contact-card__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                </svg>
-              </div>
-              <span class="contact-card__sub">+381 66 5852 052</span>
-            </div>
-          </a>
-
-          <!-- Box 3: WhatsApp -->
-          <a href="https://wa.me/381665852052" target="_blank" rel="noopener noreferrer" class="stat-block contact-card" data-contact="whatsapp" title="WhatsApp poruka">
-            <div class="stat-block__inner contact-card__inner">
-              <div class="contact-card__icon-box">
-                <svg class="contact-card__icon" width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.456 5.711 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                </svg>
-              </div>
-              <span class="contact-card__sub">+381 66 5852 052</span>
-            </div>
-          </a>
-
-          <!-- Box 4: Instagram -->
-          <a href="https://instagram.com/bulevar.it" target="_blank" rel="noopener noreferrer" class="stat-block contact-card" data-contact="instagram" title="Instagram profil">
-            <div class="stat-block__inner contact-card__inner">
-              <div class="contact-card__icon-box">
-                <svg class="contact-card__icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" stroke-width="2.5"/>
-                </svg>
-              </div>
-              <span class="contact-card__sub">@bulevar.it</span>
-            </div>
-          </a>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer id="footer" class="footer">
-      <div class="container">
-        <div class="footer__grid">
-          <div class="footer__brand">
-            <span class="nav__logo-text">Bulevar<span class="nav__logo-dot">.IT</span></span>
-            <p class="footer__tagline">Digitalna agencija iz Novog Sada</p>
+    <!-- Section 09: Uloga sajta — Zašto imate sajt? (Sliding curtain sheet, z-index: 10) -->
+    <section id="uloga" class="uloga-section">
+      <div id="zasto-sajt" style="position:absolute;top:0;left:0;width:1px;height:1px;pointer-events:none;opacity:0;"></div>
+      <div class="uloga-track" id="uloga-track">
+        <div class="uloga-sheet" id="uloga-sheet">
+          <div class="uloga-wrap">
+            <div class="uloga-in" id="uloga-in">
+              <div class="tag" data-i18n="uloga.tag">09 · Uloga sajta</div>
+              <h2 class="uloga-h" data-i18n="uloga.h">Zašto imate sajt?</h2>
+              <p class="uloga-sub" data-i18n="uloga.lead">Ako je jedini odgovor „da ljudi vide ko smo“, možda od sajta tražimo premalo.</p>
+
+              <!-- 6 Role Chips -->
+              <div class="uloga-chips" id="uloga-chips" role="tablist" aria-label="Uloge sajta">
+                <button type="button" class="uloga-chip is-active" data-role="0" role="tab" aria-selected="true" data-i18n="uloga.r0">Vizit karta</button>
+                <button type="button" class="uloga-chip" data-role="1" role="tab" aria-selected="false" data-i18n="uloga.r1">Prodaja</button>
+                <button type="button" class="uloga-chip" data-role="2" role="tab" aria-selected="false" data-i18n="uloga.r2">Upiti</button>
+                <button type="button" class="uloga-chip" data-role="3" role="tab" aria-selected="false" data-i18n="uloga.r3">Zakazivanje</button>
+                <button type="button" class="uloga-chip" data-role="4" role="tab" aria-selected="false" data-i18n="uloga.r4">Automatizacija</button>
+                <button type="button" class="uloga-chip" data-role="5" role="tab" aria-selected="false" data-i18n="uloga.r5">Sve povezano</button>
+              </div>
+
+              <!-- Active Role Detail Card (with decode text) -->
+              <div class="uloga-card" id="uloga-card">
+                <b class="uloga-card__name" id="s-rn"></b>
+                <p class="uloga-card__desc" id="s-rd"></p>
+                <small class="uloga-card__reason"><i data-i18n="uloga.makesSense">IMA SMISLA</i><span id="s-rw"></span></small>
+              </div>
+
+              <!-- Action button and note -->
+              <div class="uloga-action">
+                <a href="#contact" class="uloga-btn" id="uloga-cta" data-i18n="uloga.btn">Razgovarajmo o ovom cilju →</a>
+                <div class="uloga-note" data-i18n="uloga.sub">Ne treba svakom biznisu sve. Funkcija sajta zavisi od cilja.</div>
+              </div>
+            </div>
           </div>
-          <div class="footer__links">
-            <h4 class="footer__heading">Brzi linkovi</h4>
-            <ul>
-              <li><a href="#about">O nama</a></li>
-              <li><a href="#services">Usluge</a></li>
-              <li><a href="#devices">Responzivnost</a></li>
-              <li><a href="#portfolio">Portfolio</a></li>
-              <li><a href="#contact">Kontakt</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="footer__bottom">
-          <p>&copy; 2026 Bulevar.IT — Sva prava zadržana.</p>
         </div>
       </div>
-    </footer>
     </section>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 10. KONTAKT                                         -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="kf" id="contact">
+    <div class="kf-grid">
+
+      <div class="kf-head">
+        <p class="lbl mono" data-i18n="kon.tag">10 — Kontakt</p>
+        <h2><span class="dec" data-i18n="kon.h1" data-t="Imate ideju?">Imate ideju?</span>
+          <span class="dec g" data-i18n="kon.h2" data-t="Ili je sklapamo zajedno.">Ili je sklapamo zajedno.</span></h2>
+        <p class="lead" data-i18n="kon.p">Ostavite ime i broj. Javljamo se u roku od 24 sata, a prvi razgovor je besplatan.</p>
+      </div>
+
+      <div class="kf-wrap">
+        <div class="fx"><i></i><i></i></div>
+        <div class="lg" id="kfCard"><span class="ripple"></span>
+          <form id="kfForm" novalidate>
+            <div class="grp">
+              <div class="row" data-req="ime"><label for="f-ime" data-i18n="kon.name">Ime</label>
+                <input id="f-ime" name="ime" autocomplete="name" placeholder="Marko Marković" data-i18n-ph="kon.phName"><span class="err">Obavezno</span></div>
+              <div class="row" data-req="tel"><label for="f-tel" data-i18n="kon.phone">Telefon</label><span class="pre">+381</span>
+                <input id="f-tel" name="telefon" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="66 585 2052" data-i18n-ph="kon.phPhone"><span class="err">Proverite broj</span></div>
+              <div class="row" data-req="mail"><label for="f-mail" data-i18n="kon.email">Email</label>
+                <input id="f-mail" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ime@firma.rs" data-i18n-ph="kon.phEmail"><span class="err">Proverite email</span></div>
+            </div>
+
+            <p class="q" data-i18n="kon.qIdea">Imate li već neku ideju?</p>
+            <div class="pills" id="seg">
+              <button type="button" class="pill" data-v="da" data-i18n="kon.btnHave">Imam ideju</button>
+              <button type="button" class="pill" data-v="ne" data-i18n="kon.btnNone">Još nemam</button>
+            </div>
+
+            <div class="pnl" id="pDa"><div><div class="inner">
+              <textarea id="f-ideja" name="ideja" placeholder="Šta ste zamislili? Ukratko, npr. sajt za apartmane sa rezervacijama bez provizije…" data-i18n-ph="kon.phIdea"></textarea>
+            </div></div></div>
+
+            <div class="pnl" id="pNe"><div><div class="inner">
+              <p class="note" data-i18n="kon.note"><b>Nema problema, za to smo tu.</b> Označite šta vas muči, a ideju sklapamo zajedno.</p>
+              <div class="pills" id="muke">
+                <button type="button" class="pill" data-i18n="kon.muke1">Nemam sajt</button>
+                <button type="button" class="pill" data-i18n="kon.muke2">Sajt ne donosi upite</button>
+                <button type="button" class="pill" data-i18n="kon.muke3">Zavisim od Booking-a / Wolt-a</button>
+                <button type="button" class="pill" data-i18n="kon.muke4">Previše ručnog posla</button>
+                <button type="button" class="pill" data-i18n="kon.muke5">Želim više kupaca</button>
+              </div>
+            </div></div></div>
+
+            <p class="q" data-i18n="kon.qContact">Kako da vas kontaktiramo?</p>
+            <div class="pills" id="kanal">
+              <button type="button" class="pill on" data-k="poziv" data-i18n="kon.call">Poziv</button>
+              <button type="button" class="pill" data-k="WhatsApp" data-i18n="kon.msg">WhatsApp</button>
+              <button type="button" class="pill" data-k="email">Email</button>
+            </div>
+
+            <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <button class="send" type="submit"><span class="t" data-i18n="kon.submit">Pošaljite upit</span>
+              <svg class="t" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8h11M9.5 4l4 4-4 4"/></svg>
+              <span class="dots"><i></i><i></i><i></i></span></button>
+            <p class="legal" data-i18n="kon.legal">Slanjem pristajete da vas kontaktiramo u vezi sa upitom.</p>
+          </form>
+
+          <div class="done" aria-live="polite">
+            <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45"/><path d="M30 52 L44 65 L71 37"/></svg>
+            <h4 class="dec" id="doneH" data-i18n="kon.doneH" data-t="Stiglo je.">Stiglo je.</h4>
+            <p id="doneP" data-i18n="kon.doneP">Hvala! Javljamo se u roku od 24 sata.</p>
+            <button type="button" class="pill" id="again" data-i18n="kon.again">Pošaljite još jednu</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="kf-dir">
+        <a class="dl" href="tel:+381665852052"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><span class="tx"><span class="k mono">TELEFON</span><span class="v">+381 66 585 2052</span></span>
+          <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
+        <a class="dl" href="mailto:kontakt@bulevar.it"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span class="tx"><span class="k mono">EMAIL</span><span class="v">kontakt@bulevar.it</span></span>
+          <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
+        <a class="dl" href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".9" fill="currentColor" stroke="none"/></svg></span><span class="tx"><span class="k mono">INSTAGRAM</span><span class="v">@bulevar.it</span></span>
+          <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- 11. FOOTER (SVG Logo Scroll Animacija)              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <footer class="ft" id="ft">
+    <div class="stage">
+      <div class="glow" id="glow"></div>
+
+      <div class="logo" id="logo">
+        <svg viewBox="320 60 1310 960" aria-label="Bulevar.IT">
+          <defs>
+            <linearGradient id="gB" gradientUnits="userSpaceOnUse" x1="0" y1="200" x2="0" y2="732">
+              <stop offset="0" stop-color="#F6EFC4"/><stop offset=".42" stop-color="#F2E7B8"/>
+              <stop offset=".62" stop-color="#D9C08A"/><stop offset=".76" stop-color="#C9AA72"/><stop offset="1" stop-color="#C7A770"/>
+            </linearGradient>
+            <linearGradient id="gA" gradientUnits="userSpaceOnUse" x1="0" y1="77" x2="0" y2="700">
+              <stop offset="0" stop-color="#F7F1CB"/><stop offset=".55" stop-color="#EBDDAA"/><stop offset="1" stop-color="#C9AA72"/>
+            </linearGradient>
+            <linearGradient id="gArc" gradientUnits="userSpaceOnUse" x1="0" y1="722" x2="0" y2="770">
+              <stop offset="0" stop-color="#D2B47C"/><stop offset="1" stop-color="#C4A26B"/>
+            </linearGradient>
+            <linearGradient id="gT" gradientUnits="userSpaceOnUse" x1="0" y1="792" x2="0" y2="1004">
+              <stop offset="0" stop-color="#F4EEBF"/><stop offset=".3" stop-color="#E8D9A8"/><stop offset=".6" stop-color="#D6BB86"/><stop offset="1" stop-color="#C8A673"/>
+            </linearGradient>
+            <clipPath id="bldClip"><rect x="642.7" y="200" width="136" height="531"/><rect x="830.2" y="200" width="135" height="531"/><rect x="1005.2" y="200" width="150" height="531"/><rect x="1191.7" y="200" width="135" height="531"/></clipPath>
+            <clipPath id="ground"><rect x="0" y="-400" width="2000" height="1131"/></clipPath>
+            <mask id="arcMask" maskUnits="userSpaceOnUse" x="300" y="680" width="1350" height="110">
+              <path id="arcRev" d="M336 766 Q975 690 1615 768" stroke="#fff" stroke-width="90" fill="none"/>
+            </mask>
+            <mask id="arrMask" maskUnits="userSpaceOnUse" x="380" y="40" width="1100" height="700">
+              <path id="arrRev" d="M425 690 L799 517 L833 537 L978 405 L1013 426 L1352 136" stroke="#fff" stroke-width="84" stroke-linecap="butt" stroke-linejoin="round" fill="none"/>
+            </mask>
+          </defs>
+
+          <g id="dust"></g>
+          <g clip-path="url(#ground)"><g id="blds"></g></g>
+          <path id="arc" d="M336.0 766.5 L336.0 763.6 L340.0 763.0 L344.0 762.5 L348.0 761.9 L352.0 761.4 L356.0 760.8 L360.0 760.3 L364.0 759.7 L368.0 759.2 L372.0 758.7 L376.0 758.2 L380.0 757.6 L384.0 757.1 L388.0 756.6 L392.0 756.1 L396.0 755.6 L400.0 755.1 L404.0 754.6 L408.0 754.2 L412.0 753.7 L416.0 753.2 L420.0 752.7 L424.0 752.3 L428.0 751.8 L432.0 751.3 L436.0 750.9 L440.0 750.4 L444.0 750.0 L448.0 749.6 L452.0 749.1 L456.0 748.7 L460.0 748.3 L464.0 747.8 L468.0 747.4 L472.0 747.0 L476.0 746.6 L480.0 746.2 L484.0 745.8 L488.0 745.4 L492.0 745.0 L496.0 744.6 L500.0 744.2 L504.0 743.8 L508.0 743.4 L512.0 743.1 L516.0 742.7 L520.0 742.3 L524.0 742.0 L528.0 741.6 L532.0 741.3 L536.0 740.9 L540.0 740.6 L544.0 740.2 L548.0 739.9 L552.0 739.5 L556.0 739.2 L560.0 738.9 L564.0 738.6 L568.0 738.2 L572.0 737.9 L576.0 737.6 L580.0 737.3 L584.0 737.0 L588.0 736.7 L592.0 736.4 L596.0 736.1 L600.0 735.8 L604.0 735.5 L608.0 735.2 L612.0 735.0 L616.0 734.7 L620.0 734.4 L624.0 734.1 L628.0 733.9 L632.0 733.6 L636.0 733.4 L640.0 733.1 L644.0 732.9 L648.0 732.6 L652.0 732.4 L656.0 732.1 L660.0 731.9 L664.0 731.6 L668.0 731.4 L672.0 731.2 L676.0 731.0 L680.0 730.7 L684.0 730.5 L688.0 730.3 L692.0 730.1 L696.0 729.9 L700.0 729.7 L704.0 729.5 L708.0 729.3 L712.0 729.1 L716.0 728.9 L720.0 728.7 L724.0 728.5 L728.0 728.3 L732.0 728.2 L736.0 728.0 L740.0 727.8 L744.0 727.7 L748.0 727.5 L752.0 727.3 L756.0 727.2 L760.0 727.0 L764.0 726.9 L768.0 726.7 L772.0 726.6 L776.0 726.4 L780.0 726.3 L784.0 726.1 L788.0 726.0 L792.0 725.9 L796.0 725.7 L800.0 725.6 L804.0 725.5 L808.0 725.4 L812.0 725.3 L816.0 725.2 L820.0 725.0 L824.0 724.9 L828.0 724.8 L832.0 724.7 L836.0 724.6 L840.0 724.5 L844.0 724.4 L848.0 724.4 L852.0 724.3 L856.0 724.2 L860.0 724.1 L864.0 724.0 L868.0 724.0 L872.0 723.9 L876.0 723.8 L880.0 723.8 L884.0 723.7 L888.0 723.6 L892.0 723.6 L896.0 723.5 L900.0 723.5 L904.0 723.4 L908.0 723.4 L912.0 723.3 L916.0 723.3 L920.0 723.3 L924.0 723.2 L928.0 723.2 L932.0 723.2 L936.0 723.2 L940.0 723.1 L944.0 723.1 L948.0 723.1 L952.0 723.1 L956.0 723.1 L960.0 723.1 L964.0 723.1 L968.0 723.1 L972.0 723.1 L976.0 723.1 L980.0 723.1 L984.0 723.1 L988.0 723.1 L992.0 723.1 L996.0 723.1 L1000.0 723.2 L1004.0 723.2 L1008.0 723.2 L1012.0 723.2 L1016.0 723.3 L1020.0 723.3 L1024.0 723.4 L1028.0 723.4 L1032.0 723.4 L1036.0 723.5 L1040.0 723.5 L1044.0 723.6 L1048.0 723.7 L1052.0 723.7 L1056.0 723.8 L1060.0 723.8 L1064.0 723.9 L1068.0 724.0 L1072.0 724.1 L1076.0 724.1 L1080.0 724.2 L1084.0 724.3 L1088.0 724.4 L1092.0 724.5 L1096.0 724.6 L1100.0 724.7 L1104.0 724.8 L1108.0 724.9 L1112.0 725.0 L1116.0 725.1 L1120.0 725.2 L1124.0 725.3 L1128.0 725.4 L1132.0 725.5 L1136.0 725.7 L1140.0 725.8 L1144.0 725.9 L1148.0 726.0 L1152.0 726.2 L1156.0 726.3 L1160.0 726.5 L1164.0 726.6 L1168.0 726.8 L1172.0 726.9 L1176.0 727.1 L1180.0 727.2 L1184.0 727.4 L1188.0 727.5 L1192.0 727.7 L1196.0 727.9 L1200.0 728.0 L1204.0 728.2 L1208.0 728.4 L1212.0 728.6 L1216.0 728.8 L1220.0 728.9 L1224.0 729.1 L1228.0 729.3 L1232.0 729.5 L1236.0 729.7 L1240.0 729.9 L1244.0 730.1 L1248.0 730.3 L1252.0 730.6 L1256.0 730.8 L1260.0 731.0 L1264.0 731.2 L1268.0 731.4 L1272.0 731.7 L1276.0 731.9 L1280.0 732.1 L1284.0 732.4 L1288.0 732.6 L1292.0 732.9 L1296.0 733.1 L1300.0 733.4 L1304.0 733.6 L1308.0 733.9 L1312.0 734.2 L1316.0 734.4 L1320.0 734.7 L1324.0 735.0 L1328.0 735.2 L1332.0 735.5 L1336.0 735.8 L1340.0 736.1 L1344.0 736.4 L1348.0 736.7 L1352.0 737.0 L1356.0 737.3 L1360.0 737.6 L1364.0 737.9 L1368.0 738.2 L1372.0 738.5 L1376.0 738.8 L1380.0 739.2 L1384.0 739.5 L1388.0 739.8 L1392.0 740.2 L1396.0 740.5 L1400.0 740.8 L1404.0 741.2 L1408.0 741.5 L1412.0 741.9 L1416.0 742.2 L1420.0 742.6 L1424.0 743.0 L1428.0 743.3 L1432.0 743.7 L1436.0 744.1 L1440.0 744.5 L1444.0 744.9 L1448.0 745.2 L1452.0 745.6 L1456.0 746.0 L1460.0 746.4 L1464.0 746.8 L1468.0 747.2 L1472.0 747.7 L1476.0 748.1 L1480.0 748.5 L1484.0 748.9 L1488.0 749.3 L1492.0 749.8 L1496.0 750.2 L1500.0 750.7 L1504.0 751.1 L1508.0 751.6 L1512.0 752.0 L1516.0 752.5 L1520.0 752.9 L1524.0 753.4 L1528.0 753.9 L1532.0 754.3 L1536.0 754.8 L1540.0 755.3 L1544.0 755.8 L1548.0 756.3 L1552.0 756.8 L1556.0 757.3 L1560.0 757.8 L1564.0 758.3 L1568.0 758.8 L1572.0 759.3 L1576.0 759.9 L1580.0 760.4 L1584.0 760.9 L1588.0 761.5 L1592.0 762.0 L1596.0 762.6 L1600.0 763.1 L1604.0 763.7 L1608.0 764.2 L1612.0 764.8 L1615.0 768.0 L1612.0 768.8 L1608.0 768.8 L1604.0 768.8 L1600.0 768.8 L1596.0 768.2 L1592.0 768.2 L1588.0 767.7 L1584.0 767.7 L1580.0 767.7 L1576.0 767.2 L1572.0 767.2 L1568.0 767.2 L1564.0 766.7 L1560.0 766.7 L1556.0 766.1 L1552.0 766.1 L1548.0 765.6 L1544.0 765.6 L1540.0 765.6 L1536.0 765.1 L1532.0 765.1 L1528.0 764.6 L1524.0 764.6 L1520.0 764.1 L1516.0 764.1 L1512.0 764.1 L1508.0 763.5 L1504.0 763.5 L1500.0 763.0 L1496.0 763.0 L1492.0 762.5 L1488.0 762.5 L1484.0 762.5 L1480.0 762.0 L1476.0 762.0 L1472.0 761.5 L1468.0 761.5 L1464.0 761.5 L1460.0 760.9 L1456.0 760.9 L1452.0 760.4 L1448.0 760.4 L1444.0 760.4 L1440.0 759.9 L1436.0 759.9 L1432.0 759.4 L1428.0 759.4 L1424.0 759.4 L1420.0 758.9 L1416.0 758.9 L1412.0 758.9 L1408.0 758.3 L1404.0 758.3 L1400.0 758.3 L1396.0 757.8 L1392.0 757.8 L1388.0 757.3 L1384.0 757.3 L1380.0 757.3 L1376.0 756.8 L1372.0 756.8 L1368.0 756.8 L1364.0 756.8 L1360.0 756.2 L1356.0 756.2 L1352.0 755.7 L1348.0 755.7 L1344.0 755.7 L1340.0 755.7 L1336.0 755.2 L1332.0 755.2 L1328.0 755.2 L1324.0 754.7 L1320.0 754.7 L1316.0 754.7 L1312.0 754.2 L1308.0 754.2 L1304.0 754.2 L1300.0 754.2 L1296.0 753.6 L1292.0 753.6 L1288.0 753.6 L1284.0 753.1 L1280.0 753.1 L1276.0 753.1 L1272.0 753.1 L1268.0 753.1 L1264.0 752.6 L1260.0 752.6 L1256.0 752.6 L1252.0 752.1 L1248.0 752.1 L1244.0 752.1 L1240.0 752.1 L1236.0 752.1 L1232.0 751.6 L1228.0 751.6 L1224.0 751.6 L1220.0 751.6 L1216.0 751.0 L1212.0 751.0 L1208.0 751.0 L1204.0 751.0 L1200.0 751.0 L1196.0 751.0 L1192.0 750.5 L1188.0 750.5 L1184.0 750.5 L1180.0 750.5 L1176.0 750.5 L1172.0 750.5 L1168.0 750.0 L1164.0 750.0 L1160.0 750.0 L1156.0 750.0 L1152.0 750.0 L1148.0 749.5 L1144.0 749.5 L1140.0 749.5 L1136.0 749.5 L1132.0 749.5 L1128.0 749.5 L1124.0 749.5 L1120.0 749.5 L1116.0 749.0 L1112.0 749.0 L1108.0 749.0 L1104.0 749.0 L1100.0 749.0 L1096.0 749.0 L1092.0 749.0 L1088.0 749.0 L1084.0 748.4 L1080.0 748.4 L1076.0 748.4 L1072.0 748.4 L1068.0 748.4 L1064.0 748.4 L1060.0 748.4 L1056.0 748.4 L1052.0 748.4 L1048.0 748.4 L1044.0 748.4 L1040.0 748.4 L1036.0 747.9 L1032.0 747.9 L1028.0 747.9 L1024.0 747.9 L1020.0 747.9 L1016.0 747.9 L1012.0 747.9 L1008.0 747.9 L1004.0 747.9 L1000.0 747.9 L996.0 747.9 L992.0 747.9 L988.0 747.9 L984.0 747.9 L980.0 747.9 L976.0 747.9 L972.0 747.9 L968.0 747.9 L964.0 747.9 L960.0 747.9 L956.0 747.9 L952.0 747.9 L948.0 747.9 L944.0 747.9 L940.0 747.9 L936.0 747.9 L932.0 747.9 L928.0 747.9 L924.0 747.9 L920.0 747.9 L916.0 747.9 L912.0 747.9 L908.0 747.9 L904.0 747.9 L900.0 747.9 L896.0 747.9 L892.0 748.4 L888.0 748.4 L884.0 748.4 L880.0 748.4 L876.0 748.4 L872.0 748.4 L868.0 748.4 L864.0 748.4 L860.0 748.4 L856.0 748.4 L852.0 748.4 L848.0 748.4 L844.0 748.4 L840.0 748.4 L836.0 749.0 L832.0 749.0 L828.0 749.0 L824.0 749.0 L820.0 749.0 L816.0 749.0 L812.0 749.0 L808.0 749.0 L804.0 749.5 L800.0 749.5 L796.0 749.5 L792.0 749.5 L788.0 749.5 L784.0 749.5 L780.0 749.5 L776.0 749.5 L772.0 750.0 L768.0 750.0 L764.0 750.0 L760.0 750.0 L756.0 750.0 L752.0 750.5 L748.0 750.5 L744.0 750.5 L740.0 750.5 L736.0 750.5 L732.0 750.5 L728.0 751.0 L724.0 751.0 L720.0 751.0 L716.0 751.0 L712.0 751.0 L708.0 751.6 L704.0 751.6 L700.0 751.6 L696.0 751.6 L692.0 751.6 L688.0 752.1 L684.0 752.1 L680.0 752.1 L676.0 752.1 L672.0 752.1 L668.0 752.6 L664.0 752.6 L660.0 752.6 L656.0 753.1 L652.0 753.1 L648.0 753.1 L644.0 753.1 L640.0 753.6 L636.0 753.6 L632.0 753.6 L628.0 753.6 L624.0 754.2 L620.0 754.2 L616.0 754.2 L612.0 754.2 L608.0 754.7 L604.0 754.7 L600.0 754.7 L596.0 755.2 L592.0 755.2 L588.0 755.2 L584.0 755.7 L580.0 755.7 L576.0 755.7 L572.0 755.7 L568.0 756.2 L564.0 756.2 L560.0 756.8 L556.0 756.8 L552.0 756.8 L548.0 756.8 L544.0 757.3 L540.0 757.3 L536.0 757.8 L532.0 757.8 L528.0 757.8 L524.0 757.8 L520.0 758.3 L516.0 758.3 L512.0 758.9 L508.0 758.9 L504.0 758.9 L500.0 759.4 L496.0 759.4 L492.0 759.4 L488.0 759.9 L484.0 759.9 L480.0 760.4 L476.0 760.4 L472.0 760.4 L468.0 760.9 L464.0 760.9 L460.0 761.5 L456.0 761.5 L452.0 761.5 L448.0 762.0 L444.0 762.0 L440.0 762.5 L436.0 762.5 L432.0 762.5 L428.0 763.0 L424.0 763.0 L420.0 763.5 L416.0 763.5 L412.0 763.5 L408.0 764.1 L404.0 764.1 L400.0 764.6 L396.0 764.6 L392.0 765.1 L388.0 765.1 L384.0 765.1 L380.0 765.6 L376.0 765.6 L372.0 765.6 L368.0 766.1 L364.0 766.1 L360.0 766.1 L356.0 766.7 L352.0 766.7 L348.0 766.7 L344.0 767.2 L340.0 767.2 L336.0 766.1Z" fill="url(#gArc)" mask="url(#arcMask)"/>
+
+          <g mask="url(#arrMask)">
+            <!-- teget procep ispod strelice, samo preko zgrada, kao u logou -->
+            <polygon clip-path="url(#bldClip)" fill="#191F32" points="425,690 800,535 835,555 978,425 1013,444 1365,150 1365,176 1013,470 978,451 835,581 800,561 452,705"/>
+            <polygon id="shaft" fill="url(#gA)" points="425,690 797,497 831,517 978,383 1013,407 1338,122 1352,136 1365,150 1013,444 978,425 835,555 800,535"/>
+          </g>
+          <g id="headG" style="transform-origin:1380px 120px">
+            <polygon fill="#191F32" points="1288,92 1425,77 1388,207 1365,176 1365,150 1338,122" opacity="0"/>
+            <polygon fill="url(#gA)" points="1288,92 1425,77 1388,207 1365,150 1338,122"/>
+          </g>
+
+          <g id="letters" fill="url(#gT)"><path fill-rule="evenodd" d="M367.2 799.5 L367.2 1003.1 L439.1 1002.6 L466.7 997.9 L485.4 990.1 L494.3 983.9 L502.6 975.5 L507.3 968.8 L512.5 956.8 L514.6 945.8 L513.5 927.6 L507.8 913.5 L496.4 900.0 L487.5 893.8 L500.0 879.2 L506.8 862.0 L506.8 846.4 L504.7 838.0 L500.0 828.1 L493.2 819.8 L480.7 810.4 L470.8 805.7 L456.2 801.6 L428.6 799.0ZM408.9 912.0 L409.9 910.9 L441.1 912.0 L452.6 915.1 L462.0 920.3 L467.2 925.5 L471.4 935.9 L471.4 944.8 L467.7 954.2 L460.4 961.5 L447.4 967.2 L434.4 969.3 L409.9 969.3 L408.9 968.2ZM408.9 834.9 L412.5 833.3 L435.9 833.3 L446.9 835.4 L455.2 839.1 L460.9 844.3 L464.6 852.1 L464.6 861.5 L461.5 868.2 L455.7 874.0 L445.3 879.2 L434.4 881.2 L409.9 881.2 L408.9 880.2Z"/><path fill-rule="evenodd" d="M529.2 852.1 L529.2 948.4 L533.3 968.2 L542.7 984.9 L549.5 991.7 L559.9 998.4 L580.2 1004.2 L591.1 1004.7 L607.3 1002.6 L619.3 998.4 L628.1 993.2 L629.7 995.3 L630.2 1001.6 L670.3 1001.6 L671.4 852.6 L625.5 852.1 L625.5 941.7 L624.5 947.9 L619.3 956.2 L610.9 962.5 L603.6 965.1 L593.2 965.6 L584.9 962.5 L580.7 958.9 L575.5 946.4 L574.5 934.4 L574.5 852.1Z"/><path fill-rule="evenodd" d="M695.8 791.1 L695.8 1001.0 L696.9 1002.1 L741.1 1002.1 L742.2 1001.0 L742.2 791.7 L741.1 790.6Z"/><path fill-rule="evenodd" d="M783.3 866.1 L771.9 878.1 L765.6 888.0 L759.4 903.6 L756.2 921.9 L756.2 935.4 L759.9 954.7 L765.1 966.7 L772.9 978.1 L782.8 987.5 L793.2 994.3 L808.3 1000.5 L822.4 1003.6 L851.6 1004.2 L877.1 1000.0 L897.4 992.7 L897.9 990.6 L888.0 957.3 L858.9 965.6 L832.3 966.1 L822.4 963.5 L815.1 959.9 L808.9 954.2 L803.1 944.3 L803.6 941.1 L901.0 941.1 L904.2 928.1 L903.1 904.2 L897.9 887.5 L888.5 871.9 L878.1 862.0 L865.6 854.7 L854.7 851.0 L842.2 849.0 L826.6 849.0 L808.3 852.6 L794.8 858.3ZM799.5 906.2 L802.6 899.0 L810.9 889.1 L818.2 884.4 L829.2 881.8 L840.6 882.3 L850.0 885.9 L858.9 895.3 L862.5 905.2 L861.5 908.3 L800.5 908.3Z"/><path fill-rule="evenodd" d="M895.3 852.1 L894.8 853.6 L958.9 1001.6 L996.4 1001.6 L1060.9 856.8 L1062.0 852.1 L1012.5 852.6 L979.2 938.0 L977.6 937.0 L945.3 852.6Z"/><path fill-rule="evenodd" d="M1070.3 865.1 L1069.8 867.7 L1082.8 900.0 L1100.5 890.6 L1117.7 886.5 L1137.5 887.5 L1141.7 889.6 L1147.9 897.9 L1146.4 899.5 L1120.3 902.1 L1101.0 907.3 L1085.9 914.6 L1074.5 924.0 L1065.6 937.0 L1060.9 955.2 L1064.1 972.9 L1071.9 986.5 L1080.2 994.3 L1087.0 998.4 L1106.2 1004.2 L1117.7 1004.7 L1131.8 1003.1 L1142.2 1000.0 L1152.6 994.8 L1154.2 995.8 L1154.7 1001.6 L1194.3 1001.6 L1194.8 903.6 L1190.6 884.9 L1182.3 869.8 L1170.8 859.4 L1162.0 854.7 L1151.0 851.0 L1138.0 849.0 L1120.8 849.0 L1101.0 852.1 L1086.5 856.8ZM1153.6 932.3 L1153.6 950.0 L1152.6 954.2 L1149.0 959.9 L1142.2 966.1 L1130.7 970.8 L1118.2 971.4 L1110.9 968.8 L1106.2 964.6 L1103.6 957.8 L1104.2 950.0 L1106.2 945.3 L1112.0 939.6 L1117.7 936.5 L1131.2 932.8 L1152.6 931.2Z"/><path fill-rule="evenodd" d="M1308.9 851.0 L1297.9 849.0 L1280.7 850.0 L1272.4 852.6 L1260.9 859.4 L1259.4 857.3 L1258.9 852.1 L1218.2 852.1 L1217.7 978.6 L1218.8 1001.6 L1263.0 1001.6 L1264.1 1000.5 L1264.1 917.2 L1265.1 911.5 L1270.8 900.0 L1280.7 892.7 L1286.5 891.1 L1296.9 891.1 L1307.8 893.8 L1309.9 892.7 L1309.9 852.1Z"/><path fill-rule="evenodd" d="M1313.0 952.1 L1304.2 956.8 L1298.4 963.0 L1295.8 968.2 L1294.3 975.0 L1294.3 981.8 L1295.8 987.5 L1300.0 994.8 L1309.4 1002.1 L1321.9 1004.7 L1333.3 1002.6 L1344.3 994.3 L1348.4 986.5 L1349.5 973.4 L1346.9 965.1 L1340.6 957.3 L1331.2 952.1 L1326.6 951.0Z"/><path fill-rule="evenodd" d="M1364.1 800.0 L1364.1 1001.6 L1409.4 1002.1 L1409.9 800.5Z"/><path fill-rule="evenodd" d="M1418.2 801.0 L1418.2 840.1 L1478.6 840.1 L1479.7 841.1 L1479.7 1000.5 L1480.7 1001.6 L1525.0 1001.6 L1526.0 1000.5 L1526.0 841.1 L1527.1 840.1 L1587.5 840.1 L1588.0 801.0Z"/></g>
+          <g id="glyphs"></g>
+        </svg>
+        <div class="sub mono" id="sub"></div>
+      </div>
+
+      <div class="meta mono" id="meta">
+        <span data-i18n="footer.rights">© 2026 Bulevar.IT · Novi Sad</span>
+        <span><a href="#services" data-i18n="nav.services">Usluge</a><a href="#portfolio" data-i18n="nav.portfolio">Radovi</a><a href="#contact" data-i18n="nav.contact">Kontakt</a></span>
+        <span><a href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu">Instagram</a><a href="tel:+381665852052">+381 66 585 2052</a><a href="mailto:kontakt@bulevar.it">kontakt@bulevar.it</a></span>
+      </div>
+    </div>
+  </footer>
 
   <!-- Main JS entry point -->
   <script type="module" src="/src/main.js"></script>

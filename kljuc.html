@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ključ</title>
+<style>
+html,body{margin:0;height:100%;background:#080C14}
+canvas{display:block;width:100vw;height:100vh;height:100svh}
+</style>
+</head>
+<body>
+<canvas id="cv" aria-label="Ključ od zlatnih tačkica" role="img"></canvas>
+<script>
+(function(){
+  var cv=document.getElementById('cv'),x=cv.getContext('2d'),off=document.createElement('canvas'),ox=off.getContext('2d',{willReadFrequently:true});
+  function draw(){
+    var dpr=Math.min(2,devicePixelRatio||1),W=innerWidth,H=innerHeight,mob=W<760,STEP=mob?8:12;
+    cv.width=W*dpr;cv.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,W,H);
+    off.width=W;off.height=H;ox.clearRect(0,0,W,H);
+    var kh=H*(mob?.5:.62),s=kh/256,ox0=W/2-155*s,oy0=H/2-154*s;
+    ox.setTransform(s,0,0,s,ox0,oy0);ox.fillStyle='#fff';
+    ox.beginPath();ox.arc(150,72,50,0,6.283);ox.fill();
+    ox.fillRect(137,116,27,166);ox.fillRect(164,210,32,18);ox.fillRect(164,242,44,20);ox.fillRect(164,270,26,12);
+    ox.globalCompositeOperation='destination-out';ox.beginPath();ox.arc(150,72,24,0,6.283);ox.fill();ox.globalCompositeOperation='source-over';
+    ox.setTransform(1,0,0,1,0,0);
+    var d=ox.getImageData(0,0,W,H).data;x.fillStyle='#D9B25F';
+    for(var y=STEP/2;y<H;y+=STEP)for(var X=STEP/2;X<W;X+=STEP){var i=((y|0)*W+(X|0))*4;if(d[i+3]>140){x.beginPath();x.arc(X,y,STEP*.36,0,6.283);x.fill()}}
+  }
+  addEventListener('resize',draw);draw();
+})();
+</script>
+</body>
+</html>

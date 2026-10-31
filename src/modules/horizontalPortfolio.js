@@ -10,17 +10,10 @@
 import { projects, categoryConfig } from '../data/portfolio.js';
 
 // Organic staggered layout presets directly referencing Curtis Nguyen portfolio
-// Calibrated with comfortable vertical margins to never collide with the pinned top header
+// Elevated vertically to align with the phone/laptop position while maintaining comfortable header margins
 export const scatteredProjects = [
-  { projectIndex: 0, w: 460, h: 290, yOffset: 70,  marginR: 160, tag: 'PRODAJA STOLOVA' },  // Bottom (Petra's)
-  { projectIndex: 1, w: 450, h: 280, yOffset: -50, marginR: 170, tag: 'NYC COOKIES' },      // Top (Brookie)
-  { projectIndex: 2, w: 460, h: 285, yOffset: 75,  marginR: 160, tag: 'EVENT PLATFORM' },   // Bottom (Mango)
-  { projectIndex: 3, w: 340, h: 360, yOffset: -30, marginR: 170, tag: 'WEDDING & DECOR' },  // Top App (Venčanice Sanja)
-  { projectIndex: 4, w: 450, h: 280, yOffset: 0,   marginR: 170, tag: 'STUDIO & SALON' },   // Center (Vukov)
-  { projectIndex: 5, w: 340, h: 360, yOffset: -30, marginR: 170, tag: 'DIGITAL PORTAL' },  // Top App (Ti Si Ovde)
-  { projectIndex: 6, w: 340, h: 360, yOffset: 65,  marginR: 170, tag: 'LOYALTY APP' },      // Bottom App (Loyalty)
-  { projectIndex: 7, w: 460, h: 285, yOffset: -50, marginR: 160, tag: 'WEB PLATFORM' },     // Top (SOS Pro)
-  { projectIndex: 8, w: 450, h: 285, yOffset: 75,  marginR: 280, tag: 'AI AUTOMATION' },    // Bottom (Mango AI)
+  { projectIndex: 0, w: 480, h: 300, yOffset: -25, marginR: 200, tag: 'SISTEM ZA DOGAĐAJE' },
+  { projectIndex: 1, w: 420, h: 340, yOffset: 25,  marginR: 300, tag: 'DIGITALNI SISTEM' },
 ];
 
 export function renderHorizontalPortfolio(trackSelector) {
@@ -62,7 +55,7 @@ export function renderHorizontalPortfolio(trackSelector) {
       <div class="curtis-card__caption">
         <span class="curtis-card__title">${proj.name.toUpperCase()}</span>
         <a href="${proj.link}" target="_blank" rel="noopener noreferrer" class="curtis-card__visit">
-          VISIT <span class="visit-arrow">↗</span>
+          POSETI <span class="visit-arrow">↗</span>
         </a>
       </div>
     `;

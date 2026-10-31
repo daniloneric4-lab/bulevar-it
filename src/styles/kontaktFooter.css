@@ -1,0 +1,868 @@
+/* ═══════════════════════════════════════════════════════════
+   KONTAKT SEKCIJA & FOOTER (1:1 prema kontakt-final.html)
+   Pozadina: #191F32 (tačno teget iz logoa)
+   Liquid Glass iOS forma + SVG Logo Scroll animacija
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --navy: #191F32;
+  --gold: #D9B25F;
+  --or: #E8963A;
+  --ink: #F3EEE3;
+  --mut: #A7AEC2;
+  --line: #2A3658;
+  --spring: cubic-bezier(.2, 1.25, .35, 1);
+}
+
+.mono {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* ================= KONTAKT (clean + iOS liquid glass) ================= */
+.kf {
+  position: relative;
+  z-index: 50;
+  background: #191F32;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 16vh 6vw 16vh;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  overflow: hidden;
+  overflow: clip;
+  border-top: none !important;
+  border-bottom: none !important;
+  margin-top: -100vh;
+  margin-top: -100svh;
+  margin-top: -100dvh;
+  margin-bottom: 0 !important;
+}
+
+/* Penjanje preko sekcije uloga sajta: senka ide ISKLJUČIVO nagore, NIKADA nadole ka footeru */
+.kf::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  border-radius: 0 !important;
+  box-shadow: 0 -30px 70px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  z-index: -1;
+  clip-path: inset(-100px 0 0 0); /* Strogo ka gore, bez ikakvog donjeg curenja senke */
+}
+
+
+.kf-grid {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "head form" "dir form";
+  column-gap: 7vw;
+  align-items: start;
+}
+
+.kf-head { grid-area: head; }
+.kf-wrap { grid-area: form; position: relative; }
+.kf-dir { grid-area: dir; }
+
+.kf .lbl {
+  font-size: 12px;
+  letter-spacing: .18em;
+  color: var(--mut);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.kf h2 {
+  font-family: Montserrat, sans-serif;
+  font-weight: 900;
+  font-size: clamp(40px, 4.6vw, 68px);
+  line-height: 1.02;
+  letter-spacing: -.025em;
+  color: var(--ink);
+}
+
+.kf h2 > span {
+  display: block;
+}
+
+.kf h2 > .g {
+  color: var(--gold);
+}
+
+.kf .lead {
+  margin-top: 24px;
+  max-width: 36ch;
+  color: var(--mut);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.dec .r { color: var(--or); }
+.dec .h { color: transparent; }
+
+/* direktni kontakti: čista lista, bez kutija i bez linije sa senkom */
+.kf-dir {
+  margin-top: 56px;
+  border-top: none;
+}
+
+.dl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: none;
+  color: var(--ink);
+  text-decoration: none;
+  background: transparent;
+  transition: color .3s;
+}
+
+.dl .ic {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .32);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  backdrop-filter: blur(24px) saturate(200%);
+  transition: background .35s, color .35s, border-color .35s, box-shadow .35s, transform .5s var(--spring);
+}
+
+.dl .ic svg {
+  width: 20px;
+  height: 20px;
+  color: inherit;
+  transform: none !important;
+}
+
+.dl:hover .ic {
+  background: rgba(217, 178, 95, .16);
+  border-color: rgba(255, 255, 255, .65);
+  box-shadow: 0 0 16px rgba(217, 178, 95, .25);
+  transform: scale(1.06);
+}
+
+.dl .tx {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.dl .k {
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: var(--mut);
+}
+
+.dl .v {
+  flex: 1;
+  font-size: clamp(17px, 1.5vw, 20px);
+  font-weight: 600;
+  transition: color .3s, transform .5s var(--spring);
+}
+
+.dl .go {
+  width: 18px;
+  height: 18px;
+  color: var(--mut);
+  transition: transform .5s var(--spring), color .3s;
+  align-self: center;
+}
+
+.dl:hover .v {
+  color: var(--gold);
+  transform: translateX(6px);
+}
+
+.dl:hover .go {
+  color: var(--gold);
+  transform: translate(3px, -3px);
+}
+
+/* staklo treba nešto iza sebe: dve meke, spore mrlje samo iza kartice */
+.kf-wrap .fx {
+  position: absolute;
+  inset: -12%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kf-wrap .fx i {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  -webkit-filter: blur(60px);
+  animation: kdrift 18s ease-in-out infinite alternate;
+}
+
+.kf-wrap .fx i:nth-child(1) {
+  width: 60%;
+  height: 55%;
+  right: -4%;
+  top: 2%;
+  background: radial-gradient(circle, rgba(217, 178, 95, .42), transparent 70%);
+}
+
+.kf-wrap .fx i:nth-child(2) {
+  width: 62%;
+  height: 60%;
+  left: -6%;
+  bottom: 0;
+  background: radial-gradient(circle, rgba(70, 96, 170, .55), transparent 70%);
+  animation-duration: 24s;
+}
+
+@keyframes kdrift {
+  to { transform: translate(-8%, 6%) scale(1.12); }
+}
+
+/* ---------- iOS liquid glass (kao ranije) ---------- */
+.lg {
+  position: relative;
+  z-index: 1;
+  border-radius: 32px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .035) 45%, rgba(255, 255, 255, .07));
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, .16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), 0 20px 48px rgba(0, 0, 0, .35);
+  overflow: hidden;
+  overflow: clip;
+  isolation: isolate;
+  padding: 30px;
+}
+
+.lg:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .07) 45%, transparent 55%);
+}
+
+/* iOS grupisana polja */
+.grp {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .08);
+  overflow: hidden;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  min-height: 60px;
+}
+
+.row + .row:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, .09);
+}
+
+.row label {
+  flex: none;
+  width: 86px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.row input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--ink);
+  font: 500 16px Montserrat, sans-serif;
+  padding: 18px 0;
+}
+
+.row input::placeholder {
+  color: rgba(167, 174, 194, .55);
+}
+
+.row .pre {
+  color: var(--mut);
+  font: 500 16px Montserrat, sans-serif;
+  margin-right: -6px;
+}
+
+.row:focus-within {
+  background: rgba(255, 255, 255, .04);
+}
+
+.row .err {
+  position: absolute;
+  right: 16px;
+  font-size: 12px;
+  color: var(--or);
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+}
+
+.row.bad .err {
+  opacity: 1;
+}
+
+.row.bad input::placeholder {
+  color: transparent;
+}
+
+.row.bad {
+  animation: shake .4s;
+}
+
+@keyframes shake {
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+.q {
+  font-size: 13px;
+  color: var(--mut);
+  margin: 24px 4px 10px;
+}
+
+/* izbor: pill dugmići isti kao na sajtu (uloga-chip) */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  font: 500 11px "IBM Plex Mono", monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--mut);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .32);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  backdrop-filter: blur(24px) saturate(200%);
+  transition: color .3s, background .3s, border-color .3s, box-shadow .3s, transform .45s var(--spring);
+}
+
+.pill:hover {
+  color: var(--ink);
+  border-color: rgba(255, 255, 255, .5);
+}
+
+.pill:active {
+  transform: scale(.96);
+}
+
+.pill.on {
+  color: var(--gold);
+  background: rgba(217, 178, 95, .16);
+  border-color: rgba(255, 255, 255, .65);
+  box-shadow: 0 0 16px rgba(217, 178, 95, .18);
+}
+
+.pnl {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows .55s cubic-bezier(.2, 1, .3, 1), opacity .35s;
+}
+
+.pnl > div {
+  overflow: hidden;
+}
+
+.pnl.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.pnl .inner {
+  padding-top: 12px;
+}
+
+.pnl textarea {
+  display: block;
+  width: 100%;
+  min-height: 104px;
+  resize: none;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .08);
+  color: var(--ink);
+  font: 500 15px/1.5 Montserrat, sans-serif;
+  padding: 16px 18px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.pnl textarea::placeholder {
+  color: rgba(167, 174, 194, .55);
+}
+
+.pnl textarea:focus {
+  background: rgba(255, 255, 255, .08);
+}
+
+.pnl .note {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mut);
+  margin: 2px 4px 12px;
+}
+
+.pnl .note b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.send {
+  margin-top: 26px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  cursor: pointer;
+  font: 800 15px Montserrat, sans-serif;
+  color: #0B1020;
+  padding: 17px 24px;
+  border-radius: 999px;
+  background: #D9B25F;
+  transition: transform .45s var(--spring), background .3s;
+}
+
+.send:hover {
+  background: #E4C273;
+  transform: translateY(-1px);
+}
+
+.send:active {
+  transform: scale(.98);
+}
+
+.send svg {
+  width: 17px;
+  height: 17px;
+  transition: transform .4s;
+}
+
+.send:hover svg {
+  transform: translateX(4px);
+}
+
+.send .dots {
+  display: none;
+  gap: 6px;
+}
+
+.send.load {
+  pointer-events: none;
+}
+
+.send.load .t {
+  display: none;
+}
+
+.send.load .dots {
+  display: flex;
+}
+
+.send .dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0B1020;
+  animation: bop .9s infinite;
+}
+
+.send .dots i:nth-child(2) { animation-delay: .12s; }
+.send .dots i:nth-child(3) { animation-delay: .24s; }
+
+@keyframes bop {
+  50% { transform: translateY(-5px); opacity: .5; }
+}
+
+.legal {
+  margin-top: 12px;
+  font-size: 11.5px;
+  color: rgba(167, 174, 194, .6);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.hp {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* uspeh */
+.done {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s;
+}
+
+.lg.sent .done {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lg form {
+  transition: opacity .4s, transform .6s, filter .4s;
+}
+
+.lg.sent form {
+  opacity: 0;
+  transform: scale(.97);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.done svg {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 20px;
+}
+
+.done circle, .done path {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.done circle {
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+}
+
+.done path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+}
+
+.lg.sent .done circle {
+  transition: stroke-dashoffset .9s .15s cubic-bezier(.6, 0, .2, 1);
+  stroke-dashoffset: 0;
+}
+
+.lg.sent .done path {
+  transition: stroke-dashoffset .5s .9s cubic-bezier(.6, 0, .2, 1);
+  stroke-dashoffset: 0;
+}
+
+.done h4 {
+  font-family: Montserrat, sans-serif;
+  font-weight: 900;
+  font-size: clamp(30px, 3vw, 42px);
+  letter-spacing: -.02em;
+  color: var(--ink);
+}
+
+.done p {
+  margin-top: 12px;
+  color: var(--mut);
+  max-width: 32ch;
+  line-height: 1.6;
+}
+
+.done p b {
+  color: var(--ink);
+}
+
+.done button {
+  margin-top: 24px;
+}
+
+/* ulazak: kartica ulazi kao AirDrop (isto kao glass blokovi), levo blagi fade */
+.kf-head, .kf-dir {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .8s, transform 1s var(--spring);
+}
+
+.kf-head.in, .kf-dir.in {
+  opacity: 1;
+  transform: none;
+}
+
+.kf-wrap .lg {
+  opacity: 0;
+}
+
+.kf-wrap.in .lg {
+  animation: airdropR 1.05s var(--spring) both;
+}
+
+@keyframes airdropR {
+  0% {
+    opacity: 0;
+    transform: translateX(40vw) scale(.18);
+    filter: blur(22px) brightness(1.8);
+    border-radius: 999px;
+  }
+  35% {
+    opacity: 1;
+    filter: blur(8px) brightness(1.4);
+  }
+  62% {
+    transform: translateX(-1.5%) scale(1.03);
+    filter: blur(0) brightness(1.08);
+  }
+  80% {
+    transform: translateX(.4%) scale(.995);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.ripple {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+  transform: translate(-50%, -50%) scale(0);
+  background: radial-gradient(circle, transparent 58%, rgba(217, 178, 95, .45) 63%, rgba(255, 255, 255, .25) 64.5%, transparent 70%);
+  opacity: 0;
+}
+
+.kf-wrap.in .ripple {
+  animation: ripple .9s .5s ease-out both;
+}
+
+@keyframes ripple {
+  0% { opacity: .9; transform: translate(-50%, -50%) scale(.15); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+@media (max-width: 900px) {
+  .kf { padding: 12vh 16px 10vh; }
+  .kf-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "form" "dir"; row-gap: 36px; }
+  .kf-dir { margin-top: 8px; }
+  .lg { padding: 20px; border-radius: 28px; }
+  .row label { width: 72px; font-size: 13px; }
+}
+
+@media (max-width: 400px) {
+  .kf { padding: 80px 12px 60px; }
+  .lg { padding: 16px 14px; border-radius: 20px; }
+  .row label { width: 64px; font-size: 12px; }
+  .row input { font-size: 14px; }
+  .pills { gap: 6px; }
+  .pill { font-size: 10px; padding: 8px 11px; }
+  .send { padding: 14px 20px; font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kf-head, .kf-dir, .kf-wrap .lg { opacity: 1; transform: none; animation: none !important; }
+  .kf-wrap .fx i { animation: none; }
+}
+
+/* ================= 2) FOOTER (Logo Scroll Animation) ================= */
+.ft {
+  position: relative;
+  z-index: 55;
+  height: 270vh;
+  background: #191F32 !important;
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  margin-top: 0 !important;
+}
+
+/* pozadina footera = tačno #191F32 (isto kao kontakt), potpuni vizuelni kontinuitet */
+.ft .stage {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #191F32 !important;
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.ft .glow {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 110vmax;
+  height: 64vmax;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(217, 178, 95, .22), rgba(232, 150, 58, .05) 45%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ft .logo {
+  position: relative;
+  width: min(980px, 92vw);
+  will-change: transform;
+  transform-origin: 50% 55%;
+}
+
+.ft .logo svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ft .glyph {
+  font-family: Montserrat, sans-serif;
+  font-weight: 900;
+  fill: #E8963A;
+}
+
+.ft .sub {
+  margin-top: 22px;
+  text-align: center;
+  font-size: clamp(10px, 1.1vw, 13px);
+  letter-spacing: .32em;
+  color: var(--mut);
+  white-space: nowrap;
+}
+
+.ft .sub span {
+  display: inline-block;
+  min-width: .3em;
+}
+
+.ft .sub .r { color: var(--or); }
+.ft .sub .h { color: transparent; }
+
+.ft .meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 22px 6vw 26px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--mut);
+  border-top: 1px solid rgba(167, 174, 194, .14);
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.ft .meta a {
+  color: var(--mut);
+  text-decoration: none;
+  margin-left: 22px;
+  transition: color .2s;
+}
+
+.ft .meta a:first-child {
+  margin-left: 0;
+}
+
+.ft .meta a:hover {
+  color: var(--gold);
+}
+
+@media (max-width: 768px) {
+  .kf {
+    margin-top: -100vh !important;
+    margin-top: -100svh !important;
+    margin-top: -100dvh !important;
+    min-height: 100vh;
+    min-height: 100svh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    z-index: 50;
+    border-radius: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+  }
+
+  .kf::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    border-radius: 0 !important;
+    box-shadow: 0 -30px 80px rgba(0, 0, 0, 0.85);
+    pointer-events: none;
+    z-index: -1;
+    clip-path: inset(-100px -40px 0 -40px);
+  }
+}
+
+@media (max-width: 640px) {
+  .ft .logo { width: 96vw; }
+  .ft .meta { justify-content: center; text-align: center; }
+  .ft .meta a { margin-left: 14px; }
+  .ft .sub { letter-spacing: .16em; font-size: 9px; }
+}

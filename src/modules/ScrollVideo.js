@@ -53,6 +53,40 @@ export class ScrollVideo {
   }
 
   /**
+   * Immediately load and render the first frame so the hero canvas displays in milliseconds.
+   */
+  async initFirstFrame() {
+    const src = `${this.folderPath}${this.prefix}001${this.ext}`;
+    try {
+      if (typeof createImageBitmap === 'function') {
+        const r = await fetch(src);
+        if (r.ok) {
+          const blob = await r.blob();
+          this.frames[0] = await createImageBitmap(blob);
+        }
+      } else {
+        const img = await new Promise((resolve, reject) => {
+          const el = new Image();
+          el.onload = () => resolve(el);
+          el.onerror = reject;
+          el.src = src;
+        });
+        this.frames[0] = img;
+      }
+    } catch (e) {
+      console.warn('[ScrollVideo] First frame load failed:', e);
+    }
+
+    if (this.frames[0]) {
+      this._imgW = this.frames[0].width || this.frames[0].naturalWidth;
+      this._imgH = this.frames[0].height || this.frames[0].naturalHeight;
+      this._updateDrawParams();
+      this.loaded = true;
+      this._drawFrame(0);
+    }
+  }
+
+  /**
    * Preload frame images in controlled batches to avoid memory spikes.
    * @param {boolean} [skipAlternate=false] — If true, only load every 2nd frame (mobile)
    * @param {number}  [batchSize=15]       — How many frames to fetch concurrently per batch
@@ -62,10 +96,11 @@ export class ScrollVideo {
   async preload(skipAlternate = false, batchSize = 15, onProgress = null) {
     const canBitmap = typeof createImageBitmap === 'function';
 
-    // Build list of { index, src } tasks
+    // Build list of { index, src } tasks (skip frame 0 if already loaded by initFirstFrame)
     const tasks = [];
     for (let i = 1; i <= this.frameCount; i++) {
       if (skipAlternate && i % 2 === 0) continue;
+      if (i === 1 && this.frames[0]) continue;
       const idx = String(i).padStart(3, '0');
       const src = `${this.folderPath}${this.prefix}${idx}${this.ext}`;
       tasks.push({ frameIndex: i - 1, src });
@@ -109,7 +144,7 @@ export class ScrollVideo {
 
     // Cache source dimensions from first loaded frame
     const first = this.frames.find(f => f !== null);
-    if (first) {
+    if (first && !this._imgW) {
       this._imgW = first.width || first.naturalWidth;
       this._imgH = first.height || first.naturalHeight;
       this._updateDrawParams();
@@ -125,7 +160,9 @@ export class ScrollVideo {
     }
 
     this.loaded = true;
-    this._drawFrame(0);
+    if (this.currentFrame < 0) {
+      this._drawFrame(0);
+    }
   }
 
   /**

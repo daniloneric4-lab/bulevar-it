@@ -1,0 +1,219 @@
+/* ═══════════════════════════════════════════════════════════
+   08 · SISTEM IZA EKRANA & LAPTOP MASTER STAGE
+   Single persistent 3D laptop shared between Section 08 and Section 09.
+   ═══════════════════════════════════════════════════════════ */
+
+.laptop-master-stage {
+  position: relative;
+  width: 100%;
+  z-index: 28;
+  margin-top: -100vh !important;
+  margin-top: -100svh !important;
+  margin-top: -100dvh !important;
+}
+
+/* Sticky 3D Canvas Layer (z-index: 20 so it remains ABOVE Section 09's sliding sheet) */
+.laptop-sticky-viewport {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+  z-index: 20;
+  pointer-events: none;
+  margin-bottom: -100vh;
+  margin-bottom: -100dvh;
+}
+
+#s-gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Section 08: Sistem iza ekrana — same background as Section 09 (#0B1020) */
+#sis,
+.sis-section {
+  position: relative;
+  z-index: 1;
+  background: #0B1020;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+#sis .track,
+#s-track {
+  position: relative;
+  height: 1050vh;
+  background: #0B1020;
+}
+
+#sis .stage,
+#s-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #0B1020;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-top: none;
+}
+
+#sis .txt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 30;
+  will-change: opacity, transform;
+}
+
+#sis .txt .wrap {
+  height: auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding-left: clamp(24px, 4.5vw, 84px);
+  padding-right: 20px;
+}
+
+#sis .in {
+  max-width: min(600px, 44vw);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 25;
+}
+
+#sis .tag {
+  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold, #D9B25F);
+}
+
+#sis h2 {
+  margin: 0;
+  font-family: var(--display, 'Montserrat', sans-serif);
+  font-weight: 900;
+  font-size: clamp(34px, 3.8vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  min-height: 2.2em;
+  color: var(--ink, #F3EEE3);
+}
+
+#sis h2 span {
+  display: block;
+}
+
+#sis h2 span.g {
+  color: var(--gold, #D9B25F);
+}
+
+#sis .sub {
+  margin: 4px 0 0;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: clamp(16px, 1.25vw, 20px);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--muted, #A7AEC2);
+  opacity: 0.95;
+  min-height: 3.8em;
+}
+
+#sis .sub .noise {
+  color: #F6EFC4;
+}
+
+.noise {
+  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  color: var(--orange, #E8963A);
+}
+
+.rest {
+  color: transparent;
+}
+
+@media (max-width: 900px) {
+  .laptop-master-stage {
+    margin-top: -100vh !important;
+    margin-top: -100svh !important;
+    margin-top: -100dvh !important;
+  }
+  #sis .stage,
+  #s-stage {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  #sis .txt {
+    align-items: flex-start;
+    padding-top: clamp(88px, 11vh, 100px);
+    padding-bottom: 0;
+  }
+  #sis .txt .wrap {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  #sis .in {
+    max-width: none;
+    gap: 6px;
+  }
+  #sis .tag {
+    font-size: 11px;
+    margin-bottom: 0;
+  }
+  #sis h2 {
+    font-size: clamp(20px, 5.8vw, 26px);
+    line-height: 1.15;
+    min-height: 2.1em;
+  }
+  #sis .sub {
+    font-size: 12.5px;
+    line-height: 1.45;
+    min-height: 2.8em;
+    margin-top: 3px;
+  }
+  #sis .layers {
+    display: none;
+  }
+  #sis .track,
+  #s-track {
+    height: 820vh;
+  }
+}
+
+@media (max-width: 400px) {
+  #sis .txt {
+    padding-top: clamp(88px, 11vh, 100px);
+  }
+  #sis .txt .wrap {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  #sis h2 {
+    font-size: 19px;
+  }
+  #sis .sub {
+    font-size: 11.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #sis .layers li,
+  #sis .txt {
+    transition: none;
+  }
+}

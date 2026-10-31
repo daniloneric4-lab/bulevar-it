@@ -23,7 +23,7 @@ export function initDevicePortfolioStage() {
   const cardsTrack = document.querySelector('#portfolio-cards-track');
   const sheet = document.querySelector('#contact-footer-sheet');
 
-  if (!stage || !motionTrack || !container || !canvas) {
+  if (!stage || !motionTrack || !cardsTrack) {
     console.warn('[devicePortfolioStage] Required elements not found');
     return;
   }
@@ -31,191 +31,120 @@ export function initDevicePortfolioStage() {
   // 1. Render Curtis Nguyen 9 project cards in iOS27 Liquid Glass style
   renderHorizontalPortfolio('#portfolio-cards-track');
 
-  // 2. Initialize 3D Device Showcase (both devices stacked, parallel animations, bezel-less)
-  const deviceShowcase = new DeviceShowcase('#devices-3d-container', '#devices-3d-canvas');
-  window.__deviceShowcase = deviceShowcase;
+  // Draw SVG circuit lines for portfolio cards
+  setTimeout(() => {
+    drawCircuitLines(cardsTrack);
+  }, 120);
 
-  // Pause Lenis smooth scroll while details modal is active so user can freely interact
-  const origOpenModal = deviceShowcase.openModal.bind(deviceShowcase);
-  const origCloseModal = deviceShowcase.closeModal.bind(deviceShowcase);
-  deviceShowcase.openModal = (type) => {
-    window.lenis?.stop();
-    hintBtn?.classList.remove('is-visible');
-    origOpenModal(type);
-  };
-  deviceShowcase.closeModal = () => {
-    origCloseModal();
-    window.lenis?.start();
-    const curProg = deviceShowcase.currentDevProg || 0;
-    if (curProg >= 0.12 && curProg <= 0.88) {
-      hintBtn?.classList.add('is-visible');
-    }
-  };
-
-  // Wire up floating hint button click
+  // 2. Hide optional elements if present
+  if (container) {
+    container.style.display = 'none';
+  }
   if (hintBtn) {
-    hintBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const currentProg = deviceShowcase.currentDevProg || 0;
-      if (currentProg >= 0.55) {
-        deviceShowcase.openModal('phone');
-      } else {
-        deviceShowcase.openModal('laptop');
-      }
-    });
+    hintBtn.style.display = 'none';
+  }
+  if (header) {
+    header.style.display = 'none';
   }
 
-  // 1. Device phase: window.innerHeight * 2.0
-  // 2. Horizontal portfolio phase: calibrated exactly to the 9th project card (no dead empty void)
-  const getDevDuration = () => window.innerHeight * 2.0;
-  const getPortfolioTravel = () => {
-    const cards = motionTrack.querySelectorAll('.curtis-card');
-    const lastCard = cards[cards.length - 1];
-    if (lastCard && cardsTrack) {
-      const pane = document.querySelector('.portfolio-pane');
-      const paneOffset = pane ? pane.offsetLeft : window.innerWidth;
-      const lastCardEnd = paneOffset + lastCard.offsetLeft + lastCard.offsetWidth;
-      return Math.max(window.innerWidth * 1.5, lastCardEnd);
-    }
-    return motionTrack.scrollWidth;
+  const getVsWidth = () => {
+    const vsPane = document.querySelector('#vs-pane');
+    return vsPane ? vsPane.offsetWidth : window.innerWidth;
   };
 
-  const getScrollEnd = () => {
-    return getDevDuration() + getPortfolioTravel();
+  const getCardsTravel = () => {
+    const cards = cardsTrack.querySelectorAll('.curtis-card');
+    const lastCard = cards[cards.length - 1];
+    if (lastCard && cardsTrack) {
+      const lastCardEnd = lastCard.offsetLeft + lastCard.offsetWidth;
+      const isMobile = window.innerWidth <= 768;
+      const exitMargin = isMobile ? (window.innerWidth + 80) : Math.max(160, window.innerWidth * 0.25);
+      return Math.max(window.innerWidth * 0.8, lastCardEnd + exitMargin - window.innerWidth);
+    }
+    return Math.max(window.innerWidth * 0.8, cardsTrack.scrollWidth - window.innerWidth);
   };
+
+  const getTotalTravel = () => {
+    return getVsWidth() + getCardsTravel();
+  };
+
+  // Udoban hold na #vs (1.0 visina ekrana) da korisnik u miru pročita poređenje bez ikakvog preskakanja
+  const getHoldVs = () => Math.round(window.innerHeight * 1.0);
+  // Kratak hold na kraju radova (0.15 visina ekrana ~120px) tako da sekcija Kako razmišljamo odmah krene gore bez praznog skrolovanja
+  const getHoldEnd = () => Math.round(window.innerHeight * 0.15);
+
+  const getScrollEnd = () => {
+    return getHoldVs() + getTotalTravel() + getHoldEnd();
+  };
+
+  function updateStageHeight() {
+    const totalDist = getScrollEnd();
+    stage.style.height = `${totalDist + window.innerHeight}px`;
+  }
+
+  updateStageHeight();
+  requestAnimationFrame(() => {
+    updateStageHeight();
+    ScrollTrigger.refresh();
+  });
 
   ScrollTrigger.create({
     id: 'unified-showcase-trigger',
     trigger: stage,
     start: 'top top',
-    end: () => `+=${getScrollEnd()}`,
-    pin: true,
-    scrub: 0.8,
-    anticipatePin: 1,
+    end: 'bottom bottom',
+    pin: false, // 100% Native CSS position: sticky — eliminiše sve pin-spacere, skokove, teleporte i padanje radova!
+    scrub: true,
     invalidateOnRefresh: true,
     onUpdate: (self) => {
-      const devDuration = getDevDuration();
-      const portfolioTravel = getPortfolioTravel();
-      const totalDist = devDuration + portfolioTravel;
+      const totalDist = getScrollEnd();
+      const holdVs = getHoldVs();
+      const totalTravel = getTotalTravel();
+      const vsW = getVsWidth();
+      const scrollPx = self.progress * totalDist;
 
-      const phase1Ratio = devDuration / totalDist;
+      let currentX = 0;
+      let moved = 0;
+      if (scrollPx > holdVs) {
+        moved = Math.min(totalTravel, scrollPx - holdVs);
+        currentX = -moved;
+      }
+      gsap.set(motionTrack, { x: currentX });
+      window.__updateOjswVis?.();
+
+      if (moved < vsW * 0.45) {
+        window.__setActiveNavLink?.('put-kupca');
+      } else if (self.progress < 0.96) {
+        window.__setActiveNavLink?.('portfolio');
+      }
+
+      let cardProgress = 0;
+      const cardsTravel = totalTravel - vsW;
+      if (moved > vsW && cardsTravel > 0) {
+        cardProgress = Math.min(1.0, (moved - vsW) / cardsTravel);
+      }
 
       const introHeader = document.querySelector('#portfolio-intro-header');
-
-      const overlapWrap = document.querySelector('.overlap-wrap');
-
-      if (self.progress <= phase1Ratio) {
-        if (overlapWrap) {
-          overlapWrap.style.opacity = '0';
-          overlapWrap.style.pointerEvents = 'none';
+      if (introHeader) {
+        if (cardProgress > 0.90) {
+          const fadeOut = Math.max(0, 1 - (cardProgress - 0.90) / 0.10);
+          introHeader.style.opacity = String(fadeOut);
+        } else {
+          introHeader.style.opacity = '1';
         }
+        introHeader.style.transform = 'none';
+      }
 
-        // Synchronize active nav link to Responzivnost during 3D device showcase
-        if (self.progress > 0.01) {
-          window.__setActiveNavLink?.('devices');
-        }
+      animatePortfolioCards();
 
-        // ─── PHASE 1: Dual 3D Devices Showcase (Laptop on top, Phone below) ───
-        const devProg = self.progress / phase1Ratio;
-        deviceShowcase.setDeviceScroll(devProg);
-
-        // Keep motion track at origin
-        gsap.set(motionTrack, { x: 0 });
-
-        // Header text: visible during device demonstrations, fades as horizontal portfolio begins
-        if (header) {
-          if (devProg <= 0.85) {
-            header.style.opacity = '1';
-            header.style.transform = 'translateX(-50%) translateY(0)';
-          } else {
-            const fade = (devProg - 0.85) / 0.15;
-            header.style.opacity = String(Math.max(0, 1 - fade));
-            header.style.transform = `translateX(-50%) translateY(${-30 * fade}px)`;
-          }
-        }
-
-        // Hint button visibility & dynamic proximity to active device
-        if (hintBtn) {
-          if (devProg >= 0.12 && devProg <= 0.88) {
-            hintBtn.classList.add('is-visible');
-            if (devProg >= 0.50) {
-              hintBtn.classList.add('is-phone');
-              hintBtn.classList.remove('is-laptop');
-            } else {
-              hintBtn.classList.add('is-laptop');
-              hintBtn.classList.remove('is-phone');
-            }
-          } else {
-            hintBtn.classList.remove('is-visible');
-          }
-        }
-
-        // Portfolio intro header hidden during 3D device showcase
-        if (introHeader) {
-          introHeader.style.opacity = '0';
-          introHeader.style.transform = 'none';
-        }
-
-        // Reset circuit line before horizontal portfolio begins (stops at Petra's)
-        updateCircuitProgress(0);
-      } else {
-        // Synchronize active nav link to Portfolio during project cards
-        if (self.progress < 0.95) {
-          window.__setActiveNavLink?.('portfolio');
-        }
-
-        // ─── PHASE 2: Horizontal Scroll into "Naši radovi" ───
-        deviceShowcase.setDeviceScroll(1.0);
-        hintBtn?.classList.remove('is-visible');
-        if (header) header.style.opacity = '0';
-
-        const horizProg = (self.progress - phase1Ratio) / (1.0 - phase1Ratio);
-        const currentX = -horizProg * portfolioTravel;
-        gsap.set(motionTrack, { x: currentX });
-
-        // "Naši radovi" intro header appears ONLY when projects actually begin entering (after phone slides away)
-        // and cleanly fades out as the final card completes
-        const projectsEntryProg = (window.innerWidth * 0.70) / portfolioTravel;
-        if (introHeader) {
-          if (horizProg < projectsEntryProg) {
-            introHeader.style.opacity = '0';
-          } else if (horizProg > 0.80) {
-            const fadeOut = Math.max(0, 1 - (horizProg - 0.80) / 0.16);
-            introHeader.style.opacity = String(fadeOut);
-          } else {
-            const headerIn = Math.min(1.0, (horizProg - projectsEntryProg) / 0.05);
-            introHeader.style.opacity = String(headerIn);
-          }
-          introHeader.style.transform = 'none';
-        }
-
-        // Animate project cards dynamically on scroll (wave entrance)
-        animatePortfolioCards();
-
-        // Progressive circuit line drawing:
-        // Stretches smoothly at uniform constant speed from Petra's Stolovi to Mango Event
-        const revealedX = computeRevealedX(horizProg, portfolioTravel);
-        updateCircuitProgress(revealedX);
-        const circuitSvg = document.querySelector('.portfolio-circuit-svg');
-        if (circuitSvg) {
-          if (horizProg > 0.84) {
-            circuitSvg.style.opacity = String(Math.max(0, 1 - (horizProg - 0.84) / 0.12));
-          } else {
-            circuitSvg.style.opacity = '1';
-          }
-        }
-
-        // Section A ("Spremni da stvorimo nešto zajedno?") fades in cleanly right as Card 8 exits,
-        // completely eliminating any empty void or delay
-        if (overlapWrap) {
-          if (horizProg < 0.90) {
-            overlapWrap.style.opacity = '0';
-            overlapWrap.style.pointerEvents = 'none';
-          } else {
-            const fadeIn = Math.min(1.0, (horizProg - 0.90) / 0.08);
-            overlapWrap.style.opacity = String(fadeIn);
-            overlapWrap.style.pointerEvents = fadeIn > 0.5 ? 'auto' : 'none';
-          }
+      const revealedX = computeRevealedX(cardProgress, cardsTravel);
+      updateCircuitProgress(revealedX);
+      const circuitSvg = document.querySelector('.portfolio-circuit-svg');
+      if (circuitSvg) {
+        if (cardProgress > 0.90) {
+          circuitSvg.style.opacity = String(Math.max(0, 1 - (cardProgress - 0.90) / 0.10));
+        } else {
+          circuitSvg.style.opacity = '1';
         }
       }
     },
@@ -225,6 +154,7 @@ export function initDevicePortfolioStage() {
   initPinnedOverlapReveal();
 
   window.addEventListener('resize', () => {
+    updateStageHeight();
     drawCircuitLines(cardsTrack);
     ScrollTrigger.refresh();
   });

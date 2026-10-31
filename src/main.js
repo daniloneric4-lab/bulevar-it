@@ -19,30 +19,54 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 // Styles (Vite injects CSS via JS import)
 import './styles/index.css';
 
-import { ScrollVideo } from './modules/ScrollVideo.js';
-import { initHeroAnimations, initScrollAnimations, initServicesReveal } from './modules/animations.js';
-import { initAboutParallax } from './modules/aboutParallax.js';
+import { initHeroOnama } from './modules/heroOnama.js';
+import { initScrollAnimations, initServicesReveal } from './modules/animations.js';
+import { initIdeje } from './modules/ideje.js';
+import { initOwnJourney } from './modules/ownJourney.js';
 import { DotGrid } from './modules/dotGrid.js';
 import { initDevicePortfolioStage } from './modules/devicePortfolioStage.js';
-import { initNav } from './modules/nav.js';
-import { initContactForm } from './modules/contact.js';
+import { initKakoRazmisljamo } from './modules/kakoRazmisljamo.js';
+import { initSistemIzaEkrana } from './modules/sistemIzaEkrana.js';
+import { initNav, handleUrlLandingRoute } from './modules/nav.js';
+import { initKontaktFooter } from './modules/kontaktFooter.js';
+import { initI18n } from './modules/i18n.js';
+import { initWorkGlassBox } from './modules/workGlassBox.js';
 
 // ─── Register GSAP plugins ───
 gsap.registerPlugin(ScrollTrigger);
 
+// Prevent mobile URL bar resize jitter
+ScrollTrigger.config({
+  ignoreMobileResize: true,
+  autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load'
+});
+
 // ─── Detect mobile ───
-const isMobile = window.matchMedia('(max-width: 768px)').matches;
+const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
 
 // ─── Lenis smooth scroll ───
+// Native touch scrolling on mobile (syncTouch: false) prevents black void freezing and jitter
 const lenis = new Lenis({
-  duration: 1.2,
-  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom easeOutExpo
+  duration: 1.15,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   orientation: 'vertical',
   gestureOrientation: 'vertical',
   smoothWheel: true,
   wheelMultiplier: 1,
-  touchMultiplier: 2,
+  syncTouch: false,
+  autoResize: true
 });
+
+lenis.resize();
+
+let resizeDebounce;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeDebounce);
+  resizeDebounce = setTimeout(() => {
+    lenis.resize();
+    ScrollTrigger.refresh();
+  }, 200);
+}, { passive: true });
 
 // Connect Lenis to GSAP ScrollTrigger
 window.lenis = lenis;
@@ -53,91 +77,63 @@ gsap.ticker.add((time) => {
   lenis.raf(time * 1000);
 });
 
+// Disable lag smoothing for Lenis to avoid artificial time-skip jumps
 gsap.ticker.lagSmoothing(0);
-
-// ─── Hero ScrollVideo ───
-async function initHero() {
-  // Desktop: 1080p optimized frames (101 WebP), Mobile: 720p (121 WebP, skip alternate)
-  const frameConfig = isMobile
-    ? { folder: '/frames/hero-720/', count: 121, prefix: 'frame_', ext: '.webp' }
-    : { folder: '/frames/hero-opt/', count: 101, prefix: 'frame_', ext: '.webp' };
-
-  const scrollVideo = new ScrollVideo(
-    '#hero-video',
-    frameConfig.folder,
-    frameConfig.count,
-    frameConfig.prefix,
-    frameConfig.ext
-  );
-
-  // Preload frames with batch loading
-  // Desktop: all frames in batches of 15
-  // Mobile: skip every other frame, batches of 10
-  await scrollVideo.preload(
-    isMobile,           // skipAlternate
-    isMobile ? 10 : 15, // batchSize
-    (loaded, total) => {
-      // Optional: could update a loading indicator here
-      if (loaded === total) {
-        console.log(`[Hero] All ${total} frames loaded`);
-      }
-    }
-  );
-
-  // Set up hero headline animation timeline
-  const heroTl = initHeroAnimations();
-
-  // GSAP ScrollTrigger for hero pinning + frame scrubbing
-  ScrollTrigger.create({
-    trigger: '#hero',
-    start: 'top top',
-    end: '+=300%',
-    pin: true,
-    scrub: 0.3,
-    onUpdate: (self) => {
-      // Map scroll progress to video frames
-      scrollVideo.update(self.progress);
-
-      // Trigger hero text animation at 60% progress
-      if (heroTl && self.progress >= 0.6 && self.progress <= 0.85) {
-        const textProgress = (self.progress - 0.6) / 0.25; // 0 to 1 within 60-85%
-        heroTl.progress(textProgress);
-      } else if (heroTl && self.progress < 0.6) {
-        heroTl.progress(0);
-      } else if (heroTl && self.progress > 0.85) {
-        heroTl.progress(1);
-      }
-    },
-  });
-}
 
 // ─── Initialize everything in top-to-bottom DOM order ───
 async function init() {
+  // 0. Language / i18n
+  initI18n('main');
+
   // Navigation
   initNav();
 
-  // 1. Hero scroll video (pinned for 300% until laptop fully opens)
-  await initHero();
+  // 1. Hero Laptop Video Scrub & 2. O nama Dot Figures
+  initHeroOnama();
 
-  // 1.5 Pinned "O nama" Parallax Section (Boon-style 4-layer scroll separation)
-  initAboutParallax();
+  // 1.8 Ideje & Usluge — Unified 900vh Continuous Particle Stage (ideje-usluge.html)
+  initIdeje();
 
-  // 2. Services DotGrid Canvas
-  const dotGrid = new DotGrid('#services-dots', '#services-stage');
+  // 1.9 Own your customer journey — 3D Interactive Customer Journey & Portal Stage
+  initOwnJourney();
 
-  // 3. Section animations and Circle-Reveal
+  // 2. Section animations
   initScrollAnimations();
-  initServicesReveal(dotGrid);
 
   // 4. 3D Devices & Horizontal Portfolio Pinned Stage
   initDevicePortfolioStage();
 
-  // 5. Contact form
-  initContactForm();
+  // 4.1 Section 06 Portfolio Glass Boxes & Case Study Dialog Modal
+  initWorkGlassBox();
 
-  // 6. Sort and refresh GSAP ScrollTrigger to ensure all trigger ranges are strictly ordered
+  // 4.5 Kako razmišljamo — Pinned 7-step Staircase & Decode Text
+  initKakoRazmisljamo();
+
+  // 4.6 Sistem iza ekrana — 3D Laptop & Layer Cards Fan
+  initSistemIzaEkrana();
+
+  // 5. Contact form & Animated Logo Footer
+  initKontaktFooter();
+
+  // 6. Sort and refresh GSAP ScrollTrigger & Lenis to ensure all trigger ranges are strictly ordered
+  lenis.resize();
   ScrollTrigger.sort();
   ScrollTrigger.refresh();
+
+  // Deep-link landing routing (executed strictly after all ScrollTriggers are calculated)
+  handleUrlLandingRoute(true);
+
+  // Refresh ScrollTrigger when all fonts and window assets have settled to avoid any jump
+  window.addEventListener('load', () => {
+    lenis.resize();
+    ScrollTrigger.refresh();
+  });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      lenis.resize();
+      ScrollTrigger.refresh();
+    });
+  }
 
   // Log ready state
   console.log(

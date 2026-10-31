@@ -1,0 +1,385 @@
+<title>Sistem iza ekrana i uloga sajta</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: pinned stage. Seven big words climb a staircase from bottom-left to top-right as you scroll
+   (the "JUST ONE → MORE → TWEAK" move from the reference), each decoding in; the active one shows the question we ask.
+   At the end a gold line loops from the last step back to the first: learning feeds the next round. */
+:root{
+  --navy:#0B1020; --line:#2A3658; --gold:#D9B25F; --orange:#E8963A; --ink:#F3EEE3; --muted:#A7AEC2; --dim:#3a4566;
+  --display:'Montserrat',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{margin:0;background:var(--navy);color:var(--ink)}
+body{font-family:var(--display)}
+*{box-sizing:border-box}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.spacer{min-height:50vh;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.track{position:relative;height:calc(7 * 60vh + 140vh)}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.wrap{position:relative;height:100%;max-width:1440px;margin:0 auto;--px:clamp(16px,4vw,60px)}
+.wrap.pad{padding-left:var(--px);padding-right:var(--px)}
+.head{position:absolute;left:var(--px);top:9vh;display:flex;flex-direction:column;gap:12px;max-width:520px;z-index:2}
+.tag{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+h2{margin:0;font-weight:900;font-size:clamp(26px,2.8vw,40px);line-height:1.05;letter-spacing:-.02em}
+h2 em{font-style:normal;color:var(--gold)}
+.sub{margin:0;color:var(--muted);font-size:15px;line-height:1.5;max-width:42ch}
+svg.path{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.w{position:absolute;display:flex;flex-direction:column;gap:6px;transition:opacity .5s ease}
+.w .n{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted);font-variant-numeric:tabular-nums}
+.w .t{font-weight:900;font-size:clamp(30px,4.6vw,72px);line-height:.95;letter-spacing:-.02em;text-transform:uppercase;white-space:nowrap;color:var(--dim);transition:color .5s ease}
+.w .q{font-family:var(--mono);font-size:13px;line-height:1.5;color:var(--gold);width:30ch;min-height:3em;opacity:0;transition:opacity .4s ease}
+@media (min-width:861px){.w .q{position:absolute;left:calc(100% + 28px);top:22px}}
+.w.seen .t{color:#6f7a99}
+.w.act .t{color:var(--ink)}
+.w.act .n{color:var(--orange)}
+.w.act .q{opacity:1}
+.w.last.act .t{color:var(--gold)}
+.noise{font-family:var(--mono);color:var(--orange)}.rest{color:transparent}
+.end{position:absolute;right:var(--px);bottom:8vh;max-width:460px;text-align:right;font-size:clamp(18px,1.8vw,24px);font-weight:800;line-height:1.35;opacity:var(--e,0);transform:translateY(calc((1 - var(--e,0))*14px))}
+.end em{font-style:normal;color:var(--gold)}
+.dots{position:absolute;left:var(--px);bottom:3vh;display:flex;gap:6px}
+.dots i{width:22px;height:3px;border-radius:2px;background:var(--line);transition:background .4s}
+.dots i.on{background:var(--gold)}
+@media (max-width:860px){
+  .head{top:4vh;gap:6px}.sub{display:none}
+  h2{font-size:clamp(20px,5.6vw,26px)}
+  .w .t{font-size:clamp(26px,8.4vw,38px)}
+  .w .q{font-size:11.5px;max-width:26ch}
+  .end{left:var(--px);right:var(--px);bottom:7vh;text-align:left;font-size:16px;max-width:none}
+}
+@media (prefers-reduced-motion:reduce){.w,.w .t,.w .q,.dots i{transition:none}}
+
+/* the rise: projects stay pinned, this section slides up over them like a sheet */
+.stack{position:relative}
+.prev{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;overflow:hidden;transform-origin:50% 0;will-change:transform,filter}
+.pv{width:100%;max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.pv h3{margin:0;font-weight:900;font-size:clamp(26px,3.2vw,46px);line-height:1.05;letter-spacing:-.02em}
+.pcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,3vw,40px)}
+.pc{aspect-ratio:16/10;border-radius:16px;border:1px solid var(--line);display:flex;align-items:flex-end;padding:16px}
+.pc b{font-weight:900;font-size:clamp(14px,1.8vw,26px)}
+.pline{height:2px;background:var(--gold);position:relative;border-radius:2px}
+.pline i{position:absolute;right:-6px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--orange)}
+.phint{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.rise{z-index:2;background:var(--navy);border-radius:32px 32px 0 0;box-shadow:0 -30px 80px rgba(0,0,0,.55);border-top:1px solid var(--line)}
+.rise .stage{border-radius:32px 32px 0 0}
+.rise .wrap{opacity:var(--in,1);transform:translateY(calc((1 - var(--in,1))*60px))}
+@media (max-width:860px){.pcards{grid-template-columns:minmax(0,1fr)}.pc{aspect-ratio:21/9}.rise,.rise .stage{border-radius:22px 22px 0 0}}
+
+/* ================= 08 · Sistem iza ekrana: laptop opens, powers on, cards fly out and shuffle ================= */
+#sis .track{position:relative;height:1700vh}
+#sis .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+#s-gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+#sis .txt{position:absolute;inset:0;display:flex;align-items:center;pointer-events:none;z-index:2}
+#sis .txt .wrap{height:auto;width:100%;max-width:1440px;margin:0 auto;padding-left:clamp(16px,4vw,60px);padding-right:clamp(16px,4vw,60px)}
+#sis .in{max-width:min(500px,36%);display:flex;flex-direction:column;gap:14px}
+#sis h2{margin:0;font-weight:900;font-size:clamp(28px,3.2vw,50px);line-height:1.03;letter-spacing:-.02em;min-height:2.06em}
+#sis .sub{margin:0;font-size:clamp(15px,1.25vw,18px);line-height:1.55;color:var(--muted);min-height:4.6em}
+#sis .layers{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+#sis .layers li{display:flex;gap:12px;align-items:baseline;font-size:14px;color:#5d6788;transition:color .35s}
+#sis .layers li b{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.14em;width:178px;flex-shrink:0;white-space:nowrap}
+#sis .layers li.on{color:var(--ink)}#sis .layers li.on b{color:var(--gold)}#sis .layers li.done{color:#8f98b5}
+@media (max-width:860px){#sis .txt{align-items:flex-end;padding-bottom:22px}#sis .in{max-width:none;gap:8px}#sis h2{font-size:clamp(22px,6.4vw,28px);min-height:2.1em}#sis .sub{font-size:14px;min-height:4.6em}#sis .layers{display:none}}
+@media (prefers-reduced-motion:reduce){#sis .layers li{transition:none}}
+#sis .roles{display:none;flex-direction:column;gap:12px;pointer-events:auto}
+#sis.rolemode .roles{display:flex}#sis.rolemode .layers{display:none}
+#sis .chips{display:flex;flex-wrap:wrap;gap:8px}
+#sis .chips button{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(11,16,32,.6);color:var(--muted);cursor:pointer;transition:all .25s}
+#sis .chips button:hover{border-color:#4a5880;color:var(--ink)}
+#sis .chips button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:rgba(217,178,95,.12)}
+#sis .chips button:focus-visible,#sis .rcta:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+#sis .rc{border:1px solid var(--line);border-radius:14px;padding:16px;background:rgba(15,22,40,.82)}
+#sis .rc b{display:block;font-size:20px;font-weight:900;min-height:1.2em}
+#sis .rc p{margin:6px 0 0;font-size:14.5px;line-height:1.5;min-height:3em}
+#sis .rc small{display:block;margin-top:8px;font-size:13px;color:var(--muted);line-height:1.45;min-height:2.9em}
+#sis .rc small i{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);margin-right:6px}
+#sis .rcta{align-self:flex-start;font-weight:800;font-size:14.5px;padding:12px 20px;border-radius:999px;background:var(--gold);color:var(--navy);text-decoration:none}
+#sis .rcta:hover{background:#f0cf85}
+#sis .rnote{font-size:12.5px;color:var(--muted)}
+@media (max-width:860px){#sis .roles{gap:8px}#sis .chips button{font-size:10.5px;padding:7px 9px}#sis .rc{padding:12px}#sis .rc b{font-size:17px}#sis .rc p{font-size:13.5px;min-height:2.9em}#sis .rc small,#sis .rnote{display:none}#sis.rolemode .sub{display:none}}
+</style>
+
+<div class="spacer pad">↑ 07 · Kako razmišljamo · skrolujte ↓</div>
+
+<section id="sis"><div class="track" id="s-track"><div class="stage" id="s-stage">
+  <canvas id="s-gl" aria-label="3D laptop koji se otvara, pali i iz ekrana izbacuje kartice slojeva sistema"></canvas>
+  <div class="txt"><div class="wrap"><div class="in">
+    <div class="tag" id="s-tg"></div>
+    <h2 id="s-h"></h2>
+    <p class="sub" id="s-p"></p>
+    <ol class="layers" id="s-ly" aria-label="Slojevi sistema"></ol>
+    <div class="roles">
+      <div class="chips" id="s-chips" role="group" aria-label="Uloga sajta"></div>
+      <div class="rc"><b id="s-rn"></b><p id="s-rd"></p><small><i>IMA SMISLA</i><span id="s-rw"></span></small></div>
+      <a class="rcta" href="#">Razgovarajmo o ovom cilju →</a>
+      <div class="rnote">Ne treba svakom biznisu sve. Funkcija sajta zavisi od cilja.</div>
+    </div>
+  </div></div></div>
+</div></div></section>
+
+<div class="spacer pad">↓ 10 · Šta ste zamislili? (kontakt)</div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function sm(a,b,x){x=Math.max(0,Math.min(1,(x-a)/(b-a)));return x*x*(3-2*x)}
+  function cl(x){return Math.max(0,Math.min(1,x))}
+  function lerp(a,b,t){return a+(b-a)*t}
+  var $=function(id){return document.getElementById(id)};
+  var LAY=[
+    ['ISKUSTVO','Ekran, poruka i tok koji korisnik vidi.','Ovo je deo koji svi vide: sajt, poruka, dugme. Mora da bude jasan, ali je tek početak.'],
+    ['KONVERZIJA','Upit, rezervacija ili kupovina.','Mesto gde poseta postaje posao. Bez forme koja radi, lep sajt je samo izlog.'],
+    ['PODACI','Odakle je došao i šta je uradio.','Znate koji kanal dovodi goste, gde odustaju i šta vredi pojačati.'],
+    ['AUTOMATIZACIJA','Obaveštenja, follow-up, AI asistent.','Potvrda, podsetnik i uputstvo idu sami. AI asistent odgovara i kad vi spavate.'],
+    ['ZADRŽAVANJE','Povratak, preporuka, lojalnost.','Gost se vraća direktno kod vas i dovodi prijatelje. Ovde sistem počinje da vraća uloženo.']
+  ];
+  var ly=$('s-ly');LAY.forEach(function(l,i){var li=document.createElement('li');li.innerHTML='<b>0'+(i+1)+' '+l[0]+'</b><span>'+l[1]+'</span>';ly.appendChild(li)});
+
+  /* ---------- three ---------- */
+  var stage=$('s-stage'),cv=$('s-gl'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(2,devicePixelRatio||1));renderer.outputEncoding=THREE.sRGBEncoding;
+  var scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(30,1,.1,60);
+  scene.add(new THREE.AmbientLight(0x8090c0,.6));var key=new THREE.DirectionalLight(0xffffff,.85);key.position.set(2,4,4);scene.add(key);
+  var rim=new THREE.PointLight(0xD9B25F,1.3,9);rim.position.set(-2.4,1.6,-1.8);scene.add(rim);var rim2=new THREE.PointLight(0xE8963A,.7,7);rim2.position.set(2.4,.4,1.4);scene.add(rim2);
+  var world=new THREE.Group();scene.add(world);var lap=new THREE.Group();world.add(lap);
+  function rrShape(w,h,r){var s=new THREE.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);return s}
+  var metal=new THREE.MeshStandardMaterial({color:0x151b2c,metalness:.75,roughness:.32}),dark=new THREE.MeshStandardMaterial({color:0x0a0e19,metalness:.4,roughness:.6});
+  var BW=1.6,BD=1.08,LW=1.6,LH=1.02;
+  var base=new THREE.Mesh(new THREE.ExtrudeGeometry(rrShape(BW,BD,.07),{depth:.045,bevelEnabled:true,bevelThickness:.01,bevelSize:.01,bevelSegments:3,curveSegments:10}),metal);base.rotation.x=-Math.PI/2;lap.add(base);
+  var kb=new THREE.Mesh(new THREE.PlaneGeometry(1.36,.5),dark);kb.rotation.x=-Math.PI/2;kb.position.set(0,.057,-.14);lap.add(kb);
+  var tp=new THREE.Mesh(new THREE.PlaneGeometry(.5,.28),new THREE.MeshStandardMaterial({color:0x1c2338,metalness:.6,roughness:.4}));tp.rotation.x=-Math.PI/2;tp.position.set(0,.057,.3);lap.add(tp);
+  var hinge=new THREE.Group();hinge.position.set(0,.05,-BD/2+.02);lap.add(hinge);
+  var lid=new THREE.Group();hinge.add(lid);
+  var lidBody=new THREE.Mesh(new THREE.ExtrudeGeometry(rrShape(LW,LH,.06),{depth:.025,bevelEnabled:true,bevelThickness:.006,bevelSize:.006,bevelSegments:2,curveSegments:10}),metal);lidBody.position.set(0,LH/2,-.025);lid.add(lidBody);
+
+  /* screen + the layers behind it, all drawn on canvases */
+  var CW=1024,CH=Math.round(1024*.94/1.5),SWp=1.5,SHp=.94;
+  function mkCanvas(){var c=document.createElement('canvas');c.width=CW*2;c.height=CH*2;return c}
+  function ctx2(c){var x=c.getContext('2d');x.setTransform(2,0,0,2,0,0);return x}
+  function rr(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()}
+  var MF='Montserrat, sans-serif',MO='"IBM Plex Mono", monospace';
+  function label(x,i){x.font='600 22px '+MO;x.fillStyle='#D9B25F';x.fillText('0'+(i+1)+' · '+LAY[i][0],36,52)}
+  function glass(x){x.clearRect(0,0,CW,CH);rr(x,4,4,CW-8,CH-8,26);x.fillStyle='rgba(15,22,40,.94)';x.fill();x.strokeStyle='rgba(217,178,95,.9)';x.lineWidth=4;x.stroke()}
+  var DRAW=[
+    function(x){/* the website itself: Fruška gora at night */
+      var g=x.createLinearGradient(0,0,0,CH*.62);g.addColorStop(0,'#0B1020');g.addColorStop(.7,'#1c2246');g.addColorStop(1,'#3a2a4a');x.fillStyle=g;x.fillRect(0,0,CW,CH);
+      var sd=7;function rnd(){sd=(sd*9301+49297)%233280;return sd/233280}
+      for(var i=0;i<70;i++){x.fillStyle='rgba(243,238,227,'+(.35+rnd()*.6)+')';x.beginPath();x.arc(rnd()*CW,90+rnd()*CH*.38,rnd()*1.6+.5,0,6.283);x.fill()}
+      x.fillStyle='#f3ecd0';x.beginPath();x.arc(820,150,30,0,6.283);x.fill();x.fillStyle='#1c2246';x.beginPath();x.arc(808,142,27,0,6.283);x.fill();
+      x.fillStyle='#1c2440';x.beginPath();x.moveTo(0,CH*.6);x.bezierCurveTo(300,CH*.47,600,CH*.55,CW,CH*.49);x.lineTo(CW,CH);x.lineTo(0,CH);x.fill();
+      x.fillStyle='#141b30';x.beginPath();x.moveTo(0,CH*.72);x.bezierCurveTo(260,CH*.62,560,CH*.68,CW,CH*.63);x.lineTo(CW,CH);x.lineTo(0,CH);x.fill();
+      x.strokeStyle='#0f1528';x.lineWidth=5;for(var v=0;v<12;v++){x.beginPath();x.moveTo(120+v*70,CH*.7);x.lineTo(40+v*96,CH);x.stroke()}
+      var hx=640,hy=CH*.6;x.fillStyle='#2a3150';x.fillRect(hx,hy,96,58);x.fillStyle='#1b2038';x.beginPath();x.moveTo(hx-12,hy+2);x.lineTo(hx+48,hy-36);x.lineTo(hx+108,hy+2);x.fill();
+      x.fillStyle='#ffd27a';x.shadowColor='#ffd27a';x.shadowBlur=18;x.fillRect(hx+14,hy+16,18,18);x.fillRect(hx+62,hy+16,18,18);x.shadowBlur=0;
+      x.fillStyle='rgba(11,16,32,.55)';x.fillRect(0,0,CW,74);x.fillStyle='#F3EEE3';x.font='900 30px '+MF;x.fillText('Kuća pod Fruškom',36,48);
+      x.font='600 20px '+MF;x.fillStyle='#A7AEC2';['Kuća','Okolina','Cene'].forEach(function(t,k){x.fillText(t,CW-370+k*100,46)});
+      x.fillStyle='#F3EEE3';x.font='900 58px '+MF;x.fillText('Vikend koji',48,190);x.fillText('počinje u vinogradu.',48,254);
+      rr(x,48,292,300,64,32);x.fillStyle='#D9B25F';x.fill();x.fillStyle='#0B1020';x.font='800 24px '+MF;x.fillText('Rezerviši direktno',76,333)},
+    function(x){glass(x);label(x,1);
+      x.fillStyle='#F3EEE3';x.font='800 36px '+MF;x.fillText('Rezervacija',36,116);
+      [['Dolazak','Pet 20. jun'],['Odlazak','Ned 22. jun'],['Gosti','2 odrasla']].forEach(function(f,k){var X=36+k*318;rr(x,X,146,298,96,16);x.fillStyle='#121a30';x.fill();x.strokeStyle='#2A3658';x.lineWidth=3;x.stroke();
+        x.fillStyle='#A7AEC2';x.font='600 18px '+MF;x.fillText(f[0],X+20,180);x.fillStyle='#F3EEE3';x.font='700 26px '+MF;x.fillText(f[1],X+20,220)});
+      x.fillStyle='#A7AEC2';x.font='600 22px '+MF;x.fillText('2 noći × 90 €',36,300);x.textAlign='right';x.fillStyle='#F3EEE3';x.font='800 30px '+MF;x.fillText('180 €',CW-36,302);x.textAlign='left';
+      x.fillStyle='#A7AEC2';x.font='600 18px '+MF;x.fillText('Plaćanje karticom · potvrda odmah · bez provizije platforme',36,346);
+      rr(x,36,380,CW-72,84,42);x.fillStyle='#D9B25F';x.fill();x.fillStyle='#0B1020';x.font='800 28px '+MF;x.textAlign='center';x.fillText('Potvrdi rezervaciju',CW/2,432);x.textAlign='left'},
+    function(x){glass(x);label(x,2);
+      x.fillStyle='#F3EEE3';x.font='800 32px '+MF;x.fillText('Odakle dolaze gosti',36,112);
+      [['Google',42],['Instagram',31],['Direktno',18],['Preporuka',9]].forEach(function(r,k){var Y=146+k*66;x.fillStyle='#A7AEC2';x.font='600 20px '+MF;x.fillText(r[0],36,Y+28);
+        rr(x,190,Y+6,440,30,8);x.fillStyle='#1b2544';x.fill();rr(x,190,Y+6,440*r[1]/45,30,8);x.fillStyle=k===0?'#E8963A':'#D9B25F';x.fill();x.fillStyle='#F3EEE3';x.font='700 20px '+MO;x.fillText(r[1]+'%',650,Y+29)});
+      rr(x,730,140,258,250,18);x.fillStyle='#121a30';x.fill();x.fillStyle='#A7AEC2';x.font='600 18px '+MF;x.fillText('Rezervacije, jun',752,182);
+      x.fillStyle='#F3EEE3';x.font='900 92px '+MF;x.fillText('23',752,290);x.fillStyle='#7fd18b';x.font='700 20px '+MO;x.fillText('+6 u odnosu',752,330);x.fillText('na maj',752,356)},
+    function(x){glass(x);label(x,3);
+      var N=[['Rezervacija','odmah'],['Potvrda mejlom','za 1 min'],['Podsetnik','3 dana pre'],['Uputstvo za dolazak','dan pre']];
+      N.forEach(function(n,k){var X=36+k*246,Y=110;rr(x,X,Y,222,110,16);x.fillStyle=k===0?'rgba(217,178,95,.2)':'#121a30';x.fill();x.strokeStyle=k===0?'#D9B25F':'#2A3658';x.lineWidth=3;x.stroke();
+        x.fillStyle='#F3EEE3';x.font='700 21px '+MF;x.fillText(n[0],X+16,Y+46);x.fillStyle='#A7AEC2';x.font='600 17px '+MO;x.fillText(n[1],X+16,Y+82);
+        if(k<3){x.strokeStyle='#E8963A';x.lineWidth=4;x.beginPath();x.moveTo(X+226,Y+55);x.lineTo(X+242,Y+55);x.stroke()}});
+      rr(x,36,262,CW-72,190,18);x.fillStyle='#121a30';x.fill();x.fillStyle='#D9B25F';x.font='700 20px '+MO;x.fillText('AI ASISTENT · 02:14',60,302);
+      rr(x,60,322,560,52,26);x.fillStyle='#1b2544';x.fill();x.fillStyle='#F3EEE3';x.font='600 21px '+MF;x.fillText('Da li može kasni dolazak, oko 23h?',82,356);
+      rr(x,CW-560-60,384,560,52,26);x.fillStyle='#D9B25F';x.fill();x.fillStyle='#0B1020';x.font='700 21px '+MF;x.fillText('Može. Ključ je u kutiji kod ulaza, šifra stiže SMS-om.',CW-560-44,418)},
+    function(x){glass(x);label(x,4);
+      x.fillStyle='#A7AEC2';x.font='600 18px '+MO;x.fillText('11 MESECI POSLE BORAVKA',36,104);
+      rr(x,36,122,CW-72,150,20);x.fillStyle='#1b2544';x.fill();x.fillStyle='#F3EEE3';x.font='600 24px '+MF;
+      x.fillText('Ana, prošlo je skoro godinu dana od vašeg vikenda.',62,170);x.fillText('Terasa je slobodna 13–15. juna. Za povratak: −10%.',62,210);
+      x.fillStyle='#D9B25F';x.font='800 22px '+MF;x.fillText('Rezerviši ponovo →',62,250);
+      [['Povratni gosti','38%'],['Preporuke','14 ove godine'],['Ocena','4,9']].forEach(function(s,k){var X=36+k*318;rr(x,X,298,298,150,18);x.fillStyle='#121a30';x.fill();
+        x.fillStyle='#A7AEC2';x.font='600 18px '+MF;x.fillText(s[0],X+20,338);x.fillStyle='#F3EEE3';x.font='900 40px '+MF;x.fillText(s[1],X+20,400)})}
+  ];
+
+  var ROLES=[
+    ['Vizit karta','Ljudi vide ko ste i kako da vas nađu.','Kad vas ljudi već traže po imenu i treba im samo adresa i broj.'],
+    ['Prodaja','Sajt prodaje i kad vi ne radite.','Kad imate proizvod ili vaučer koji može da se kupi online.'],
+    ['Upiti','Svaki upit stiže sa svim podacima, na jedno mesto.','Kad je posao po meri i počinje razgovorom.'],
+    ['Zakazivanje','Kupac sam bira termin, vi dobijate potvrdu.','Kad prodajete vreme: termine, noćenja, stolove.'],
+    ['Automatizacija','Potvrde, podsetnici i odgovori idu sami.','Kad se isti posao ponavlja više puta dnevno.'],
+    ['Sve povezano','Sajt, prodaja, upiti i podaci u jednom sistemu.','Kad biznis raste i ručno više ne stiže.']
+  ];
+  function bar(x,title){x.fillStyle='#0f1628';x.fillRect(0,0,CW,72);x.fillStyle='#F3EEE3';x.font='900 28px '+MF;x.fillText('Kuća pod Fruškom',36,46);x.font='600 18px '+MO;x.fillStyle='#D9B25F';x.textAlign='right';x.fillText(title,CW-36,44);x.textAlign='left'}
+  var RS=[
+    function(x){x.fillStyle='#101a2e';x.fillRect(0,0,CW,CH);bar(x,'VIZIT KARTA');
+      var g=x.createLinearGradient(0,100,0,560);g.addColorStop(0,'#0B1020');g.addColorStop(.6,'#2a2347');g.addColorStop(.6,'#1c2440');g.addColorStop(1,'#141b30');rr(x,36,104,470,440,18);x.fillStyle=g;x.fill();
+      x.fillStyle='#F3EEE3';x.font='900 40px '+MF;x.fillText('Kuća pod Fruškom',540,170);x.font='600 22px '+MF;x.fillStyle='#A7AEC2';
+      ['Iriški venac bb, Fruška gora','+381 64 123 45 67','info@kucapodfruskom.rs'].forEach(function(t,k){x.fillText(t,540,226+k*44)});
+      x.fillStyle='#D9B25F';x.font='600 18px '+MO;x.fillText('I to je sve što ovaj sajt radi.',540,500)},
+    function(x){x.fillStyle='#101a2e';x.fillRect(0,0,CW,CH);bar(x,'PRODAJA · KORPA (2)');
+      [['Poklon vaučer','Vikend za dvoje','180 €'],['Domaće vino','Paket od 3 boce','39 €'],['Med i džem','Sa salaša','18 €']].forEach(function(p,k){var X=36+k*324;rr(x,X,104,300,480,18);x.fillStyle='#16213b';x.fill();
+        rr(x,X+16,120,268,220,12);x.fillStyle=['#5a3d28','#5b2433','#8a6a2c'][k];x.fill();x.fillStyle='#F3EEE3';x.font='800 26px '+MF;x.fillText(p[0],X+18,384);x.fillStyle='#A7AEC2';x.font='600 19px '+MF;x.fillText(p[1],X+18,414);
+        x.fillStyle='#F3EEE3';x.font='900 30px '+MF;x.fillText(p[2],X+18,466);rr(x,X+18,494,264,60,30);x.fillStyle=k<2?'#3f9a5c':'#D9B25F';x.fill();x.fillStyle='#0B1020';x.font='800 21px '+MF;x.textAlign='center';x.fillText(k<2?'U korpi ✓':'Dodaj u korpu',X+150,532);x.textAlign='left'})},
+    function(x){x.fillStyle='#101a2e';x.fillRect(0,0,CW,CH);bar(x,'UPITI');
+      x.fillStyle='#F3EEE3';x.font='900 38px '+MF;x.fillText('Upit za grupu ili proslavu',36,134);
+      [['Ime','Marko P.'],['Datum','12. septembar'],['Broj gostiju','14'],['Šta planirate','Rođendan, večera u dvorištu']].forEach(function(f,k){var X=36+(k%2)*486,Y=168+Math.floor(k/2)*112;rr(x,X,Y,466,92,14);x.fillStyle='#16213b';x.fill();x.fillStyle='#A7AEC2';x.font='600 17px '+MF;x.fillText(f[0],X+18,Y+32);x.fillStyle='#F3EEE3';x.font='700 24px '+MF;x.fillText(f[1],X+18,Y+70)});
+      rr(x,36,412,320,70,35);x.fillStyle='#D9B25F';x.fill();x.fillStyle='#0B1020';x.font='800 24px '+MF;x.fillText('Pošalji upit',120,455);
+      x.fillStyle='#A7AEC2';x.font='600 19px '+MO;x.fillText('Odgovor stiže u roku od 2 sata.',390,454)},
+    function(x){x.fillStyle='#101a2e';x.fillRect(0,0,CW,CH);bar(x,'ZAKAZIVANJE');
+      x.fillStyle='#F3EEE3';x.font='900 32px '+MF;x.fillText('Jun',36,124);var busy={3:1,4:1,5:1,10:1,11:1,12:1,13:1,27:1,28:1},sel={20:1,21:1,22:1};
+      ['P','U','S','Č','P','S','N'].forEach(function(d,k){x.fillStyle='#A7AEC2';x.font='700 18px '+MO;x.fillText(d,60+k*88,166)});
+      for(var d=1;d<=30;d++){var c=(d-1)%7,rw=Math.floor((d-1)/7),X=36+c*88,Y=182+rw*70;rr(x,X,Y,78,60,12);x.fillStyle=sel[d]?'#D9B25F':busy[d]?'#141c30':'#1b2544';x.fill();
+        x.fillStyle=sel[d]?'#0B1020':busy[d]?'#4a5678':'#F3EEE3';x.font='700 22px '+MF;x.fillText(String(d),X+16,Y+38)}
+      rr(x,690,182,298,350,18);x.fillStyle='#16213b';x.fill();x.fillStyle='#A7AEC2';x.font='600 18px '+MF;x.fillText('Izabrano',712,222);x.fillStyle='#F3EEE3';x.font='900 30px '+MF;x.fillText('20–22. jun',712,264);
+      x.font='600 19px '+MF;x.fillStyle='#A7AEC2';x.fillText('2 noći · 180 €',712,300);rr(x,712,440,254,64,32);x.fillStyle='#D9B25F';x.fill();x.fillStyle='#0B1020';x.font='800 22px '+MF;x.fillText('Rezerviši',786,480)},
+    function(x){x.fillStyle='#101a2e';x.fillRect(0,0,CW,CH);bar(x,'AUTOMATIZACIJA');
+      [['✓','Potvrda poslata','Ana M. · pre 1 min'],['⏱','Podsetnik zakazan','17. jun u 10:00'],['➜','Uputstvo za dolazak','šalje se dan pre'],['★','Molba za ocenu','dan posle odjave']].forEach(function(r,k){var Y=104+k*86;rr(x,36,Y,560,72,14);x.fillStyle='#16213b';x.fill();
+        x.fillStyle=k===0?'#3f9a5c':'#D9B25F';x.font='800 26px '+MF;x.fillText(r[0],58,Y+46);x.fillStyle='#F3EEE3';x.font='700 22px '+MF;x.fillText(r[1],104,Y+34);x.fillStyle='#A7AEC2';x.font='600 17px '+MO;x.fillText(r[2],104,Y+60)});
+      rr(x,624,104,364,416,18);x.fillStyle='#16213b';x.fill();x.fillStyle='#D9B25F';x.font='700 17px '+MO;x.fillText('AI ASISTENT',646,140);
+      rr(x,646,160,300,90,18);x.fillStyle='#1f2b4d';x.fill();x.fillStyle='#F3EEE3';x.font='600 19px '+MF;x.fillText('Ima li parking',664,196);x.fillText('za dva auta?',664,224);
+      rr(x,680,268,288,120,18);x.fillStyle='#D9B25F';x.fill();x.fillStyle='#0B1020';x.font='700 19px '+MF;x.fillText('Ima, u dvorištu',698,304);x.fillText('ima mesta za tri',698,332);x.fillText('automobila.',698,360)},
+    function(x){x.fillStyle='#101a2e';x.fillRect(0,0,CW,CH);bar(x,'SVE POVEZANO');
+      [['Rezervacije','23','+6'],['Prodaja vaučera','1.260 €','+18%'],['Upiti','9','2 nova'],['Automatske poruke','148','0 ručno']].forEach(function(t,k){var X=36+(k%2)*486,Y=104+Math.floor(k/2)*150;rr(x,X,Y,466,132,16);x.fillStyle='#16213b';x.fill();
+        x.fillStyle='#A7AEC2';x.font='600 18px '+MF;x.fillText(t[0],X+20,Y+38);x.fillStyle='#F3EEE3';x.font='900 46px '+MF;x.fillText(t[1],X+20,Y+98);x.fillStyle='#7fd18b';x.font='700 18px '+MO;x.textAlign='right';x.fillText(t[2],X+446,Y+98);x.textAlign='left'});
+      x.strokeStyle='#D9B25F';x.lineWidth=4;x.beginPath();[0,.2,.15,.35,.3,.5,.62,.58,.8].forEach(function(v,k){var X=60+k*110,Y=590-v*150;k?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke()}
+  ];
+  var curRole=-1,RA=.62,roleFrom=-1,roleAt=0,roleCv=[],SLUG=['','prodavnica','upit','rezervacija','automatizacija','pregled'];
+  function buildRoles(){roleCv=RS.map(function(fn){var c=mkCanvas();fn(ctx2(c));return c})}
+  function drawRole(x){var e=reduce?1:cl((performance.now()-roleAt)/560),ee=1-Math.pow(1-e,3),top=34,H=CH-top;
+    x.fillStyle='#0B1020';x.fillRect(0,0,CW,CH);x.save();x.beginPath();x.rect(0,top,CW,H);x.clip();
+    if(roleFrom>=0&&e<1){x.globalAlpha=1-ee;x.drawImage(roleCv[roleFrom],-CW*.18*ee,top,CW,H);}
+    x.globalAlpha=roleFrom>=0?ee:1;x.drawImage(roleCv[curRole],roleFrom>=0?CW*.18*(1-ee):0,top,CW,H);x.globalAlpha=1;x.restore();
+    x.fillStyle='#1a2236';x.fillRect(0,0,CW,top);['#e26a5a','#e0b04a','#5fb36a'].forEach(function(cc,i){x.fillStyle=cc;x.beginPath();x.arc(22+i*18,17,5.5,0,6.283);x.fill()});
+    rr(x,96,7,CW-192,20,10);x.fillStyle='#0f1628';x.fill();x.font='500 13px '+MO;x.fillStyle='#A7AEC2';x.textAlign='center';x.fillText('kucapodfruskom.rs/'+SLUG[curRole],CW/2,21.5);x.textAlign='left';
+    if(e<1&&roleFrom>=0){x.fillStyle='#D9B25F';x.fillRect(96,25,(CW-192)*ee,2)}
+    return e<1}
+  /* ---------- screen: black → power line → logo → site ---------- */
+  var scv=mkCanvas(),sx=ctx2(scv),stex=new THREE.CanvasTexture(scv);stex.encoding=THREE.sRGBEncoding;stex.anisotropy=4;
+  var screen=new THREE.Mesh(new THREE.PlaneGeometry(SWp,SHp),new THREE.MeshBasicMaterial({map:stex,toneMapped:false}));screen.position.set(0,LH/2,.014);lid.add(screen);
+  var lastOn=-1,fontsOK=0;
+  function drawScreen(on,show){var k=Math.round(on*60)+'_'+show+'_'+fontsOK+'_'+curRole;if(k===lastOn)return;lastOn=k;var x=sx;x.fillStyle='#000';x.fillRect(0,0,CW,CH);
+    if(on>0){var a=sm(0,.35,on),b=sm(.3,.55,on)*(1-sm(.6,.75,on)),c=sm(.62,1,on);
+      if(a>0&&c<1){x.fillStyle='rgba(243,238,227,'+(1-sm(.3,.45,on))*.9+')';var w=CW*a,h=Math.max(2,CH*sm(.18,.35,on)*.9);x.fillRect(CW/2-w/2,CH/2-h/2,w,h)}
+      if(b>0){x.globalAlpha=b;x.fillStyle='#0B1020';x.fillRect(0,0,CW,CH);x.font='900 64px Montserrat, sans-serif';x.textAlign='center';x.fillStyle='#F3EEE3';x.fillText('Bulevar',CW/2-58,CH/2+22);x.fillStyle='#D9B25F';x.fillText('.IT',CW/2+128,CH/2+22);x.textAlign='left';x.globalAlpha=1}
+      if(c>0){x.globalAlpha=c;
+        if(curRole>=0){if(drawRole(x))lastOn=-1}
+        else if(show<5)x.drawImage(cards[show].c,0,0,CW,CH);
+        else{/* every layer is out: an empty, quietly glowing screen */
+          var g=x.createRadialGradient(CW/2,CH/2,10,CW/2,CH/2,CW*.6);g.addColorStop(0,'#16203d');g.addColorStop(1,'#0B1020');x.fillStyle=g;x.fillRect(0,0,CW,CH);
+          x.fillStyle='rgba(217,178,95,.16)';for(var gx=32;gx<CW;gx+=40)for(var gy=32;gy<CH;gy+=40){x.beginPath();x.arc(gx,gy,1.6,0,6.283);x.fill()}
+          x.font='600 20px "IBM Plex Mono", monospace';x.textAlign='center';x.fillStyle='rgba(217,178,95,.55)';x.fillText('SISTEM IZA EKRANA',CW/2,CH/2+7);x.textAlign='left'}
+        x.globalAlpha=1}}
+    stex.needsUpdate=true}
+
+  /* ---------- the deck: five double-sided cards ---------- */
+  var KW=1.1,KH=KW*SHp/SWp;
+  var backCv=mkCanvas(),bx=ctx2(backCv);
+  (function(x){x.fillStyle='#0B1020';x.fillRect(0,0,CW,CH);rr(x,18,18,CW-36,CH-36,24);x.strokeStyle='#D9B25F';x.lineWidth=6;x.stroke();rr(x,40,40,CW-80,CH-80,16);x.strokeStyle='rgba(217,178,95,.35)';x.lineWidth=2;x.stroke();
+    x.strokeStyle='rgba(217,178,95,.12)';x.lineWidth=2;for(var i=-CH;i<CW;i+=34){x.beginPath();x.moveTo(i,CH-40);x.lineTo(i+CH,40);x.stroke()}
+    x.fillStyle='#0B1020';rr(x,CW/2-210,CH/2-60,420,120,20);x.fill();
+    x.font='900 70px Montserrat, sans-serif';x.textAlign='center';x.fillStyle='#F3EEE3';x.fillText('Bulevar',CW/2-62,CH/2+24);x.fillStyle='#D9B25F';x.fillText('.IT',CW/2+136,CH/2+24);x.textAlign='left'})(bx);
+  var backTex=new THREE.CanvasTexture(backCv);backTex.encoding=THREE.sRGBEncoding;backTex.anisotropy=4;
+  var deckG=new THREE.Group();world.add(deckG);var cards=[];
+  DRAW.forEach(function(fn,i){var c=mkCanvas();fn(ctx2(c));var t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;
+    var g=new THREE.Group();var f=new THREE.Mesh(new THREE.PlaneGeometry(KW,KH),new THREE.MeshBasicMaterial({map:t,toneMapped:false}));f.position.z=.003;
+    var bk=new THREE.Mesh(new THREE.PlaneGeometry(KW,KH),new THREE.MeshBasicMaterial({map:backTex,toneMapped:false}));bk.rotation.y=Math.PI;bk.position.z=-.003;
+    g.add(f);g.add(bk);g.visible=false;deckG.add(g);cards.push({g:g,tex:t,fn:fn,c:c,f:f})});
+  function redrawCards(){cards.forEach(function(k){k.fn(ctx2(k.c));k.tex.needsUpdate=true});buildRoles();fontsOK=1;lastOn=-1}
+
+  /* layouts: where each card sits when card `k` is the active one */
+  var FRONT={x:0,y:.98,z:1.25,rx:-.08,ry:0,rz:0,s:1.05};
+  function fanSlot(j,n){var a=(j-(n-1)/2)*.2,R=1.7;return {x:Math.sin(a)*R*.9,y:.9+Math.cos(a)*R-R+.5,z:.15+j*.012,rx:-.12,ry:0,rz:-a,s:.62}}
+  function config(k){var o=[],j=0;for(var i=0;i<5;i++){if(i===k){o[i]=FRONT}else{var order=(i-k+5)%5-1;o[i]=fanSlot(order,4)}}return o}
+  function fanAll(){var o=[];for(var i=0;i<5;i++)o[i]=fanSlot(i,5);return o}
+  var vA=new THREE.Vector3();
+  /* a card lying exactly on the screen (same size), in deck space */
+  var vB=new THREE.Vector3(),NRM=new THREE.Vector3();
+  function screenPose(){vA.set(0,LH/2,.02);lid.localToWorld(vA);world.worldToLocal(vA);vB.set(0,LH/2,1.02);lid.localToWorld(vB);world.worldToLocal(vB);NRM.copy(vB).sub(vA).normalize();
+    return {x:vA.x,y:vA.y,z:vA.z,rx:hinge.rotation.x,ry:0,rz:0,s:SWp/KW}}
+  function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+  /* peel off the screen toward you, then arc into place (quadratic bezier through a point in front of the screen) */
+  function flight(sp,to,t,i){var e=ease(t),u=1-e,c={x:sp.x+NRM.x*.85+(i-2)*.08,y:sp.y+NRM.y*.85+.35,z:sp.z+NRM.z*.85};
+    var o=mix(sp,to,sm(.15,1,t));o.x=u*u*sp.x+2*u*e*c.x+e*e*to.x;o.y=u*u*sp.y+2*u*e*c.y+e*e*to.y;o.z=u*u*sp.z+2*u*e*c.z+e*e*to.z;
+    o.rz+=Math.sin(Math.PI*e)*.35*(i%2?1:-1);o.ry+=Math.sin(Math.PI*e)*.45*(i%2?-1:1);return o}
+  /* gold rails from the screen corners to the front of the stack */
+  var rails=[];[[-1,-1],[1,-1],[1,1],[-1,1]].forEach(function(cn){var g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,.01)]);var l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xD9B25F,transparent:true,opacity:0}));l.frustumCulled=false;deckG.add(l);rails.push({l:l,c:cn})});
+  var vC=new THREE.Vector3();
+  function backOut(t){var c1=1.15,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2)}
+  function apply(c,p,lift,spin){c.g.position.set(p.x,p.y+lift,p.z);c.g.rotation.set(p.rx,p.ry+spin,p.rz);c.g.scale.setScalar(p.s)}
+  function mix(a,b,t){return {x:lerp(a.x,b.x,t),y:lerp(a.y,b.y,t),z:lerp(a.z,b.z,t),rx:lerp(a.rx,b.rx,t),ry:lerp(a.ry,b.ry,t),rz:lerp(a.rz,b.rz,t),s:lerp(a.s,b.s,t)}}
+
+  var narrow=false;
+  function layout(){var r=stage.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;narrow=r.width<=860;cam.updateProjectionMatrix()}
+  addEventListener('resize',layout);
+  var mx=0,my=0;addEventListener('pointermove',function(e){mx=e.clientX/innerWidth*2-1;my=e.clientY/innerHeight*2-1});
+
+  /* ---------- text ---------- */
+  var GL='ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>',L={};
+  [['tg',26],['h',38],['p',15],['rn',30],['rd',14],['rw',12]].forEach(function(a){L[a[0]]={el:$('s-'+a[0]),ms:a[1]}});
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+  function say(id,t,d){if(L[id].t===t)return;L[id].t=t;L[id].st=performance.now()+(d||0)}
+  function text(now){for(var k in L){var l=L[k];if(!l.t){if(l.h!==''){l.el.innerHTML='';l.h=''}continue}var n=l.t.length,q=reduce?1:cl((now-l.st)/(n*l.ms)),d=Math.floor(q*n),nz=(q<=0||q>=1)?0:Math.min(4,n-d),z='';
+    for(var j=0;j<nz;j++){var ch=l.t[d+j];z+=ch===' '?' ':GL[(Math.random()*GL.length)|0]}
+    var h=esc(l.t.slice(0,d))+'<span class="noise">'+esc(z)+'</span><span class="rest">'+esc(l.t.slice(d+nz))+'</span>';if(h!==l.h){l.el.innerHTML=h;l.h=h}}}
+  var STEPS=[['08 · Sistem iza ekrana','Ono što vidite je samo deo sistema.','Jednostavan ekran može da ima ozbiljnu strukturu iza sebe. Skrolujte i pogledajte šta izlazi iz njega.']]
+    .concat(LAY.map(function(l,i){return ['0'+(i+1)+' / 05 · '+l[0],l[1],l[2]]}))
+    .concat([['08 · Sistem iza ekrana','Najlepši ekran nije uspeh ako sistem iza njega ne radi.','Gradimo i ekran i sve iza njega, kao jednu celinu koja ostaje vaša.']])
+    .concat([['09 · Uloga sajta','Zašto imate sajt?','Ako je jedini odgovor „da ljudi vide ko smo“, možda od sajta tražimo premalo.']]);
+  var chips=$('s-chips');ROLES.forEach(function(r,i){var bt=document.createElement('button');bt.type='button';bt.textContent=r[0];bt.setAttribute('aria-pressed','false');
+    bt.addEventListener('click',function(){var t=$('s-track'),tot=t.offsetHeight-innerHeight,top=t.getBoundingClientRect().top+scrollY;scrollTo({top:top+tot*(RA+(1-RA)*(i+.5)/6),behavior:reduce?'auto':'smooth'})});chips.appendChild(bt)});
+  /* the orbit: five cards circle the laptop like a ring; the one in front is the active layer */
+  function ringPose(i,rot){var th=i*2*Math.PI/5+rot,R=narrow?1.25:1.45,f=(Math.cos(th)+1)/2,f2=f*f;
+    return {x:Math.sin(th)*R,y:.74+Math.sin(th*2+.6)*.07+f2*.14,z:Math.cos(th)*R*.9+.08,rx:-.08*f2,ry:th,rz:Math.sin(th)*.05,s:.5+.38*f2}}
+
+
+  /* ---------- scroll choreography ----------
+     .00–.08 lid opens · .07–.16 screen powers on · .17–.30 cards fly out of the screen into a fan
+     .30–.86 five steps: the active card comes to the front, the rest reshuffle (cards arc up and flip, like a shuffle)
+     .86–.95 cards fly back into the screen */
+  var track=$('s-track'),cur=-1,rY=0,rX=0,S0=.3,S1=.86;
+  function frame(now){
+    var r=track.getBoundingClientRect(),tot=track.offsetHeight-innerHeight,PP=cl(-r.top/tot),P=cl(PP/(RA-.02));
+    if(r.bottom<0||r.top>innerHeight){requestAnimationFrame(frame);return}
+    var open=sm(0,.08,P),on=cl((P-.07)/.09),outP=cl((P-.165)/.15),backP=cl((P-.86)/.11);
+    hinge.rotation.x=(1-open)*(Math.PI/2-.02)+open*(-.22+.1*sm(RA-.05,RA+.01,PP));
+    /* step */
+    var s=(P-S0)/(S1-S0)*5,k=Math.max(0,Math.min(4,Math.floor(s))),fr=s-k,tt=k<4?sm(.62,1,fr):0;
+    var role=PP<RA?-1:Math.min(5,Math.floor((PP-RA)/(1-RA)*6));
+    if(role!==curRole){roleFrom=(curRole>=0&&role>=0)?curRole:-1;roleAt=performance.now();curRole=role;lastOn=-1;$('sis').classList.toggle('rolemode',role>=0);[].forEach.call(chips.children,function(bt,i){bt.setAttribute('aria-pressed',i===role?'true':'false')});
+      if(role>=0){L.rn.t='';L.rd.t='';L.rw.t='';say('rn',ROLES[role][0]);say('rd',ROLES[role][1],200);say('rw',ROLES[role][2],200+ROLES[role][1].length*14)}}
+    var act=P<S0?-1:P<S1?k:-2,step=role>=0?7:P<S0?0:P>=S1?6:k+1;
+    if(step!==cur){cur=step;var st=STEPS[step];say('tg',st[0]);say('h',st[1],120);say('p',st[2],120+st[1].length*38*.6);
+      [].forEach.call($('s-ly').children,function(li,i){li.classList.toggle('on',i===act);li.classList.toggle('done',act>=0&&i<act||act===-2)})}
+    /* the stack: cards peel off the screen one by one and stand in a row in front of it, like an exploded view;
+       the active one slides out and turns to face you, the rest dim */
+    var sp=screenPose(),show=5,ex=sm(0,.85,outP)*(1-sm(.15,1,backP)),turn=sm(.17,.33,P)*(1-sm(.86,.97,P));
+    cards.forEach(function(c,i){
+      var eo=sm(i*.13,i*.13+.48,outP),eb=sm((4-i)*.13,(4-i)*.13+.48,backP);
+      if(eo<=0||eb>=1){c.g.visible=false;if(i<show)show=i;return}
+      c.lift=(c.lift||0)+(((i===act)?1:0)-(c.lift||0))*(reduce?1:.075);var lf=c.lift,d=.14+(4-i)*.24;
+      var base={x:sp.x+NRM.x*d,y:sp.y+NRM.y*d+(4-i)*.03,z:sp.z+NRM.z*d,rx:sp.rx,ry:0,rz:0,s:sp.s*.97};
+      var fd=.14+4*.24+.5,face={x:sp.x+NRM.x*fd+(narrow?.2:-.3),y:sp.y+NRM.y*fd+.2,z:sp.z+NRM.z*fd+.15,rx:-.05,ry:-rY*.9,rz:0,s:sp.s*.98};
+      var live=mix(base,face,lf),tf=eo<1?eo:(eb>0?1-eb:1),pose=live;
+      if(tf<1){var k2=reduce?(tf>.5?1:0):tf,e2=eo<1?backOut(k2):k2*k2*(3-2*k2);pose=mix(sp,live,e2);pose.rz+=Math.sin(Math.PI*k2)*.08*(i%2?1:-1)}
+      c.g.visible=true;apply(c,pose,0,0);c.f.material.color.setScalar(act>=0?(.38+.62*lf):1)});
+    var front=.14+4*.24;rails.forEach(function(rl){var a1=rl.l.geometry.attributes.position;vC.set(rl.c[0]*SWp/2,LH/2+rl.c[1]*SHp/2,.02);lid.localToWorld(vC);world.worldToLocal(vC);
+      a1.setXYZ(0,vC.x,vC.y,vC.z);a1.setXYZ(1,vC.x+NRM.x*front*ex,vC.y+NRM.y*front*ex+.12*ex,vC.z+NRM.z*front*ex);a1.needsUpdate=true;rl.l.material.opacity=.4*ex});
+    drawScreen(on,show);
+    /* framing */
+    var rp=sm(RA-.05,RA+.01,PP),tY=-(narrow?.5:.66)*turn*(1-rp)+mx*.08,tX=my*.04;rY+=(tY-rY)*(reduce?1:.07);rX+=(tX-rX)*(reduce?1:.07);world.rotation.set(rX,rY,0);
+    if(narrow){world.position.set(0,.25+.9*rp,0);cam.position.set(0,1.9-.4*rp,8.6-1.2*rp);cam.lookAt(0,.75+.3*rp,0)}
+    else{world.position.set(.85-.12*rp,-.05,0);cam.position.set(0,1.75-.55*rp,6.1-1.6*rp);cam.lookAt(0,.62,0)}
+    lap.position.y=reduce?0:Math.sin(now/1700)*.012;
+    renderer.render(scene,cam);text(now);requestAnimationFrame(frame);
+  }
+  buildRoles();layout();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){redrawCards();layout()});requestAnimationFrame(frame);
+})();
+</script>

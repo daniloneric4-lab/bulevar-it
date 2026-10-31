@@ -1,0 +1,332 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LP1 cilj sajta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B1020;--ink:#F3EEE3;--mut:#A7AEC2;--gold:#D9B25F;--or:#E8963A;--line:#2A3658;--spring:cubic-bezier(.2,1.25,.35,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:clip}
+body{background:var(--bg);color:var(--ink);font-family:Montserrat,sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",monospace}
+.dec .r{color:var(--or)}.dec .h{color:transparent}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 4vw;
+  background:rgba(11,16,32,.72);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06)}
+.logo{font-weight:900;font-size:22px;letter-spacing:-.02em}.logo b{color:var(--gold)}
+.nav .tag{font-size:13px;color:var(--mut)}
+.nav .r{display:flex;gap:12px;align-items:center}
+.pillb{font:600 13px "IBM Plex Mono",monospace;color:var(--ink);padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.05);text-decoration:none}
+.goldb{font:800 14px Montserrat,sans-serif;color:#0B1020;background:var(--gold);padding:12px 20px;border-radius:999px;text-decoration:none;display:inline-flex;gap:8px;align-items:center;transition:transform .45s var(--spring),background .3s}
+.goldb:hover{background:#E4C273;transform:translateY(-1px)}
+.ghost{font:700 15px Montserrat,sans-serif;color:var(--ink);padding:15px 22px;border-radius:999px;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.05);text-decoration:none}
+@media (max-width:900px){.nav .tag,.nav .pillb{display:none}}
+
+/* HERO: odgovor koji se precrta */
+.hero{min-height:94vh;display:flex;flex-direction:column;justify-content:center;padding:130px 8vw 60px;max-width:1300px;margin:0 auto}
+.hero .k{font-size:11px;letter-spacing:.3em;color:var(--gold);margin-bottom:26px}
+.hero h1{font-weight:900;font-size:clamp(44px,7vw,104px);line-height:.95;letter-spacing:-.03em;text-transform:uppercase}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.ans{margin-top:34px;font-size:clamp(20px,2.4vw,34px);font-weight:800;line-height:1.25;letter-spacing:-.01em}
+.ans .old{position:relative;color:var(--mut);display:inline-block}
+.ans .old:after{content:"";position:absolute;left:-2%;right:-2%;top:54%;height:4px;border-radius:2px;background:var(--or);transform:scaleX(0);transform-origin:left;transition:transform .7s cubic-bezier(.7,0,.2,1)}
+.ans.go .old:after{transform:scaleX(1)}
+.ans .new{display:block;color:var(--gold);min-height:1.25em}
+.hero p.l{margin-top:24px;max-width:54ch;color:var(--mut);font-size:clamp(16px,1.3vw,19px);line-height:1.55}
+.hero .cta{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px}
+.hero .goldb{padding:15px 24px;font-size:15px}
+
+/* CILJ: laptop */
+.goal{padding:10vh 6vw 12vh;max-width:1400px;margin:0 auto}
+.goal .lbl{font-size:11px;letter-spacing:.24em;color:var(--mut)}
+.goal h2{margin-top:14px;font-weight:900;font-size:clamp(30px,3.4vw,52px);letter-spacing:-.02em;line-height:1.05}
+.goal h2 em{font-style:normal;color:var(--gold)}
+.goal .sub{margin-top:12px;color:var(--mut);font-size:16px}
+.g-grid{margin-top:48px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr);gap:3vw;align-items:center}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{all:unset;cursor:pointer;position:relative;display:block;padding:18px 20px 18px 66px;border-radius:20px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);
+  transition:background .35s,border-color .35s,transform .5s var(--spring)}
+.opt:hover{border-color:rgba(255,255,255,.3)}
+.opt .ic{position:absolute;left:18px;top:16px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--gold);background:rgba(217,178,95,.1)}
+.opt .ic svg{width:18px;height:18px}
+.opt h3{font-weight:800;font-size:17px;line-height:1.3}
+.opt .d{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s cubic-bezier(.2,1,.3,1)}
+.opt .d>div{overflow:hidden}
+.opt .d p{padding-top:8px;color:var(--mut);font-size:14px;line-height:1.55}
+.opt .d p b{color:var(--ink);font-weight:600}
+.opt.on{background:rgba(217,178,95,.08);border-color:rgba(217,178,95,.7);box-shadow:0 0 30px -10px rgba(217,178,95,.35)}
+.opt.on .d{grid-template-rows:1fr}
+.opt .ring{position:absolute;right:16px;top:20px;width:22px;height:22px;opacity:0}
+.opt.on .ring{opacity:1}
+.ring circle{fill:none;stroke-width:2.5}
+.ring .bg{stroke:rgba(255,255,255,.12)}.ring .fg{stroke:var(--gold);stroke-dasharray:57;stroke-dashoffset:57;transform:rotate(-90deg);transform-origin:center}
+
+.lapwrap{position:relative}
+.gl{position:relative;aspect-ratio:16/11.5}
+.gl canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+.vs{margin:6px auto 0;max-width:560px;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;padding:14px 18px;border-radius:18px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.vs small{display:block;font:600 10px "IBM Plex Mono",monospace;letter-spacing:.16em;color:var(--mut)}
+.vs b{display:block;margin-top:4px;font-size:14.5px;font-weight:700}
+.vs .y b{color:var(--gold)}
+.vs .ar{color:var(--gold);font-size:18px}
+.vs .n b{color:#C9CDDA;text-decoration:line-through;text-decoration-color:rgba(232,150,58,.8)}
+
+@media (max-width:900px){
+  .goal{padding:8vh 16px 10vh}
+  .g-grid{grid-template-columns:minmax(0,1fr);margin-top:26px;gap:8px}
+  .opts{flex-direction:row;overflow-x:auto;gap:8px;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none;scroll-snap-type:x mandatory}
+  .opts::-webkit-scrollbar{display:none}
+  .opt{flex:none;scroll-snap-align:start;padding:11px 14px 11px 46px;border-radius:999px}
+  .opt .ic{left:8px;top:6px;width:30px;height:30px;border-radius:50%}
+  .opt h3{font-size:13.5px;white-space:nowrap}
+  .opt h3 br{display:none}
+  .opt .d,.opt .ring{display:none}
+  .mdesc{display:block!important}
+  .gl{margin:0 -16px}
+  .vs{grid-template-columns:1fr;text-align:center;gap:6px}
+  .vs .ar{transform:rotate(90deg)}
+}
+.mdesc{display:none;margin-top:10px;color:var(--mut);font-size:14.5px;line-height:1.55;min-height:4.6em}
+.mdesc b{color:var(--ink);font-weight:600}
+
+.end{padding:14vh 6vw 18vh;text-align:center}
+.end h3{font-weight:900;font-size:clamp(32px,4.8vw,70px);line-height:1;letter-spacing:-.03em;text-transform:uppercase}
+.end h3 .g{color:var(--gold);display:block}
+.end p{margin:22px auto 0;max-width:46ch;color:var(--mut);font-size:17px;line-height:1.6}
+.end .cta{margin-top:32px;display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
+.end .goldb{padding:16px 26px;font-size:15px}
+.note{margin-top:34px;font-size:11px;color:rgba(167,174,194,.55)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="logo">Bulevar<b>.IT</b></div>
+  <div class="tag">Studio za digitalni rast · Izrada sajtova i sistema</div>
+  <div class="r"><a class="pillb" href="tel:+381665852052">066 5852 052</a><a class="goldb" href="#end">Zakažite razgovor</a></div>
+</nav>
+
+<header class="hero">
+  <p class="k mono">● 01 · SVRHA I REZULTATI SAJTA</p>
+  <h1>Zašto imate <em>sajt?</em></h1>
+  <p class="ans" id="ans"><span class="old">„Da ljudi vide ko smo.“</span><span class="new dec" id="ansNew" data-t="Da donosi klijente, dok vi radite."></span></p>
+  <p class="l">Ako je to jedini odgovor, od sajta tražite premalo. Sajt treba da preuzme posao posrednika i donese vam merljive klijente.</p>
+  <div class="cta"><a class="goldb" href="#end">Zakažite besplatne konsultacije →</a><a class="ghost" href="#cilj">Izaberite cilj sajta ↓</a></div>
+</header>
+
+<section class="goal" id="cilj">
+  <p class="lbl mono">ULOGA SAJTA</p>
+  <h2>Koji je <em>primarni cilj</em> vašeg sajta?</h2>
+  <p class="sub">Izaberite cilj i pogledajte kako sajt preuzima taj posao.</p>
+  <div class="g-grid">
+    <div>
+      <div class="opts" id="opts"></div>
+      <p class="mdesc" id="mdesc"></p>
+    </div>
+    <div class="lapwrap">
+      <div class="gl" id="gl"></div>
+      <div class="vs" id="vs"><div class="n"><small>UMESTO</small><b id="vsN"></b></div><span class="ar">→</span><div class="y"><small>SA VAŠIM SAJTOM</small><b id="vsY"></b></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="end" id="end">
+  <h3><span class="dec" id="endA" data-t="Sajt je vaš najbolji radnik">Sajt je vaš najbolji radnik</span><span class="dec g" id="endB" data-t="ako zna svoj cilj.">ako zna svoj cilj.</span></h3>
+  <p>Hajde da zajedno definišemo šta vaš sajt treba da postigne.</p>
+  <div class="cta"><a class="goldb" href="#">Zakažite razgovor sa nama →</a><a class="ghost" href="#">Pogledajte u portfoliju →</a></div>
+  <p class="note mono">Prototip. Sadržaj ekrana je ilustracija, nazivi i brojevi su primeri.</p>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(()=>{
+const IC={
+ cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+ cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/></svg>',
+ msg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.2-.9z"/></svg>'};
+const G=[
+ {ic:'cal',t:'Zakazivanje i rezervacije',d:'Gost bira termin, uslugu i plaća <b>direktno kod vas</b>. Zadržavate 100% zarade i kontakt gosta za sledeću sezonu.',n:'Posrednik + provizija po rezervaciji',y:'Direktna rezervacija, kontakt ostaje vama'},
+ {ic:'cart',t:'Direktna prodaja i porudžbine',d:'Sopstveni web shop ili dostava <b>bez procenta</b> Wolt-a, Glova ili posrednika. Troškovi ne rastu sa svakom porudžbinom.',n:'Procenat od svake porudžbine',y:'Porudžbina stiže direktno vama'},
+ {ic:'msg',t:'Automatska ponuda i upiti',d:'Interaktivni upitnik koji sam filtrira klijente, preporuči paket i <b>pošalje predračun</b>. Ne gubite sate na telefonu.',n:'Sati na telefonu za svaku ponudu',y:'Predračun stiže sam, za minut'},
+ {ic:'star',t:'Poverenje i autoritet brenda',d:'Dizajn, priča i studije slučaja koji vas izdvajaju iz mase prosečnih firmi i <b>omogućavaju da naplatite višu cenu</b>.',n:'Borba niskom cenom',y:'Klijent zna zašto plaća više'},
+];
+const GL='ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';
+function decodeEl(el,dur=800,txt){txt=txt||el.dataset.t;const tok=(el._tok||0)+1;el._tok=tok;el.innerHTML='';
+  const sp=[...txt].map(c=>{const s=document.createElement('span');s.textContent=c;s.dataset.c=c;el.appendChild(s);return s});const n=sp.length,t0=performance.now();
+  (function f(t){if(el._tok!==tok)return;const p=Math.min(1,(t-t0)/dur),k=Math.floor(p*(n+5))-5;
+    sp.forEach((s,i)=>{if(p>=1||i<k){s.className='';s.textContent=s.dataset.c}else if(i<k+5&&s.dataset.c!==' '){s.className='r';s.textContent=GL[Math.random()*GL.length|0]}else{s.className='h';s.textContent=s.dataset.c}});
+    if(p<1)requestAnimationFrame(f)})(t0)}
+
+/* hero: precrtaj stari odgovor, ispiši novi */
+setTimeout(()=>{document.getElementById('ans').classList.add('go');setTimeout(()=>decodeEl(document.getElementById('ansNew'),1100),650)},900);
+
+/* opcije */
+const opts=document.getElementById('opts');
+G.forEach((g,i)=>{const b=document.createElement('button');b.className='opt';
+  b.innerHTML=`<span class="ic">${IC[g.ic]}</span><h3>${g.t}</h3><div class="d"><div><p>${g.d}</p></div></div><svg class="ring" viewBox="0 0 22 22"><circle class="bg" cx="11" cy="11" r="9"/><circle class="fg" cx="11" cy="11" r="9"/></svg>`;
+  b.onclick=()=>{auto=false;pick(i)};opts.appendChild(b)});
+const OB=[...opts.children];
+let cur=0, tStart=performance.now(), auto=true, prev=-1, swapT=-9;
+function pick(i){ if(i===cur&&prev!==-1) {tStart=performance.now();return}
+  prev=cur; cur=i; tStart=performance.now(); swapT=performance.now();
+  OB.forEach((b,j)=>b.classList.toggle('on',j===i));
+  document.getElementById('mdesc').innerHTML=G[i].d;
+  document.getElementById('vsN').textContent=G[i].n; document.getElementById('vsY').textContent=G[i].y;
+  if(innerWidth<=900) OB[i].scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+}
+OB[0].classList.add('on'); document.getElementById('mdesc').innerHTML=G[0].d; document.getElementById('vsN').textContent=G[0].n; document.getElementById('vsY').textContent=G[0].y; prev=0;
+
+/* ===== ekran ===== */
+const W=1280,H=800, sc=document.createElement('canvas'); sc.width=W; sc.height=H; const c=sc.getContext('2d');
+const C={bg:'#0E1428',pan:'#161E38',pan2:'#1C2646',line:'#2A3658',gold:'#D9B25F',ink:'#F3EEE3',mut:'#A7AEC2',or:'#E8963A',ok:'#7FC8A0'};
+const cl=x=>Math.max(0,Math.min(1,x)), seg=(t,a,b)=>cl((t-a)/(b-a)), eo=x=>1-Math.pow(1-x,3), eb=x=>{const s=1.7;x-=1;return x*x*((s+1)*x+s)+1}, lerp=(a,b,t)=>a+(b-a)*t;
+function rr(x,y,w,h,r){c.beginPath();c.roundRect?c.roundRect(x,y,w,h,r):c.rect(x,y,w,h)}
+function T(s,x,y,f,col,al){c.font=f;c.fillStyle=col;c.textAlign=al||'left';c.fillText(s,x,y)}
+const F=(w,s)=>`${w} ${s}px Montserrat, sans-serif`, M=(w,s)=>`${w} ${s}px "IBM Plex Mono", monospace`;
+function card(x,y,w,h,r=16,fill=C.pan,stroke=C.line){rr(x,y,w,h,r);c.fillStyle=fill;c.fill();c.strokeStyle=stroke;c.lineWidth=2;c.stroke()}
+function chrome(name,url){c.fillStyle=C.bg;c.fillRect(0,0,W,H);c.fillStyle='#0A0F1F';c.fillRect(0,0,W,58);
+  ['#E8655A','#E8B65A','#6CC58A'].forEach((col,k)=>{c.fillStyle=col;c.beginPath();c.arc(30+k*24,29,7,0,7);c.fill()});
+  rr(420,15,440,28,14);c.fillStyle='#161E38';c.fill();T(url,640,34,M(500,14),C.mut,'center');
+  c.fillStyle='rgba(255,255,255,.03)';c.fillRect(0,58,W,70);T(name,50,104,F(900,28),C.ink);}
+/* kursor kroz tačke [t,x,y,klik] */
+function cursor(t,pts){let x=pts[0][1],y=pts[0][2];
+  for(let k=1;k<pts.length;k++){const [t0,x0,y0]=pts[k-1],[t1,x1,y1]=pts[k]; if(t>=t0&&t<=t1){const e=eo((t-t0)/(t1-t0));x=lerp(x0,x1,e);y=lerp(y0,y1,e)} else if(t>t1){x=x1;y=y1}}
+  pts.forEach(([tt,px,py,clk])=>{if(clk&&t>tt&&t<tt+.5){const a=(t-tt)/.5;c.strokeStyle=`rgba(217,178,95,${1-a})`;c.lineWidth=3;c.beginPath();c.arc(px,py,10+30*a,0,7);c.stroke()}});
+  c.save();c.translate(x,y);c.fillStyle='#fff';c.strokeStyle='#0B1020';c.lineWidth=2.5;c.beginPath();c.moveTo(0,0);c.lineTo(0,30);c.lineTo(8,23);c.lineTo(14,36);c.lineTo(20,33);c.lineTo(14,21);c.lineTo(25,21);c.closePath();c.fill();c.stroke();c.restore()}
+function toast(t,t0,title,sub){const a=eb(seg(t,t0,t0+.45)); if(a<=0)return; c.save();c.globalAlpha=cl(a);c.translate(W-360,H-150+(1-a)*40);
+  card(-10,-50,370,110,20,'#1B2340','rgba(217,178,95,.8)');c.fillStyle=C.gold;c.beginPath();c.arc(36,5,22,0,7);c.fill();
+  c.strokeStyle='#0B1020';c.lineWidth=4;c.beginPath();c.moveTo(26,5);c.lineTo(34,13);c.lineTo(47,-3);c.stroke();
+  T(title,74,-2,F(800,20),C.ink);T(sub,74,26,F(500,15),C.mut);c.restore()}
+
+const DUR=7.2;
+const D=[
+/* 1 rezervacije */ (t)=>{chrome('Vaš salon','vas-salon.rs');
+  T('1. USLUGA',50,175,M(600,14),C.gold);
+  const sv=[['Šišanje i feniranje','45 min','2.200 din'],['Bojenje','90 min','4.800 din'],['Manikir','40 min','1.600 din']];
+  const s1=t>1;
+  sv.forEach(([a,b,p],k)=>{const on=s1&&k===0; card(50,195+k*92,560,76,14,on?'#2A2414':C.pan,on?C.gold:C.line);
+    T(a,78,240+k*92,F(700,21),C.ink);T(b,78,262+k*92,M(500,13),C.mut);T(p,585,244+k*92,F(800,20),on?C.gold:C.ink,'right')});
+  T('2. TERMIN',660,175,M(600,14),C.gold);
+  const days=['Pon 12','Uto 13','Sre 14','Čet 15']; days.forEach((d,k)=>{const on=t>1.9&&k===1;card(660+k*140,195,124,76,14,on?C.gold:C.pan,on?C.gold:C.line);
+    T(d.split(' ')[0],722+k*140,226,M(500,13),on?'#0B1020':C.mut,'center');T(d.split(' ')[1],722+k*140,256,F(800,22),on?'#0B1020':C.ink,'center')});
+  const sl=['09:00','11:30','14:00','16:30','18:00','19:30'];sl.forEach((s,k)=>{const x=660+(k%3)*186,y=295+Math.floor(k/3)*70,on=t>2.7&&k===3,busy=k===1;
+    card(x,y,170,56,12,on?C.gold:C.pan,on?C.gold:C.line);T(s,x+85,y+36,F(700,19),on?'#0B1020':busy?'rgba(167,174,194,.35)':C.ink,'center')});
+  const bt=t>3.5; rr(660,470,540,70,35);c.fillStyle=bt?'#E4C273':C.gold;c.fill();T('Rezerviši i plati karticom →',930,514,F(800,21),'#0B1020','center');
+  T('BEZ PROVIZIJE · POTVRDA STIŽE ODMAH',930,575,M(500,13),C.mut,'center');
+  cursor(t,[[0,900,700],[.9,330,233,1],[1.7,862,233,1],[2.5,1032,323,1],[3.3,930,505,1],[4.5,1000,660]]);
+  toast(t,3.8,'Termin rezervisan','Uto 13 · 16:30 · plaćeno 2.200 din');},
+/* 2 prodaja */ (t)=>{chrome('Vaša picerija','vasa-picerija.rs');
+  const it=[['Margarita','890 din'],['Kapricoza','1.090 din'],['Pršuta','1.290 din'],['Vege','950 din']];
+  const added=(k)=>(k===0&&t>1.1)||(k===2&&t>2.1);
+  it.forEach(([n,p],k)=>{const x=50+k*230; card(x,160,210,330,18,C.pan2);
+    const g=c.createRadialGradient(x+105,250,10,x+105,250,70);g.addColorStop(0,'#E8963A');g.addColorStop(.6,'#C8742E');g.addColorStop(1,'#5A3418');
+    c.fillStyle=g;c.beginPath();c.arc(x+105,250,66,0,7);c.fill();
+    c.fillStyle='rgba(243,238,227,.7)';[[-20,-15],[18,-8],[-5,22],[25,20],[-28,15]].forEach(([dx,dy])=>{c.beginPath();c.arc(x+105+dx,250+dy,7,0,7);c.fill()});
+    T(n,x+20,358,F(800,21),C.ink);T(p,x+20,386,F(600,17),C.mut);
+    const on=added(k);rr(x+20,410,170,52,26);c.fillStyle=on?'rgba(217,178,95,.2)':C.gold;c.fill();if(on){c.strokeStyle=C.gold;c.lineWidth=2;c.stroke()}
+    T(on?'✓ U korpi':'+ Dodaj',x+105,443,F(800,17),on?C.gold:'#0B1020','center')});
+  const n=(t>1.1)+(t>2.1); const bump=Math.max(eb(seg(t,1.1,1.4))*(t<1.6),eb(seg(t,2.1,2.4))*(t<2.6));
+  card(980,160,250,330,18,C.pan2,n?'rgba(217,178,95,.7)':C.line); T('KORPA',1005,200,M(600,14),C.gold);
+  c.save();c.translate(1185,195);c.scale(1+.3*(bump%1||0),1+.3*(bump%1||0));c.fillStyle=C.gold;c.beginPath();c.arc(0,0,18,0,7);c.fill();T(String(n),0,7,F(800,18),'#0B1020','center');c.restore();
+  if(t>1.1)T('Margarita',1005,250,F(600,17),C.ink); if(t>2.1)T('Pršuta',1005,282,F(600,17),C.ink);
+  T('Ukupno',1005,380,F(500,16),C.mut);T(n===2?'2.180 din':n===1?'890 din':'0 din',1205,380,F(800,20),C.ink,'right');
+  rr(1005,410,200,52,26);c.fillStyle=n?C.gold:C.line;c.fill();T('Poruči →',1105,443,F(800,17),'#0B1020','center');
+  T('PLAĆANJE KARTICOM ILI POUZEĆEM · DOSTAVA 35 MIN',640,560,M(500,14),C.mut,'center');
+  cursor(t,[[0,700,700],[.9,155,436,1],[1.9,615,436,1],[2.9,1105,436,1],[4.2,900,650]]);
+  toast(t,3.3,'Porudžbina primljena','Stiže za 35 min · bez procenta posredniku');},
+/* 3 ponuda */ (t)=>{chrome('Vaš servis','vas-servis.rs');
+  const step=t<1.3?0:t<2.6?1:t<3.4?2:3;
+  rr(50,150,1180,8,4);c.fillStyle=C.line;c.fill();rr(50,150,1180*Math.min(1,(t/3.6)),8,4);c.fillStyle=C.gold;c.fill();
+  if(step<3){
+    const Q=[['Šta vam treba?',['Ugradnja klime','Servis','Čišćenje']],['Kolika je prostorija?',null],['Kada vam odgovara?',['Ove nedelje','Sledeće nedelje','Nije hitno']]][step];
+    T('PITANJE '+(step+1)+' / 3',50,215,M(600,14),C.gold);T(Q[0],50,268,F(900,40),C.ink);
+    if(Q[1]) Q[1].forEach((o,k)=>{const on=(step===0&&t>1.0&&k===0)||(step===2&&t>3.1&&k===1);card(50+k*390,310,370,96,18,on?'#2A2414':C.pan,on?C.gold:C.line);T(o,80+k*390,368,F(700,22),C.ink)});
+    else{const v=lerp(20,38,eo(seg(t,1.6,2.4)));rr(50,345,1000,10,5);c.fillStyle=C.line;c.fill();rr(50,345,1000*(v-10)/50,10,5);c.fillStyle=C.gold;c.fill();
+      c.fillStyle=C.gold;c.beginPath();c.arc(50+1000*(v-10)/50,350,18,0,7);c.fill();T(Math.round(v)+' m²',1110,362,F(900,34),C.ink)}
+  } else {
+    const a=seg(t,3.4,3.9); if(t<3.9){T('Pravimo ponudu'+'.'.repeat(1+Math.floor(t*6)%3),640,360,F(800,30),C.mut,'center')}
+    else{const b=eb(seg(t,3.9,4.4));c.save();c.globalAlpha=cl(b);c.translate(640,370);c.scale(.9+.1*b,.9+.1*b);
+      card(-420,-180,840,330,24,C.pan2,'rgba(217,178,95,.8)');T('PREPORUKA ZA VAS',-380,-128,M(600,14),C.gold);
+      T('Paket Standard · ugradnja',-380,-78,F(900,32),C.ink);T('Klima 12.000 BTU · prostorija 38 m² · sledeće nedelje',-380,-40,F(500,18),C.mut);
+      T('38.000 din',-380,40,F(900,52),C.gold);T('sa PDV-om i materijalom',-380,74,F(500,16),C.mut);
+      rr(110,-6,270,60,30);c.fillStyle=C.gold;c.fill();T('Prihvati termin →',245,32,F(800,18),'#0B1020','center');c.restore()}
+  }
+  cursor(t,[[0,800,700],[.9,235,358,1],[1.6,430,350],[2.4,780,350],[3.0,625,358,1],[4.6,1020,560,1],[5.5,980,650]]);
+  toast(t,4.8,'Predračun poslat na email','I kopija vama, sa svim odgovorima');},
+/* 4 poverenje */ (t)=>{chrome('Vaš brend','vas-brend.rs');
+  const a=eo(seg(t,.1,.8));c.globalAlpha=a;
+  T('15 godina. 1.200 projekata.',50,220,F(900,46),C.ink);T('Jedan standard.',50,276,F(900,46),C.gold);
+  T('Radimo samo ono što bismo i sebi uradili.',50,320,F(500,19),C.mut);c.globalAlpha=1;
+  const R=[['Marko P.','Došli na vreme, sve čisto. Cena jasna od početka.'],['Jelena S.','Najozbiljnija firma koju smo zvali. Isplati se.'],['Dušan R.','Garancija je stvarno garancija.']];
+  R.forEach(([n,q],k)=>{const b=eb(seg(t,1+k*.45,1.45+k*.45));if(b<=0)return;c.save();c.globalAlpha=cl(b);c.translate(50+k*395,380+(1-b)*30);
+    card(0,0,375,170,18,C.pan2);T('★★★★★',24,42,F(700,20),C.gold);
+    c.font=F(600,17);c.fillStyle=C.ink;const w=q.split(' ');let line='',yy=80;w.forEach(x=>{if(c.measureText(line+x).width>320){c.fillText(line,24,yy);line='';yy+=24}line+=x+' '});c.fillText(line,24,yy);
+    T(n,24,150,M(500,13),C.mut);c.restore()});
+  const s=eb(seg(t,2.8,3.3)); if(s>0){c.save();c.globalAlpha=cl(s);c.translate(860,200);c.scale(.85+.15*s,.85+.15*s);
+    card(-30,-70,400,180,22,'#231F14','rgba(217,178,95,.8)');T('STUDIJA SLUČAJA',0,-28,M(600,13),C.gold);
+    T('+'+Math.round(42*eo(seg(t,3,4.2)))+'% upita',0,40,F(900,46),C.ink);T('za 6 meseci, uz višu cenu',0,78,F(500,16),C.mut);c.restore()}
+  T('PRIMER · IZMIŠLJENI PODACI',W-50,H-30,M(500,12),C.mut,'right');
+  cursor(t,[[0,700,720],[2.2,600,470],[3.5,1000,230,1],[5,900,700]]);}
+];
+
+/* ===== three.js laptop ===== */
+const host=document.getElementById('gl');
+const R3=new THREE.WebGLRenderer({antialias:true,alpha:true}); R3.setPixelRatio(Math.min(devicePixelRatio,2)); host.appendChild(R3.domElement);
+if(THREE.sRGBEncoding) R3.outputEncoding=THREE.sRGBEncoding;
+const S=new THREE.Scene(), cam=new THREE.PerspectiveCamera(28,1,.1,100);
+S.add(new THREE.AmbientLight(0xffffff,.55));
+const dl=new THREE.DirectionalLight(0xffffff,.85); dl.position.set(3,6,5); S.add(dl);
+const rim=new THREE.PointLight(0xD9B25F,1.1,14); rim.position.set(-3,2,-2); S.add(rim);
+const LW=3.3,LD=2.25,BH=.11,LH=2.12,LT=.06;
+const metal=new THREE.MeshStandardMaterial({color:0x1C2234,metalness:.6,roughness:.42});
+const lap=new THREE.Group(); S.add(lap);
+lap.add(new THREE.Mesh(new THREE.BoxGeometry(LW,BH,LD),metal));
+const kc=document.createElement('canvas');kc.width=1024;kc.height=700;const k=kc.getContext('2d');k.fillStyle='#141927';k.fillRect(0,0,1024,700);
+for(let r=0;r<6;r++)for(let q=0;q<14;q++){k.fillStyle='#0D1120';k.fillRect(40+q*68,40+r*60,58,50)}k.fillStyle='#0D1120';k.fillRect(260,420,500,50);k.fillStyle='#151A2A';k.fillRect(340,500,340,170);
+const kb=new THREE.Mesh(new THREE.PlaneGeometry(LW*.94,LD*.9),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(kc),metalness:.3,roughness:.7}));kb.rotation.x=-Math.PI/2;kb.position.y=BH/2+.002;lap.add(kb);
+const hinge=new THREE.Group();hinge.position.set(0,BH/2,-LD/2+.02);hinge.rotation.x=-.22;lap.add(hinge);
+const lid=new THREE.Mesh(new THREE.BoxGeometry(LW,LH,LT),metal);lid.position.y=LH/2;hinge.add(lid);
+const bez=new THREE.Mesh(new THREE.PlaneGeometry(LW-.06,LH-.06),new THREE.MeshBasicMaterial({color:0x05070D}));bez.position.set(0,LH/2,LT/2+.001);hinge.add(bez);
+const tex=new THREE.CanvasTexture(sc);tex.anisotropy=R3.capabilities.getMaxAnisotropy();if(THREE.sRGBEncoding)tex.encoding=THREE.sRGBEncoding;
+const scr=new THREE.Mesh(new THREE.PlaneGeometry(LW-.2,(LW-.2)*H/W),new THREE.MeshBasicMaterial({map:tex,toneMapped:false}));scr.position.set(0,LH/2+.02,LT/2+.002);hinge.add(scr);
+const shd=new THREE.Mesh(new THREE.PlaneGeometry(6,4),new THREE.MeshBasicMaterial({transparent:true,depthWrite:false,map:(()=>{const g=document.createElement('canvas');g.width=g.height=256;const x=g.getContext('2d');const r=x.createRadialGradient(128,128,10,128,128,128);r.addColorStop(0,'rgba(0,0,0,.55)');r.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=r;x.fillRect(0,0,256,256);return new THREE.CanvasTexture(g)})()}));
+shd.rotation.x=-Math.PI/2;shd.position.y=-BH/2-.01;lap.add(shd);
+function size(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;R3.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+let mx=0,my=0,tx=0,ty=0; host.addEventListener('pointermove',e=>{const r=host.getBoundingClientRect();tx=(e.clientX-r.left)/r.width-.5;ty=(e.clientY-r.top)/r.height-.5});
+host.addEventListener('pointerleave',()=>{tx=ty=0});
+
+let visible=false; new IntersectionObserver(es=>{visible=es[0].isIntersecting},{threshold:.05}).observe(host);
+const rings=OB.map(b=>b.querySelector('.fg'));
+function frame(now){
+  if(visible){
+    let t=(now-tStart)/1000;
+    if(t>DUR){ if(auto){pick((cur+1)%G.length);t=0} else {tStart=now;t=0} }
+    rings.forEach((r,j)=>r.style.strokeDashoffset=j===cur&&auto?57*(1-Math.min(1,t/DUR)):57);
+    D[cur](t);
+    const sw=(now-swapT)/1000; if(sw<.45){const a=1-sw/.45;c.fillStyle=`rgba(217,178,95,${.18*a})`;c.fillRect(0,0,W,H);c.fillStyle=`rgba(14,20,40,${a*.9})`;c.fillRect(0,58,W,(H-58)*a)}
+    tex.needsUpdate=true;
+    mx+=(tx-mx)*.06;my+=(ty-my)*.06;
+    const mob=innerWidth<=900;
+    lap.rotation.y=-.18+mx*.25+Math.sin(now/3000)*.03; lap.rotation.x=.05+my*.06; lap.position.y=-.5+Math.sin(now/1600)*.03;
+    const vf=cam.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*cam.aspect);
+    const z=Math.max(3.75/2/Math.tan(hf/2),3.2/2/Math.tan(vf/2)); cam.position.set(0,1.3,z); cam.lookAt(0,.5,0);
+    R3.render(S,cam);
+  }
+  requestAnimationFrame(frame);
+}
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>requestAnimationFrame(frame));
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){decodeEl(document.getElementById('endA'),700);setTimeout(()=>decodeEl(document.getElementById('endB'),700),250);io.disconnect()}}),{threshold:.4});
+io.observe(document.querySelector('.end'));
+})();
+</script>
+</body>
+</html>
+
+</body></html>
