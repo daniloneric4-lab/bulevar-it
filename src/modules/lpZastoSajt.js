@@ -637,7 +637,7 @@ export function initLpZastoSajt() {
   const laptopCtrl = createLandingLaptop({
     host,
     canvas: sc,
-    initialLidAngle: -1.894,
+    initialLidAngle: -0.22,
     cameraZ: 8.0,
     cameraY: 1.3,
     lookAtY: 0.5,
@@ -645,12 +645,16 @@ export function initLpZastoSajt() {
   });
 
   let mx = 0, my = 0, tx = 0, ty = 0;
-  host.addEventListener('pointermove', e => {
-    const r = host.getBoundingClientRect();
-    tx = (e.clientX - r.left) / r.width - 0.5;
-    ty = (e.clientY - r.top) / r.height - 0.5;
+  window.addEventListener('pointermove', e => {
+    tx = (e.clientX / window.innerWidth) - 0.5;
+    ty = (e.clientY / window.innerHeight) - 0.5;
   }, { passive: true });
-  host.addEventListener('pointerleave', () => { tx = 0; ty = 0; }, { passive: true });
+  window.addEventListener('touchmove', e => {
+    if (e.touches && e.touches[0]) {
+      tx = (e.touches[0].clientX / window.innerWidth) - 0.5;
+      ty = (e.touches[0].clientY / window.innerHeight) - 0.5;
+    }
+  }, { passive: true });
 
   let visible = false;
   if ('IntersectionObserver' in window) {
@@ -666,72 +670,73 @@ export function initLpZastoSajt() {
 
   function frame(now) {
     if (visible) {
-      const sec = host.closest('.app') || host;
-      const r = sec.getBoundingClientRect();
-      const enter = Math.max(0, Math.min(1, (window.innerHeight - r.top) / (window.innerHeight * 0.75)));
-      const open = reduce ? 1 : Math.max(0, Math.min(1, (enter - 0.2) / 0.7));
-      const hingeAngle = -1.894 * (1 - open) - 0.22 * open;
-      laptopCtrl.setLidAngle(hingeAngle);
+      try {
+        laptopCtrl.setLidAngle(-0.22);
 
-      let t = (now - tStart) / 1000;
-      if (t > DUR) {
-        if (auto) {
-          pick((cur + 1) % G.length);
-          t = 0;
+        let t = (now - tStart) / 1000;
+        const gList = getG();
+        if (t > DUR) {
+          if (auto) {
+            pick((cur + 1) % gList.length);
+            t = 0;
+          } else {
+            tStart = now;
+            t = 0;
+          }
+        }
+
+        rings.forEach((r, j) => {
+          if (r) {
+            r.style.strokeDashoffset = (j === cur && auto && !reduce)
+              ? String(57 * (1 - Math.min(1, t / DUR)))
+              : '57';
+          }
+        });
+
+        D[cur](reduce ? DUR : t);
+
+        const sw = (now - swapT) / 1000;
+        if (sw < 0.45 && !reduce) {
+          const a = 1 - sw / 0.45;
+          c.fillStyle = `rgba(217,178,95,${0.18 * a})`;
+          c.fillRect(0, 0, W, H);
+          c.fillStyle = `rgba(14,20,40,${a * 0.9})`;
+          c.fillRect(0, 58, W, (H - 58) * a);
+        }
+
+        laptopCtrl.texture.needsUpdate = true;
+
+        mx += (tx - mx) * 0.06;
+        my += (ty - my) * 0.06;
+
+        const lap = laptopCtrl.laptop;
+        const cam = laptopCtrl.camera;
+        const isMob = window.innerWidth <= 900;
+        const lapX = isMob ? 0 : 0.12;
+
+        lap.position.x = lapX;
+        if (!reduce) {
+          lap.rotation.y = -0.18 + mx * 0.22 + Math.sin(now / 3000) * 0.03;
+          lap.rotation.x = 0.05 + my * 0.05;
+          lap.position.y = (isMob ? -0.28 : -0.20) + Math.sin(now / 1600) * 0.03;
         } else {
-          tStart = now;
-          t = 0;
+          lap.rotation.y = -0.18;
+          lap.rotation.x = 0.05;
+          lap.position.y = isMob ? -0.28 : -0.20;
         }
+
+        const vf = cam.fov * Math.PI / 180;
+        const hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
+        const fitW = isMob ? 5.2 : 5.1;
+        const fitH = isMob ? 4.2 : 4.1;
+        const z = Math.max(fitW / 2 / Math.tan(hf / 2), fitH / 2 / Math.tan(vf / 2));
+        cam.position.set(lapX, 1.15, z);
+        cam.lookAt(lapX, 0.50, 0);
+
+        laptopCtrl.renderer.render(laptopCtrl.scene, cam);
+      } catch (err) {
+        console.error('LpZastoSajt frame error:', err);
       }
-
-      rings.forEach((r, j) => {
-        if (r) {
-          r.style.strokeDashoffset = (j === cur && auto && !reduce)
-            ? String(57 * (1 - Math.min(1, t / DUR)))
-            : '57';
-        }
-      });
-
-      D[cur](reduce ? DUR : t);
-
-      const sw = (now - swapT) / 1000;
-      if (sw < 0.45 && !reduce) {
-        const a = 1 - sw / 0.45;
-        c.fillStyle = `rgba(217,178,95,${0.18 * a})`;
-        c.fillRect(0, 0, W, H);
-        c.fillStyle = `rgba(14,20,40,${a * 0.9})`;
-        c.fillRect(0, 58, W, (H - 58) * a);
-      }
-
-      laptopCtrl.texture.needsUpdate = true;
-
-      mx += (tx - mx) * 0.06;
-      my += (ty - my) * 0.06;
-
-      const lap = laptopCtrl.laptop;
-      const cam = laptopCtrl.camera;
-      const isMob = window.innerWidth <= 900;
-
-      lap.position.x = isMob ? 0 : 0.22;
-      if (!reduce) {
-        lap.rotation.y = (-0.18 + mx * 0.22 + Math.sin(now / 3000) * 0.03) * open;
-        lap.rotation.x = 0.05 + my * 0.05;
-        lap.position.y = (isMob ? -0.28 : -0.20) + Math.sin(now / 1600) * 0.025;
-      } else {
-        lap.rotation.y = -0.18;
-        lap.rotation.x = 0.05;
-        lap.position.y = isMob ? -0.28 : -0.20;
-      }
-
-      const vf = cam.fov * Math.PI / 180;
-      const hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
-      const fitW = isMob ? 5.2 : 5.0;
-      const fitH = isMob ? 4.2 : 4.1;
-      const z = Math.max(fitW / 2 / Math.tan(hf / 2), fitH / 2 / Math.tan(vf / 2));
-      cam.position.set(0, 1.15, z);
-      cam.lookAt(isMob ? 0 : 0.22, 0.52, 0);
-
-      laptopCtrl.renderer.render(laptopCtrl.scene, cam);
     }
     requestAnimationFrame(frame);
   }

@@ -1658,7 +1658,12 @@ export function initSistemIzaEkrana() {
     narrow = w < 900;
     cam.updateProjectionMatrix();
   }
-  window.addEventListener('resize', layout, { passive: true });
+  let lastSisWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastSisWidth) return;
+    lastSisWidth = window.innerWidth;
+    layout();
+  }, { passive: true });
 
   let mx = 0, my = 0;
   window.addEventListener('pointermove', (e) => {
@@ -2152,16 +2157,17 @@ export function initSistemIzaEkrana() {
       world.rotation.set(rX, rY, 0);
 
       // Na sekciji 08 ceo laptop stoji lepo u vidnom polju (bez odsecanja levog ćoška)
+      // U sekciji 09 (Zašto imate sajt) laptop je podignut ka gornjem delu ekrana da ne pokriva tekst i čipove
       const targetPosX = lerp(0.04, 0.0, mobileOutMax) * (1 - rp);
-      world.position.set(targetPosX, -0.28 + 0.98 * rp, 0);
+      world.position.set(targetPosX, -0.28 + 1.42 * rp, 0);
 
       // Kamera: udaljenost iz širine canvasa tako da laptop + špil uvek u celosti staju u širinu ekrana
       const vf = cam.fov * Math.PI / 180;
       const hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
       const fw = lerp(2.55, 2.05, mobileOutMax);
       const zDist = Math.max(fw / 2 / Math.tan(hf / 2), 1.95 / 2 / Math.tan(vf / 2));
-      cam.position.set(0, 1.18 - 0.22 * rp, zDist - 0.65 * rp);
-      cam.lookAt(0, 0.68, 0);
+      cam.position.set(0, 1.18 - 0.22 * rp, zDist - 0.25 * rp);
+      cam.lookAt(0, 0.68 + 0.22 * rp, 0);
     } else {
       // Desktop: tokom sekcije 08 laptop je okrenut bočno (-0.66 rad) da se vidi dubina kartica,
       // a pri prelasku u sekciju 09 (Zašto imate sajt) laptop se okreće PRAVO ka gledaocu sajta.

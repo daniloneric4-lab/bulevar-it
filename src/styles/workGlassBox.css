@@ -405,7 +405,7 @@ dialog.mx::backdrop {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .mx .grid {
     grid-template-columns: 1fr;
   }
@@ -417,12 +417,38 @@ dialog.mx::backdrop {
     font-size: 18px;
   }
   .gbox {
-    padding: 16px;
+    padding: 12px 14px 10px;
     width: calc(100vw - 32px);
+    max-width: 440px;
+    border-radius: 14px;
+    background: rgba(10, 15, 30, 0.88);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
   .gbox .row {
-    grid-template-columns: 1fr;
-    gap: 4px;
+    display: grid;
+    grid-template-columns: 66px minmax(0, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .gbox .t {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    padding-top: 1px;
+    font-weight: 700;
+  }
+  .gbox p {
+    font-size: 12px;
+    line-height: 1.42;
+    color: #F3EEE3;
+  }
+  .gbox .more {
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    padding: 2px 0;
+    margin-top: 2px;
   }
 }
 

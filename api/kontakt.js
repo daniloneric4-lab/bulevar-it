@@ -3,7 +3,7 @@
  * 
  * Env variables:
  * - RESEND_API_KEY (Resend API key)
- * - CONTACT_EMAIL (Destination email, defaults to kontakt@bulevar.it)
+ * - CONTACT_EMAIL (Destination email, defaults to bulevarit@gmail.com)
  * - WHATSAPP_API_TOKEN (Optional WhatsApp Cloud API token)
  * - WHATSAPP_PHONE_ID (Optional WhatsApp Phone Number ID)
  */
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Sva polja su obavezna (ime, telefon, email)' });
     }
 
-    const recipient = process.env.CONTACT_EMAIL || 'kontakt@bulevar.it';
+    const recipient = process.env.CONTACT_EMAIL || 'bulevarit@gmail.com';
     const resendApiKey = process.env.RESEND_API_KEY;
 
     const utmText = utm && Object.keys(utm).length > 0

@@ -1204,7 +1204,7 @@ html.lp-js-ready .builder-controls.is-in-view .builder-chip:nth-child(7) { trans
 .g-grid {
   margin-top: 40px;
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.35fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.48fr);
   gap: 3.5vw;
   align-items: center;
 }
@@ -1530,9 +1530,9 @@ html.lp-js-ready .builder-controls.is-in-view .builder-chip:nth-child(7) { trans
   top: 0;
   height: 100vh;
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.35fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.48fr);
   align-items: center;
-  gap: 3vw;
+  gap: 3.5vw;
   padding: 90px 2vw 40px 2vw;
   overflow: hidden;
 }
@@ -1783,8 +1783,8 @@ html.lp-js-ready .builder-controls.is-in-view .builder-chip:nth-child(7) { trans
 .b-grid {
   margin-top: 36px;
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr);
-  gap: 3vw;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.48fr);
+  gap: 3.5vw;
   align-items: start;
 }
 

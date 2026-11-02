@@ -153,7 +153,10 @@ export function initDevicePortfolioStage() {
   // ─── PINNED OVERLAP-REVEAL: Section A pinned, Section B pulls up like a curtain ───
   initPinnedOverlapReveal();
 
+  let lastDevWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
   window.addEventListener('resize', () => {
+    if (window.innerWidth === lastDevWidth) return;
+    lastDevWidth = window.innerWidth;
     updateStageHeight();
     drawCircuitLines(cardsTrack);
     ScrollTrigger.refresh();

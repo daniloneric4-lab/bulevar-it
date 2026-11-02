@@ -147,16 +147,25 @@ export function initWorkGlassBox() {
       const capRect = caption ? caption.getBoundingClientRect() : cardRect;
 
       // Position: below the caption, constrained inside viewport
+      const isMobile = vw <= 768;
       const bw = box.offsetWidth || Math.min(480, vw - 32);
-      const left = Math.max(16, Math.min(vw - bw - 16, cardRect.left));
-      const top = capRect.bottom + 12;
+      const left = isMobile
+        ? Math.max(16, (vw - bw) / 2)
+        : Math.max(16, Math.min(vw - bw - 16, cardRect.left));
+
+      const boxH = box.offsetHeight || (isMobile ? 135 : 180);
+      const maxTop = vh - boxH - (isMobile ? 14 : 20);
+      const computedTop = Math.min(maxTop, capRect.bottom + (isMobile ? 10 : 12));
+      const top = Math.max(isMobile ? 60 : 70, computedTop);
 
       box.style.left = `${left.toFixed(1)}px`;
       box.style.top = `${top.toFixed(1)}px`;
 
       // Check if card is comfortably inside visible viewport
       const cc = (cardRect.left + cardRect.right) / 2;
-      const inView = cc > vw * 0.05 && cc < vw * 0.95 && cardRect.top < vh && cardRect.bottom > 0;
+      const inView = isMobile
+        ? (cardRect.right > vw * 0.20 && cardRect.left < vw * 0.80)
+        : (cc > vw * 0.05 && cc < vw * 0.95 && cardRect.top < vh && cardRect.bottom > 0);
 
       // Check if stretching circuit line has reached this card
       let hasReached = false;

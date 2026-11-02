@@ -85,6 +85,18 @@ function initContactForm() {
     }
   });
 
+  window.addEventListener('bulevar:langchange', () => {
+    const head = document.querySelector('.kf-head');
+    if (head) {
+      head.querySelectorAll('.dec').forEach((el, i) => {
+        const key = el.getAttribute('data-i18n');
+        const text = key ? t(key) : (el.dataset.t || el.textContent);
+        el.dataset.t = text;
+        decodeEl(el, 800 + i * 200);
+      });
+    }
+  });
+
   // Segment pill pickers
   function pick(container, btn) {
     container.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === btn));
@@ -320,8 +332,8 @@ function initFooterLogoAnimation() {
   dustG.innerHTML = '';
 
   B.forEach((b, i) => {
-    b.a = 0.10 + i * 0.075;
-    b.b = b.a + 0.21;
+    b.a = 0.06 + i * 0.06;
+    b.b = b.a + 0.18;
     b.w = b.x2 - b.x;
     b.h = GROUND - b.top;
     const g = el('g', {}, blds);
@@ -465,20 +477,29 @@ function initFooterLogoAnimation() {
     if (reduce) return 1;
     const r = ft.getBoundingClientRect();
     const span = ft.offsetHeight - window.innerHeight;
-    return clamp((-r.top + window.innerHeight * 0.15) / span);
+    if (span <= 0) return 1;
+
+    // Kad god je korisnik na dnu ili pri dnu stranice, garantujemo potpuno (100%) učitavanje footera
+    const scrollY = window.lenis ? window.lenis.scroll : (window.scrollY || document.documentElement.scrollTop || 0);
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    if (maxScroll > 0 && scrollY >= maxScroll - 35) {
+      return 1;
+    }
+
+    return clamp((-r.top + window.innerHeight * 0.20) / span);
   }
 
   function render(p, t) {
-    arc.style.strokeDashoffset = arcLen * (1 - eInOut(seg(p, 0.02, 0.16)));
+    arc.style.strokeDashoffset = arcLen * (1 - eInOut(seg(p, 0.02, 0.15)));
 
-    const col = eInOut(seg(p, 0.35, 0.70));
+    const col = eInOut(seg(p, 0.25, 0.55));
     B.forEach((b) => {
       const lt = seg(p, b.a, b.b);
       const e = backOut(lt, 1.1);
       b.g.setAttribute('transform', `translate(0 ${((1 - e) * (b.h + 60)).toFixed(2)})`);
       b.body.setAttribute('fill-opacity', col.toFixed(3));
       b.body.setAttribute('stroke-opacity', (1 - col).toFixed(3));
-      const wp = seg(p, 0.42, 0.80);
+      const wp = seg(p, 0.30, 0.65);
       b.win.forEach((w) => {
         const u = clamp((wp - w.t) / 0.2);
         const base = mix(WIN_OFF, WIN_FINAL, col);
@@ -497,21 +518,21 @@ function initFooterLogoAnimation() {
       });
     });
 
-    arr.style.strokeDashoffset = aLen * (1 - eInOut(seg(p, 0.56, 0.76)));
-    const hs = seg(p, 0.74, 0.81);
+    arr.style.strokeDashoffset = aLen * (1 - eInOut(seg(p, 0.42, 0.62)));
+    const hs = seg(p, 0.60, 0.67);
     headG.style.opacity = hs > 0 ? 1 : 0;
     headG.style.transform = `scale(${hs > 0 ? backOut(hs, 2.4) : 0})`;
 
-    const g = eOut(seg(p, 0, 0.88));
+    const g = eOut(seg(p, 0, 0.75));
     logo.style.transform = `translateY(${(1 - g) * 5}vh) scale(${(0.66 + 0.34 * g).toFixed(4)})`;
-    if (glow) glow.style.opacity = (col * (1 - seg(p, 0.86, 1))).toFixed(3);
+    if (glow) glow.style.opacity = (col * (1 - seg(p, 0.72, 0.92))).toFixed(3);
 
     const refresh = t - lastGl > 55;
     if (refresh) lastGl = t;
-    decodeLogo(seg(p, 0.72, 0.90), refresh);
-    decodeSub(seg(p, 0.84, 0.97), refresh);
+    decodeLogo(seg(p, 0.56, 0.76), refresh);
+    decodeSub(seg(p, 0.70, 0.84), refresh);
 
-    const m = eOut(seg(p, 0.9, 1));
+    const m = eOut(seg(p, 0.78, 0.88));
     if (meta) {
       meta.style.opacity = m;
       meta.style.transform = `translateY(${(1 - m) * 16}px)`;

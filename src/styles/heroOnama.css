@@ -29,7 +29,6 @@
   position: sticky;
   top: 0;
   height: 100vh;
-  height: 100svh;
   height: 100dvh;
   overflow: hidden;
   background-color: #080C14 !important;
@@ -45,6 +44,7 @@
   display: block;
   z-index: 2;
   pointer-events: none;
+  transition: opacity 0.15s ease-out;
 }
 
 /* Suppress WebKit / iOS Safari start-playback button and native controls */
@@ -199,13 +199,25 @@ video::-webkit-media-controls-panel,
 }
 
 @media (max-width: 760px) {
+  .hero-onama-cap {
+    bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  }
   .hero-onama-cap .wrap {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: 6px;
   }
   .hero-onama-cap .meta {
     flex-direction: row;
-    gap: 14px;
+    gap: 12px;
     align-items: baseline;
+  }
+  .hero-onama-cap .txt h2 {
+    font-size: clamp(18px, 4.8vw, 24px);
+    margin-bottom: 4px;
+    line-height: 1.15;
+  }
+  .hero-onama-cap .txt p {
+    font-size: 13.5px;
+    line-height: 1.4;
   }
 }

@@ -11,20 +11,20 @@ export const RADOVI_DATA = {
       title: 'Mango Event',
       url: 'https://mangoevent.rs/',
       small: {
-        problem: 'Organizatori su prijave, uplate i spiskove gostiju vodili ručno, kroz poruke i tabele, pa su se podaci gubili.',
-        solution: 'Jedan sistem za događaje: online prijava, automatska potvrda i pregled svih gostiju na jednom mestu.'
+        problem: 'Prijave izlagača stizale su putem poruka, mejla i telefona, a svaku je trebalo ručno obraditi i uneti u ugovor. To je oduzimalo mnogo vremena, stvaralo veliki administrativni teret i povećavalo rizik da se potencijalni izlagači izgube zbog sporog i komplikovanog procesa prijave.',
+        solution: 'Sajt za online prijave, administracija za vlasnicu i automatizacije koje same obrađuju prijave i pripremaju ugovore.'
       },
       modal: {
         tag: 'Sistem za događaje',
         title: 'Mango Event',
-        lead: 'Sistem za prodaju karata i organizaciju događaja koji automatizuje ceo proces od prve prijave do ulaska na vrata.',
-        problem: 'Prijave, uplate i spiskove gostiju vodili su se ručno, kroz poruke, pozive i tabele. Svaki događaj je značio dane administracije, a greške u spiskovima su se primećivale tek na ulazu.',
-        solution: 'Napravili smo sistem u kome se gost prijavi online, odmah dobije potvrdu, a organizator u svakom trenutku vidi ko dolazi, ko je platio i koliko mesta je ostalo.',
+        lead: 'Sistem za prijave na bazare, od prijave izlagača do ugovora spremnog za potpis.',
+        problem: 'Prijave izlagača stizale su putem poruka, mejla i telefona, a svaku je trebalo ručno obraditi i uneti u ugovor. To je oduzimalo mnogo vremena, stvaralo veliki administrativni teret i povećavalo rizik da se potencijalni izlagači izgube zbog sporog i komplikovanog procesa prijave.',
+        solution: 'Sajt za online prijave, administracija za vlasnicu i automatizacije koje same obrađuju prijave i pripremaju ugovore.',
         whatBuilt: [
-          'Stranica događaja sa online prijavom',
-          'Automatske potvrde i podsetnici',
-          'Pregled gostiju i uplata za organizatora',
-          'Izvoz spiskova za ulaz'
+          'Sajt sa online prijavom',
+          'Administraciju za vlasnicu',
+          'Automatsko prihvatanje i odbijanje prijava',
+          'Automatsko popunjavanje ugovora'
         ],
         results: [
           ['−70%', 'vremena na administraciju'],
@@ -40,20 +40,19 @@ export const RADOVI_DATA = {
       title: 'Ti si ovde',
       url: 'https://tisiovde.com/',
       small: {
-        problem: 'Lokalna mesta nisu imala jednostavan način da ih ljudi pronađu i vide šta nude, baš kada su u blizini.',
-        solution: 'Digitalni sistem koji povezuje lokacije, ponudu i korisnike, sa mapom i profilima koje vlasnici sami uređuju.'
+        problem: 'Ti Si Ovde je prostor sa atmosferom, a klasičan sajt i papirne kartice za pečate to nisu mogli da prenesu. Gost bi popio kafu i otišao, bez veze sa mestom.',
+        solution: 'Unikatan sajt u duhu prostora, loyalty web aplikacija koja nagrađuje goste koji se vraćaju i softver koji poruke gostiju pretvara u deo lokala.'
       },
       modal: {
         tag: 'Digitalni sistem',
         title: 'Ti si ovde',
-        lead: 'Platforma koja mapira ponudu u okolini korisnika i omogućava lokalnim biznisima da budu vidljivi bez skupog marketinga.',
-        problem: 'Ljudi u prolazu nisu imali brz način da vide šta se nalazi oko njih, a mala lokalna mesta nisu imala gde da se jednostavno predstave.',
-        solution: 'Sistem sa mapom i profilima lokacija. Vlasnici sami uređuju ponudu, a korisnik na jednom ekranu vidi šta je u blizini i kako da stigne.',
+        lead: 'Sistem za koncept kafe bar koji gosta čini delom prostora.',
+        problem: 'Ti Si Ovde je prostor sa atmosferom, a klasičan sajt i papirne kartice za pečate to nisu mogli da prenesu. Gost bi popio kafu i otišao, bez veze sa mestom.',
+        solution: 'Unikatan sajt u duhu prostora, loyalty web aplikacija koja nagrađuje goste koji se vraćaju i softver koji poruke gostiju pretvara u deo lokala.',
         whatBuilt: [
-          'Mapa sa lokacijama u blizini',
-          'Profili mesta koje vlasnici sami uređuju',
-          'Pretraga i filteri po kategorijama',
-          'Prilagođeno telefonu'
+          'Unikatan sajt',
+          'Loyalty web aplikaciju',
+          'Softver za stikere i poruke gostiju'
         ],
         results: [
           ['+120', 'lokacija u sistemu'],
@@ -72,20 +71,20 @@ export const RADOVI_DATA = {
       title: 'Mango Event',
       url: 'https://mangoevent.rs/',
       small: {
-        problem: 'Organizers managed registrations, payments, and guest lists manually via chat messages and spreadsheets, leading to data errors.',
-        solution: 'A unified event system: online registration, instant automated confirmation, and full guest overview in one place.'
+        problem: 'Exhibitor applications arrived via messages, email, and phone calls, each needing manual processing and entering into contracts. This took up excessive time, created a heavy administrative burden, and increased the risk of losing potential exhibitors due to a slow and complicated registration process.',
+        solution: 'A website for online applications, admin panel for the owner, and automations that process applications and prepare contracts automatically.'
       },
       modal: {
         tag: 'Event System',
         title: 'Mango Event',
-        lead: 'A ticket-sales and event management system automating the full lifecycle from first registration to door check-in.',
-        problem: 'Registrations, invoices, and attendee lists were handled manually through calls and scattered sheets. Every event cost days of admin overhead, with guest errors discovered only at the door.',
-        solution: 'We engineered a system where guests register online and get instant passes, while the organizer tracks live payments, attendees, and remaining seats anytime.',
+        lead: 'System for bazaar applications, from exhibitor registration to ready-to-sign contracts.',
+        problem: 'Exhibitor applications arrived via messages, email, and phone calls, each needing manual processing and entering into contracts. This took up excessive time, created a heavy administrative burden, and increased the risk of losing potential exhibitors due to a slow and complicated registration process.',
+        solution: 'A website for online applications, admin panel for the owner, and automations that process applications and prepare contracts automatically.',
         whatBuilt: [
-          'High-converting event pages with online registration',
-          'Automated email/SMS confirmations & reminders',
-          'Real-time organizer portal with payments & live check-in',
-          'One-click guest list export for gate scanners'
+          'Website with online registration',
+          'Admin panel for the owner',
+          'Automated application approval & rejection',
+          'Automated contract generation'
         ],
         results: [
           ['−70%', 'admin time spent'],
@@ -101,20 +100,19 @@ export const RADOVI_DATA = {
       title: 'Ti si ovde',
       url: 'https://tisiovde.com/',
       small: {
-        problem: 'Local shops and venues had no straightforward way for nearby pedestrians to discover them and explore live offerings.',
-        solution: 'A digital ecosystem connecting venues and users through an interactive proximity map and self-managed profiles.'
+        problem: 'Ti Si Ovde is a space rich in atmosphere, which standard websites and paper stamp cards failed to convey. Guests would drink coffee and leave without connecting to the venue.',
+        solution: 'A bespoke website embodying the space’s soul, a loyalty web app rewarding returning guests, and software that turns guest messages into part of the interior.'
       },
       modal: {
         tag: 'Digital Platform',
         title: 'Ti si ovde',
-        lead: 'A local discovery platform mapping venues in the user’s immediate surroundings, enabling neighborhood businesses to gain visibility.',
-        problem: 'Passersby lacked an immediate tool to see what artisan spots were around them, and small local businesses could not afford high-cost ad campaigns.',
-        solution: 'A fast geolocation map and venue portal. Owners customize menus and hours, while customers see nearby venues and directions on a single screen.',
+        lead: 'System for a concept coffee bar that makes guests part of the space.',
+        problem: 'Ti Si Ovde is a space rich in atmosphere, which standard websites and paper stamp cards failed to convey. Guests would drink coffee and leave without connecting to the venue.',
+        solution: 'A bespoke website embodying the space’s soul, a loyalty web app rewarding returning guests, and software that turns guest messages into part of the interior.',
         whatBuilt: [
-          'Interactive map with real-time location radius',
-          'Self-managed owner venue profiles and menus',
-          'Category filters & lightning-fast search',
-          'Optimized for mobile-first touch navigation'
+          'Bespoke custom website',
+          'Loyalty web application',
+          'Guest stickers & messaging software'
         ],
         results: [
           ['+120', 'live venues onboarded'],

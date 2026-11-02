@@ -27,7 +27,6 @@
   position: sticky;
   top: 0;
   height: 100vh;
-  height: 100svh;
   height: 100dvh;
   overflow: hidden;
   border-radius: 0;
@@ -231,7 +230,7 @@
     border-top: none;
   }
   #kako-razmisljamo .kr-head {
-    top: clamp(88px, 11vh, 98px);
+    top: 68px;
     gap: 6px;
   }
   #kako-razmisljamo .kr-dots {
@@ -262,7 +261,7 @@
 
 @media (max-width: 400px) {
   #kako-razmisljamo .kr-head {
-    top: clamp(88px, 11vh, 98px);
+    top: 68px;
     gap: 4px;
   }
   #kako-razmisljamo h2 {

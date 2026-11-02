@@ -54,8 +54,8 @@ export function initHeroOnama() {
     const mob = W < 760, stepS = STEP;
     off.width = W; off.height = H;
     ox.clearRect(0, 0, W, H);
-    const kh = H * (mob ? 0.52 : 0.60), s = kh / 256;
-    const ox0 = W / 2 - 150 * s, oy0 = H * (mob ? 0.40 : 0.42) - 152 * s;
+    const kh = H * (mob ? 0.48 : 0.60), s = kh / 256;
+    const ox0 = W / 2 - 150 * s, oy0 = H * (mob ? 0.35 : 0.42) - 152 * s;
     ox.setTransform(s, 0, 0, s, ox0, oy0);
     ox.fillStyle = '#fff';
     ox.beginPath();
@@ -390,12 +390,12 @@ export function initHeroOnama() {
   }, { passive: true });
 
   /* Global Timeline:
-     0.00–0.16  video laptop scrub (laptop magnifies to screen)
-     0.14–0.24  dots burst out of laptop screen → BULEVAR.IT
-     0.24–0.78  O nama 4 figures (BULEVAR.IT, 18, 25+, Ključ)
+     0.00–0.15  video laptop scrub (laptop opens & magnifies to screen)
+     0.15–0.28  dots burst out of screen → BULEVAR.IT ("Studio iz Novog Sada.")
+     0.28–0.78  O nama 4 figures (BULEVAR.IT, 18, 25+, Ključ)
      0.78–1.00  Ključ dots dissolve outwards and assemble into Ideje arc
   */
-  const V1 = 0.16, LA = 0.14, O0 = 0.24, O1 = 0.78;
+  const V1 = 0.15, LA = 0.15, O0 = 0.28, O1 = 0.78;
   const SEG = [[0, 0.16], [0.26, 0.44], [0.54, 0.72], [0.82, 1.00]];
   let cur = -1;
 
@@ -410,60 +410,74 @@ export function initHeroOnama() {
     return { a: 3, b: 3, t: 0 };
   }
 
-  /* Video Scrubbing (Desktop 16:9 vs Mobile 9:16) */
+  /* Video Scrubbing (Desktop 16:9 vs Mobile 9:16) via in-memory Blob for instant seek */
   let vReady = false, vT = 0, targetTime = 0.001;
-
-  function renderFirstFrame() {
-    vReady = true;
-    if (HV.duration) {
-      if (HV.currentTime < 0.001) {
-        HV.currentTime = 0.001;
-      }
-      const p = HV.play();
-      if (p && p.then) {
-        p.then(() => {
-          HV.pause();
-          if (vT === 0) HV.currentTime = 0.001;
-        }).catch(() => {});
-      }
-    }
-  }
-
-  HV.addEventListener('loadedmetadata', renderFirstFrame);
-  HV.addEventListener('loadeddata', renderFirstFrame);
-  HV.addEventListener('canplay', renderFirstFrame);
-  if (HV.readyState >= 2) {
-    renderFirstFrame();
-  }
 
   function pickVideo() {
     const isMobileAspect = window.innerWidth / window.innerHeight < 0.8;
     const wantSrc = isMobileAspect ? '/hero-9x16.mp4' : '/hero-16x9.mp4';
-    const current = HV.currentSrc || HV.src || '';
-    if (!current.includes(wantSrc.replace('/', ''))) {
-      HV.src = wantSrc;
-      HV.load();
-      renderFirstFrame();
+    if (HV.dataset.pickedSrc === wantSrc) return;
+    HV.dataset.pickedSrc = wantSrc;
+    vReady = false;
+
+    fetch(wantSrc)
+      .then((r) => {
+        if (!r.ok) throw new Error('Blob fetch failed');
+        return r.blob();
+      })
+      .then((blob) => {
+        if (HV.dataset.pickedSrc !== wantSrc) return;
+        if (HV._blobUrl) URL.revokeObjectURL(HV._blobUrl);
+        HV._blobUrl = URL.createObjectURL(blob);
+        HV.src = HV._blobUrl;
+        HV.load();
+      })
+      .catch(() => {
+        HV.src = wantSrc;
+        HV.load();
+      });
+  }
+
+  function onVideoReady() {
+    vReady = true;
+    if (HV.duration) {
+      const tt = Math.max(0.001, Math.min(HV.duration - 0.04, vT * HV.duration));
+      HV.currentTime = tt;
     }
+  }
+
+  HV.addEventListener('loadeddata', onVideoReady);
+  HV.addEventListener('canplay', onVideoReady);
+  if (HV.readyState >= 2) {
+    onVideoReady();
   }
 
   function videoScrub(G) {
     const tgt = cl(G / V1);
-    vT += (tgt - vT) * (reduce ? 1 : 0.22);
+    vT += (tgt - vT) * (reduce ? 1 : 0.35);
     if (Math.abs(tgt - vT) < 0.0005) vT = tgt;
-    if (HV.duration) {
-      vReady = true;
+    if (vReady && HV.duration) {
       const tt = Math.max(0.001, Math.min(HV.duration - 0.04, vT * HV.duration));
       targetTime = tt;
-      if (!HV.seeking && Math.abs(HV.currentTime - tt) > 0.01) {
+      if (!HV.seeking && Math.abs(HV.currentTime - tt) > 0.015) {
         HV.currentTime = tt;
       }
     }
-    HV.style.visibility = G < V1 + 0.03 ? 'visible' : 'hidden';
+    // Video is only visible while laptop opens/zooms (0 to V1)
+    if (G < V1) {
+      HV.style.visibility = 'visible';
+      HV.style.opacity = '1';
+    } else if (G < V1 + 0.02) {
+      HV.style.visibility = 'visible';
+      HV.style.opacity = String(Math.max(0, 1 - (G - V1) / 0.02));
+    } else {
+      HV.style.visibility = 'hidden';
+      HV.style.opacity = '0';
+    }
   }
 
   HV.addEventListener('seeked', () => {
-    if (HV.duration && Math.abs(HV.currentTime - targetTime) > 0.02) {
+    if (vReady && HV.duration && Math.abs(HV.currentTime - targetTime) > 0.02) {
       HV.currentTime = targetTime;
     }
   });
@@ -505,10 +519,14 @@ export function initHeroOnama() {
     /* ---- FAZA A: video + izlet tačaka u BULEVAR.IT ---- */
     if (G < O0) {
       x.clearRect(0, 0, W, H);
-      const e0 = reduce ? 1 : cl((G - LA) / (O0 - 0.02 - LA));
-      if (cap) cap.style.opacity = G <= LA ? '0' : sm(LA + 0.03, O0, G).toFixed(3);
-      if (G > LA) {
-        if (cur !== 0 && e0 > 0.75) {
+      if (G < LA) {
+        // Hero laptop is still opening/magnifying; no dots, no captions
+        if (cap) cap.style.opacity = '0';
+      } else {
+        // Laptop screen fully magnified; dots burst out from center
+        const e0 = reduce ? 1 : cl((G - LA) / (O0 - 0.02 - LA));
+        if (cap) cap.style.opacity = sm(LA + 0.02, O0 - 0.02, G).toFixed(3);
+        if (cur !== 0 && e0 > 0.6) {
           cur = 0;
           if (ci) ci.textContent = '01';
           say('h', F[0].h, 80);
@@ -706,7 +724,10 @@ export function initHeroOnama() {
   videoScrub(0);
   requestAnimationFrame(frame);
 
+  let lastHeroWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
   window.addEventListener('resize', () => {
+    if (window.innerWidth === lastHeroWidth) return;
+    lastHeroWidth = window.innerWidth;
     pickVideo();
     build();
   }, { passive: true });

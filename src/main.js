@@ -45,7 +45,10 @@ ScrollTrigger.config({
 const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
 
 // ─── Lenis smooth scroll ───
-// Native touch scrolling on mobile (syncTouch: false) prevents black void freezing and jitter
+// syncTouch enables butter-smooth, controlled touch scrolling on mobile.
+// touchMultiplier: 1.25 gives responsive and comfortable finger scroll travel without feeling stiff.
+// touchInertiaExponent: 1.5 allows natural momentum without abrupt braking.
+// autoResize: true automatically monitors document resize so scroll limits never truncate content.
 const lenis = new Lenis({
   duration: 1.15,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -53,25 +56,41 @@ const lenis = new Lenis({
   gestureOrientation: 'vertical',
   smoothWheel: true,
   wheelMultiplier: 1,
-  syncTouch: false,
+  syncTouch: true,
+  syncTouchLerp: 0.085,
+  touchInertiaExponent: 1.5,
+  touchMultiplier: 1.25,
   autoResize: true
 });
 
 lenis.resize();
 
+let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
 let resizeDebounce;
 window.addEventListener('resize', () => {
   clearTimeout(resizeDebounce);
   resizeDebounce = setTimeout(() => {
     lenis.resize();
-    ScrollTrigger.refresh();
+    if (window.innerWidth !== lastWidth) {
+      lastWidth = window.innerWidth;
+      ScrollTrigger.refresh();
+    }
   }, 200);
 }, { passive: true });
+
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    lastWidth = window.innerWidth;
+    lenis.resize();
+    ScrollTrigger.refresh();
+  }, 300);
+});
 
 // Connect Lenis to GSAP ScrollTrigger
 window.lenis = lenis;
 window.ScrollTrigger = ScrollTrigger;
 lenis.on('scroll', ScrollTrigger.update);
+ScrollTrigger.addEventListener('refresh', () => lenis.resize());
 
 gsap.ticker.add((time) => {
   lenis.raf(time * 1000);

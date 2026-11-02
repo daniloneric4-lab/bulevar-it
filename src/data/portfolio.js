@@ -13,14 +13,14 @@ export const projects = [
   {
     name: 'Mango Event System',
     category: 'webapp',
-    description: 'Kompletan digitalni sistem za festivale i sajmove: sajt i automatizacija odobrenja, uputstava i ugovora za izlagače.',
+    description: 'Sistem za prijave na bazare, od prijave izlagača do ugovora spremnog za potpis.',
     thumbnail: '/projects/03-mango-event.png',
     link: 'https://mangoevent.rs/',
   },
   {
     name: 'Ti Si Ovde System',
     category: 'webapp',
-    description: 'Povezan digitalni sistem za mentalno blagostanje: edukativna platforma i loyalty sistem nagrađivanja klijenata.',
+    description: 'Sistem za koncept kafe bar koji gosta čini delom prostora.',
     thumbnail: '/projects/06-ti-si-ovde.png',
     link: 'https://tisiovde.com/',
   },

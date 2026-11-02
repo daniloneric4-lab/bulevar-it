@@ -87,8 +87,8 @@ export function initIdeje() {
   function buildUslugeSymbols() {
     const mob = W < 900;
     const cx = W * 0.50; // Centered horizontally
-    const cy = mob ? H * 0.35 : H * 0.35; // Cleanly centered between top header and bottom blocks
-    const sc = mob ? 0.82 : 1.60;
+    const cy = mob ? H * 0.28 : H * 0.35; // Positioned cleanly above cards on mobile
+    const sc = mob ? 0.70 : 1.60;
 
     const ORANGE = [238, 126, 34];
     const GOLD = [245, 178, 75];
@@ -287,14 +287,16 @@ export function initIdeje() {
       first: i === 0
     }));
 
-    /* word IDEJA in dot font at half grid spacing, positioned ABOVE the towers */
+    /* word IDEJA / IDEA in dot font at half grid spacing, positioned ABOVE the towers */
     wordPts = [];
     const hs = S * (mob ? 0.44 : 0.50);
-    const totalW = 19 * hs;
+    const word = getLang() === 'en' ? 'IDEA' : 'IDEJA';
+    const totalW = (word.length * 4 - 1) * hs;
     const wx0 = cityCol * S + S / 2 - totalW / 2;
     const wy0 = (roadRow - tallest - (mob ? 3.4 : 4.2)) * S;
 
-    'IDEJA'.split('').forEach((ch, li) => {
+    word.split('').forEach((ch, li) => {
+      if (!FONT[ch]) return;
       FONT[ch].forEach((line, ry) => {
         for (let cx = 0; cx < 3; cx++) {
           if (line[cx] === '#') {
@@ -649,6 +651,10 @@ export function initIdeje() {
   window.addEventListener('mouseleave', () => {
     mousePos.active = false;
   }, { passive: true });
+
+  window.addEventListener('bulevar:langchange', () => {
+    build();
+  });
 
   function frame(now) {
     const DATA = getData();
@@ -1057,7 +1063,12 @@ export function initIdeje() {
     requestAnimationFrame(frame);
   }
 
-  window.addEventListener('resize', build, { passive: true });
+  let lastIdejeWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastIdejeWidth) return;
+    lastIdejeWidth = window.innerWidth;
+    build();
+  }, { passive: true });
   build();
   requestAnimationFrame(frame);
 }

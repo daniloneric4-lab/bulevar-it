@@ -18,6 +18,7 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { getLang } from './i18n.js';
 
 export function initOwnJourney() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -77,8 +78,13 @@ export function initOwnJourney() {
     const notInPortfolio = b.right > window.innerWidth * 0.4;
     ojsw.classList.toggle('show', inVert && notInPortfolio);
   }
+  let lastOjWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
   window.addEventListener('scroll', swVis, { passive: true });
-  window.addEventListener('resize', swVis);
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastOjWidth) return;
+    lastOjWidth = window.innerWidth;
+    swVis();
+  }, { passive: true });
   window.__updateOjswVis = swVis;
   swVis();
 
@@ -417,29 +423,65 @@ export function initOwnJourney() {
 
   function updateDecodeText() {}
 
-  const INTRO_F = [
+  const INTRO_F_SR = [
     ['U aplikaciji ste jedan od stotinu istih lokala.', 'Ista slika, isto dugme, ista slova. Gost lista, poredi vreme dostave i cenu, i ide dalje.'],
     ['I svaka porudžbina nosi procenat.', 'Wolt i Glovo uzimaju deo od svake porudžbine. Za izgled koji je isti kao kod lokala do vas.'],
     ['A šta ako gost uđe u vaš lokal?', 'Ne u još jednu karticu u aplikaciji, nego u mesto koje oseti pre prvog zalogaja.']
   ];
-  const CH_F = [
+  const INTRO_F_EN = [
+    ['On the app, you’re one of a hundred identical spots.', 'Same photo, same button, same font. Customers scroll, compare delivery time and price, and move on.'],
+    ['And every order takes a cut.', 'Delivery apps take a slice from every single order. For a listing that looks identical to the spot next door.'],
+    ['What if guests walked into your own venue?', 'Not just another card in an app, but a place they experience before taking the first bite.']
+  ];
+
+  const CH_F_SR = [
     ['01 · Ulica', 'Miris sa ugla.', 'Gost već na sajtu oseti lokal: ulicu, toplu peć i ono po čemu ste poznati.'],
     ['02 · Meni', 'Jela sa pričom.', 'Ne lista sa sličicom, nego testo koje odmara 48 sati, peć na drva i pica meseca.'],
     ['03 · Izbor', 'Kombinacije koje vi slažete.', 'Vi odlučujete šta ide uz šta: piće, fokača, desert. Ono za šta aplikacija nema mesta.'],
     ['04 · Veče', 'Porudžbina bez posrednika.', 'Gost poručuje direktno kod vas: dostava, preuzimanje ili sto za večeras. Bez procenta aplikacije, a kontakt ostaje vama.']
   ];
+  const CH_F_EN = [
+    ['01 · Street', 'Aroma from the corner.', 'Guests feel your vibe right on your website: the street, wood-fired oven, and your signature specials.'],
+    ['02 · Menu', 'Dishes with a story.', 'Not a plain list with tiny thumbnails, but 48-hour fermented dough, a wood-fired oven, and pizza of the month.'],
+    ['03 · Pairings', 'Curated combinations.', 'You decide what pairs together: drinks, focaccia, dessert. The extras delivery apps have no room for.'],
+    ['04 · Evening', 'Orders without middlemen.', 'Guests order directly with you: delivery, takeaway, or booking tonight’s table. Zero app fees, and customer data stays yours.']
+  ];
 
-  const INTRO_S = [
+  const INTRO_S_SR = [
     ['Na platformi ste jedan od hiljadu istih oglasa.', 'Ista slika, isto dugme, ista slova. Gost lista, poredi cenu i zvezdice, i ide dalje.'],
     ['I svaka rezervacija nosi procenat.', 'Booking obično uzima oko 15%, Airbnb do 15,5%. Za izgled koji je isti kao kod komšije.'],
     ['A šta ako gost uđe u vaš svet?', 'Ne u još jedan oglas, nego na mesto koje počinje pre nego što stigne.']
   ];
-  const CH_S = [
+  const INTRO_S_EN = [
+    ['On aggregators, you’re one of a thousand identical listings.', 'Same photo, same button, same font. Guests scroll, compare price and stars, and move on.'],
+    ['And every reservation takes a fee.', 'Booking takes around 15%, Airbnb up to 15.5%. For a listing that looks identical to your neighbor’s.'],
+    ['What if guests entered your world?', 'Not just another listing, but a getaway that begins long before arrival.']
+  ];
+
+  const CH_S_SR = [
     ['01 · Dolazak', 'Put kroz vinograde.', 'Gost već na sajtu oseti put: brda, tišinu, prvi pogled na kuću.'],
     ['02 · Jutro', 'Kafa na terasi.', 'Ne „terasa: da“ u listi pogodnosti, nego kako izgleda prvo jutro.'],
     ['03 · Popodne', 'Fruška gora je vaša.', 'Vaše preporuke: vinarije, staze, gde se jede. Ono za šta platforma nema mesta.'],
     ['04 · Veče', 'Rezervacija bez posrednika.', 'Gost bira termin i rezerviše direktno kod vas. Bez procenta platforme, a kontakt ostaje vama.']
   ];
+  const CH_S_EN = [
+    ['01 · Arrival', 'Road through vineyards.', 'Guests feel the journey right on your site: the hills, stillness, and that first view of the villa.'],
+    ['02 · Morning', 'Coffee on the terrace.', 'Not just “terrace: yes” on an amenities checklist, but how that very first morning feels.'],
+    ['03 · Afternoon', 'The countryside is yours.', 'Your handpicked guide: local wineries, trails, best dining spots. Experiences platforms leave out.'],
+    ['04 · Evening', 'Direct booking without fees.', 'Guests pick dates and reserve directly on your site. Zero platform commission, and guest loyalty stays yours.']
+  ];
+
+  function getIntro(mode) {
+    const isEn = getLang() === 'en';
+    if (mode === 'food') return isEn ? INTRO_F_EN : INTRO_F_SR;
+    return isEn ? INTRO_S_EN : INTRO_S_SR;
+  }
+
+  function getChapters(mode) {
+    const isEn = getLang() === 'en';
+    if (mode === 'food') return isEn ? CH_F_EN : CH_F_SR;
+    return isEn ? CH_S_EN : CH_S_SR;
+  }
 
   const dots = document.querySelectorAll('.chap .dots i');
   const book = $('oj-book');
@@ -630,23 +672,24 @@ export function initOwnJourney() {
       x.arc(SW - 86, y + 48, 16, 0, 6.283);
       x.stroke();
 
+      const isEn = getLang() === 'en';
       x.fillStyle = '#3a3f4a';
       x.font = '700 26px ' + F;
-      x.fillText('Apartman sa terasom', 54, y + 222);
+      x.fillText(isEn ? 'Terrace Apartment' : 'Apartman sa terasom', 54, y + 222);
 
       x.fillStyle = '#7a808c';
       x.font = '21px ' + F;
-      x.fillText('★ 4,8 (' + REVS[k] + ') · 2,1 km od centra', 54, y + 254);
+      x.fillText((isEn ? '★ 4.8 (' : '★ 4,8 (') + REVS[k] + (isEn ? ') · 2.1 km from center' : ') · 2,1 km od centra'), 54, y + 254);
 
       x.fillStyle = '#3a3f4a';
       x.font = '700 24px ' + F;
-      const pt = PRICES[k] + ' € / noć';
+      const pt = PRICES[k] + (isEn ? ' € / night' : ' € / noć');
       x.fillText(pt, 54, y + 290);
 
       if (tag) {
         const tw = x.measureText(pt).width;
         x.font = '700 18px ' + F;
-        const lab = '−15% platformi';
+        const lab = isEn ? '−15% to platform' : '−15% platformi';
         const lw = x.measureText(lab).width + 20;
         rrc(x, 64 + tw, y + 268, lw, 30, 15);
         x.fillStyle = '#E8963A';
@@ -666,7 +709,7 @@ export function initOwnJourney() {
         x.lineWidth = 7;
         x.stroke();
         x.font = '700 19px "IBM Plex Mono", monospace';
-        const ml = 'VAŠ SMEŠTAJ';
+        const ml = isEn ? 'YOUR ACCOMMODATION' : 'VAŠ SMEŠTAJ';
         const mw = x.measureText(ml).width + 22;
         rrc(x, 56, y - 16, mw, 32, 8);
         x.fillStyle = '#D9B25F';
@@ -700,12 +743,13 @@ export function initOwnJourney() {
     x.lineWidth = 2;
     x.stroke();
 
+    const isEnStay = getLang() === 'en';
     x.fillStyle = '#7a808c';
     x.font = '22px ' + F;
-    x.fillText('⌕  Fruška gora · 2 gosta · vikend', 62, 146);
+    x.fillText(isEnStay ? '⌕  Countryside · 2 guests · weekend' : '⌕  Fruška gora · 2 gosta · vikend', 62, 146);
 
     let cx = 36;
-    ['Cena ▾', 'Ocena ▾', 'Filteri'].forEach((c) => {
+    (isEnStay ? ['Price ▾', 'Rating ▾', 'Filters'] : ['Cena ▾', 'Ocena ▾', 'Filteri']).forEach((c) => {
       x.font = '20px ' + F;
       const w = x.measureText(c).width + 34;
       rrc(x, cx, 190, w, 44, 22);
@@ -720,7 +764,7 @@ export function initOwnJourney() {
     x.fillStyle = '#7a808c';
     x.font = '18px ' + F;
     x.textAlign = 'right';
-    x.fillText('2.417 smeštaja', SW - 40, 219);
+    x.fillText(isEnStay ? '2,417 stays' : '2.417 smeštaja', SW - 40, 219);
     x.textAlign = 'left';
 
     // Bottom tab bar
@@ -776,23 +820,26 @@ export function initOwnJourney() {
       x.arc(SW - 86, y + 48, 16, 0, 6.283);
       x.stroke();
 
+      const isEn = getLang() === 'en';
       x.fillStyle = '#3a3f4a';
       x.font = '700 26px ' + F;
       x.fillText('Pizza & Pasta', 54, y + 222);
 
       x.fillStyle = '#7a808c';
       x.font = '21px ' + F;
-      x.fillText('★ 4,6 (' + REVS[k] + ') · 25–35 min', 54, y + 254);
+      x.fillText((isEn ? '★ 4.6 (' : '★ 4,6 (') + REVS[k] + ') · 25–35 min', 54, y + 254);
 
       x.fillStyle = '#3a3f4a';
       x.font = '700 24px ' + F;
-      const pt = 'Dostava ' + [149, 199, 179, 199, 169, 189, 199, 159, 209, 179, 189, 199][k] + ' din';
+      const pt = isEn
+        ? 'Delivery ' + [149, 199, 179, 199, 169, 189, 199, 159, 209, 179, 189, 199][k] + ' RSD'
+        : 'Dostava ' + [149, 199, 179, 199, 169, 189, 199, 159, 209, 179, 189, 199][k] + ' din';
       x.fillText(pt, 54, y + 290);
 
       if (tag) {
         const tw = x.measureText(pt).width;
         x.font = '700 18px ' + F;
-        const lab = 'deo ide aplikaciji';
+        const lab = isEn ? 'app takes a cut' : 'deo ide aplikaciji';
         const lw = x.measureText(lab).width + 20;
         rrc(x, 64 + tw, y + 268, lw, 30, 15);
         x.fillStyle = '#E8963A';
@@ -812,7 +859,7 @@ export function initOwnJourney() {
         x.lineWidth = 7;
         x.stroke();
         x.font = '700 19px "IBM Plex Mono", monospace';
-        const ml = 'VAŠ LOKAL';
+        const ml = isEn ? 'YOUR VENUE' : 'VAŠ LOKAL';
         const mw = x.measureText(ml).width + 22;
         rrc(x, 56, y - 16, mw, 32, 8);
         x.fillStyle = '#D9B25F';
@@ -846,12 +893,13 @@ export function initOwnJourney() {
     x.lineWidth = 2;
     x.stroke();
 
+    const isEnFood = getLang() === 'en';
     x.fillStyle = '#7a808c';
     x.font = '22px ' + F;
-    x.fillText('⌕  Novi Sad · dostava na adresu', 62, 146);
+    x.fillText(isEnFood ? '⌕  City Center · delivery to address' : '⌕  Novi Sad · dostava na adresu', 62, 146);
 
     let cx = 36;
-    ['Pica ▾', 'Ocena ▾', 'Filteri'].forEach((c) => {
+    (isEnFood ? ['Pizza ▾', 'Rating ▾', 'Filters'] : ['Pica ▾', 'Ocena ▾', 'Filteri']).forEach((c) => {
       x.font = '20px ' + F;
       const w = x.measureText(c).width + 34;
       rrc(x, cx, 190, w, 44, 22);
@@ -866,7 +914,7 @@ export function initOwnJourney() {
     x.fillStyle = '#7a808c';
     x.font = '18px ' + F;
     x.textAlign = 'right';
-    x.fillText('386 lokala', SW - 40, 219);
+    x.fillText(isEnFood ? '386 venues' : '386 lokala', SW - 40, 219);
     x.textAlign = 'left';
 
     // Bottom tab bar
@@ -883,10 +931,13 @@ export function initOwnJourney() {
 
   let lastFeedP = -1;
   let lastFeedMode = '';
-  function drawFeed(P) {
-    if (Math.abs(P - lastFeedP) < 0.0005 && OJ.mode === lastFeedMode) return;
+  let lastFeedLang = '';
+  function drawFeed(P, force = false) {
+    const curLang = getLang();
+    if (!force && Math.abs(P - lastFeedP) < 0.0005 && OJ.mode === lastFeedMode && curLang === lastFeedLang) return;
     lastFeedP = P;
     lastFeedMode = OJ.mode;
+    lastFeedLang = curLang;
     if (OJ.mode === 'food') drawFeedFood(P);
     else drawFeedStay(P);
   }
@@ -907,12 +958,13 @@ export function initOwnJourney() {
 
     if (narrow) {
       const introIn = $('oj-introIn');
-      const ib = introIn ? introIn.getBoundingClientRect().bottom - r.top + 14 : 180;
-      const avail = Math.max(100, r.height - ib - 14);
+      const introBottom = introIn ? introIn.getBoundingClientRect().bottom - r.top + 8 : 160;
+      const ib = Math.min(220, Math.max(150, introBottom));
+      const avail = Math.max(100, r.height - ib - 12);
       const cy = ib + avail / 2;
       basePosY = -((cy / r.height) * 2 - 1) * hh;
       phone.position.set(0, basePosY, 0.4);
-      const scaleFactor = Math.min(23.0, (avail / 520) * 20.0);
+      const scaleFactor = Math.min(18.5, (avail / 460) * 17.5);
       phone.scale.setScalar(scaleFactor);
     } else {
       basePosY = -0.08;
@@ -921,7 +973,11 @@ export function initOwnJourney() {
     }
   }
 
-  window.addEventListener('resize', layout);
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastOjWidth) return;
+    lastOjWidth = window.innerWidth;
+    layout();
+  }, { passive: true });
 
   let mx = 0, my = 0;
   window.addEventListener('pointermove', (e) => {
@@ -967,7 +1023,7 @@ export function initOwnJourney() {
 
   /* ---------- Main Animation Frame Loop ---------- */
   const portal = $('oj-portal');
-  let iStep = -1, cStep = -1, lastT = -1, ry = Math.PI - 0.3, rx = 0.05;
+  let iStep = -1, cStep = -1, lastT = -1, ry = Math.PI - 0.3, rx = 0.05, lastP = 0;
 
   function frame(now) {
     const r = track.getBoundingClientRect();
@@ -976,8 +1032,9 @@ export function initOwnJourney() {
 
     if (inVisibleZone) {
       const P = cl(-r.top / tot);
-      const IN = OJ.mode === 'food' ? INTRO_F : INTRO_S;
-      const CHX = OJ.mode === 'food' ? CH_F : CH_S;
+      lastP = P;
+      const IN = getIntro(OJ.mode);
+      const CHX = getChapters(OJ.mode);
 
       // Act A: 0 – .26 phone with the platform feed, three intro lines
       // User requirement: "nemoj da krene ova animacija za tekst dok se ne spusti skroz do telefona"
@@ -1103,18 +1160,25 @@ export function initOwnJourney() {
     const city = $('city');
     if (city) city.style.display = f ? '' : 'none';
 
+    const isEn = getLang() === 'en';
     const brandEl = $('ojBrand');
     if (brandEl) {
-      brandEl.innerHTML = f
-        ? 'Picerija Stara peć<small>primer · izmišljen lokal</small>'
-        : 'Kuća pod Fruškom<small>primer · izmišljen smeštaj</small>';
+      if (isEn) {
+        brandEl.innerHTML = f
+          ? 'Old Oven Pizzeria<small>example · artisan pizzeria</small>'
+          : 'House under Fruška<small>example · boutique villa</small>';
+      } else {
+        brandEl.innerHTML = f
+          ? 'Picerija Stara peć<small>primer · izmišljen lokal</small>'
+          : 'Kuća pod Fruškom<small>primer · izmišljen smeštaj</small>';
+      }
     }
 
     if (book) {
       const c = book.querySelectorAll('.chip');
       const L1 = f
-        ? ['19:00 preuzimanje', '19:30 dostava', '20:00 sto za dvoje']
-        : ['Pet 13. – Ned 15.', 'Pet 20. – Ned 22.', 'Pet 27. – Ned 29.'];
+        ? (isEn ? ['19:00 pickup', '19:30 delivery', '20:00 table for two'] : ['19:00 preuzimanje', '19:30 dostava', '20:00 sto za dvoje'])
+        : (isEn ? ['Fri 13 – Sun 15', 'Fri 20 – Sun 22', 'Fri 27 – Sun 29'] : ['Pet 13. – Ned 15.', 'Pet 20. – Ned 22.', 'Pet 27. – Ned 29.']);
       c.forEach((b, i) => {
         if (L1[i]) b.textContent = L1[i];
         b.setAttribute('aria-pressed', i === 1 ? 'true' : 'false');
@@ -1122,7 +1186,13 @@ export function initOwnJourney() {
     }
 
     const goEl = $('oj-go');
-    if (goEl) goEl.textContent = f ? 'Poruči direktno' : 'Rezerviši direktno';
+    if (goEl) {
+      if (isEn) {
+        goEl.textContent = f ? 'Order directly' : 'Book directly';
+      } else {
+        goEl.textContent = f ? 'Poruči direktno' : 'Rezerviši direktno';
+      }
+    }
     const noteEl = $('oj-note');
     if (noteEl) noteEl.textContent = '';
 
@@ -1149,17 +1219,24 @@ export function initOwnJourney() {
 
   function calc() {
     if (!pr || !nt || !pc) return;
+    const isEn = getLang() === 'en';
     const p = +pr.value, n = +nt.value, k = +pc.value;
     const f = (p * n * k) / 100;
     const prO = $('prO'), ntO = $('ntO'), pcO = $('pcO'), fee = $('fee'), feeN = $('feeN');
-    if (prO) prO.textContent = OJ.mode === 'food' ? fmtCalc(p) + ' din' : p + ' €';
+    if (prO) prO.textContent = OJ.mode === 'food' ? fmtCalc(p) + (isEn ? ' RSD' : ' din') : p + ' €';
     if (ntO) ntO.textContent = fmtCalc(n);
     if (pcO) pcO.textContent = String(k).replace('.', ',') + '%';
-    if (fee) fee.textContent = fmtCalc(f) + (OJ.mode === 'food' ? ' din' : ' €');
+    if (fee) fee.textContent = fmtCalc(f) + (OJ.mode === 'food' ? (isEn ? ' RSD' : ' din') : ' €');
     if (feeN) {
-      feeN.textContent = OJ.mode === 'food'
-        ? 'To je kao da ste ' + fmtCalc(Math.round(f / p)) + ' porudžbina godišnje spremili samo za aplikaciju.'
-        : 'To je kao da ste ' + Math.round(f / p) + ' noćenja godišnje odradili samo za platformu.';
+      if (isEn) {
+        feeN.textContent = OJ.mode === 'food'
+          ? 'That is equivalent to preparing ' + fmtCalc(Math.round(f / p)) + ' orders each year just to cover app fees.'
+          : 'That is equivalent to hosting ' + Math.round(f / p) + ' nights each year just to pay platform commissions.';
+      } else {
+        feeN.textContent = OJ.mode === 'food'
+          ? 'To je kao da ste ' + fmtCalc(Math.round(f / p)) + ' porudžbina godišnje spremili samo za aplikaciju.'
+          : 'To je kao da ste ' + Math.round(f / p) + ' noćenja godišnje odradili samo za platformu.';
+      }
     }
   }
 
@@ -1186,7 +1263,7 @@ export function initOwnJourney() {
   calcMode(OJ.mode);
 
   /* ---------- Experience Builder (#exp) ---------- */
-  const EXP_DATA = {
+  const EXP_DATA_SR = {
     stay: {
       h: 'Od jedne rezervacije <em>do celog vikenda.</em>',
       lead: 'Na platformi se kupovina uglavnom završava na sobi. Na vašem sistemu soba može da bude tek početak: gost sam slaže ostatak boravka, a sve plaća na jednom mestu.',
@@ -1259,18 +1336,100 @@ export function initOwnJourney() {
     }
   };
 
-  let M = EXP_DATA[OJ.mode];
+  const EXP_DATA_EN = {
+    stay: {
+      h: 'From a single reservation <em>to an entire weekend.</em>',
+      lead: 'On aggregators, a transaction ends at the room. On your own system, a room is just the starting point: guests curate their stay and pay for everything in one seamless checkout.',
+      bn: 'House under Fruška',
+      bs: 'Fri Jun 20 – Sun Jun 22 · 2 guests',
+      base: 180,
+      unit: '€',
+      q: 'Enhance your stay',
+      ph: 'Your Weekend',
+      empty: 'Currently only accommodation. Add experiences on the left.',
+      full: (n, w) => 'Accommodation and ' + n + ' ' + (n === 1 ? 'add-on' : 'add-ons') + '. All in one reservation.',
+      vl: 'Reservation value',
+      l1: 'Accommodation',
+      l2: 'Add-ons',
+      note: 'Conceptual example. Villa, add-ons, and pricing are illustrative.',
+      groups: ['Friday, June 20', 'Saturday, June 21', 'Sunday, June 22'],
+      baseItems: [[0, '15:00', 'Check-in and welcome'], [2, '11:00', 'Check-out']],
+      adds: [
+        ['Airport transfer', 'Belgrade → villa, private driver', 70, 0, '14:00', 'Airport transfer'],
+        ['Welcome wine', 'Bottle of local vintage in room', 25, 0, '15:00', 'Local wine in room'],
+        ['Private chef', 'Dinner for two at the villa', 120, 0, '20:00', 'Private chef dinner'],
+        ['Breakfast basket', 'Artisan organic local produce', 30, 1, '09:00', 'Breakfast basket on terrace'],
+        ['Wine cellar tour', 'Guided wine tasting tour', 60, 1, '11:00', 'Wine cellar tour'],
+        ['Danube river cruise', 'Private boat at sunset', 90, 1, '18:30', 'Sunset Danube cruise']
+      ],
+      msg: 'Don’t just sell a room. <em>Craft an experience</em> that guests tailor, book, and pay for through your system.',
+      ben: [
+        ['Higher booking value', 'Guests naturally add experiences that complement their stay.'],
+        ['Tailored experience', 'Guests design their dream weekend instead of picking an off-the-shelf room.'],
+        ['Full offer control', 'You decide what to offer, how to present it, and who to partner with.'],
+        ['Direct relationship', 'Build your own guest list and send personalized seasonal offers with their consent.'],
+        ['Room to grow', 'New services, partnerships, and revenue streams plug in as your business scales.']
+      ],
+      other: 'The same applies to <b>restaurants</b>: with an order, pairing wine, dessert, a weekend table, or gift card. Every business can connect its core offer with what clients naturally need next.'
+    },
+    food: {
+      h: 'From a single order <em>to a complete evening.</em>',
+      lead: 'On delivery apps, a sale ends with a single dish. On your own system, an order is just the beginning: guests add drink pairings, book tonight’s table, or buy gift vouchers all in one place.',
+      bn: 'Old Oven Pizzeria',
+      bs: 'Tonight · delivery 19:30 · 2 people',
+      base: 1780,
+      unit: 'RSD',
+      q: 'Add to your order',
+      ph: 'Your Evening',
+      empty: 'Currently only main course. Add items on the left.',
+      full: (n, w) => 'Order and ' + n + ' ' + (n === 1 ? 'extra' : 'extras') + '. All in one checkout.',
+      vl: 'Order total',
+      l1: 'Order',
+      l2: 'Extras',
+      note: 'Conceptual example. Venue, dishes, and pricing are illustrative.',
+      groups: ['Tonight · delivery', 'Saturday, October 24', 'Gift card'],
+      baseItems: [[0, '19:30', '2× wood-fired capricciosa pizza']],
+      adds: [
+        ['Homemade lemonade', 'Two bottles, freshly pressed', 360, 0, '19:30', '2× homemade lemonade'],
+        ['Rosemary focaccia', 'Warm, fresh from wood-fired oven', 350, 0, '19:30', 'Rosemary focaccia'],
+        ['Tiramisu', 'Artisan, crafted for two', 420, 0, '19:30', 'Tiramisu for two'],
+        ['Takeaway wine', 'Regional Tamjanika vintage', 1900, 0, '19:30', 'Bottle of Tamjanika'],
+        ['Table for Saturday', 'For two, by the oven', 0, 1, '20:00', 'Table for two, by oven'],
+        ['Gift voucher', 'Dinner for two', 4000, 2, '—', 'Dinner gift voucher']
+      ],
+      msg: 'Don’t just deliver food. <em>Create an experience</em> that diners personalize, order, and pay for directly through your system.',
+      ben: [
+        ['Higher average ticket', 'Diners naturally add beverages and sides curated for the meal.'],
+        ['Bespoke dining', 'Guests tailor their dinner instead of picking from a uniform platform list.'],
+        ['Offer control', 'You decide what to highlight, how to present it, and retain 100% of the margins.'],
+        ['Direct customer retention', 'Own your diner database and announce seasonal menus directly.'],
+        ['Growth opportunities', 'Catering, vouchers, event bookings, and collaborations expand as you grow.']
+      ],
+      other: 'The same applies to <b>hospitality</b>: with a room, transfers, a private chef dinner, or wine tasting tour. Every business can connect its core service with what clients naturally need next.'
+    }
+  };
+
+  function getExpData() {
+    return getLang() === 'en' ? EXP_DATA_EN : EXP_DATA_SR;
+  }
+
+  let M = getExpData()[OJ.mode];
   let on = [];
   let shown = 0;
   let lastNew = -1;
   const addsEl = $('adds');
 
   function fmtExp(n) {
-    return M.unit === 'din'
-      ? String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' din'
-      : Math.round(n) + ' €';
+    const isEn = getLang() === 'en';
+    if (M.unit === 'din' || M.unit === 'RSD') {
+      return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (isEn ? ' RSD' : ' din');
+    }
+    return Math.round(n) + ' €';
   }
   function words(n) {
+    if (getLang() === 'en') {
+      return n === 1 ? 'extra' : 'extras';
+    }
     return n === 1 ? 'dodatak' : n < 5 ? 'dodatka' : 'dodataka';
   }
 
@@ -1339,7 +1498,7 @@ export function initOwnJourney() {
   }
 
   function buildExp(mode) {
-    M = EXP_DATA[mode];
+    M = getExpData()[mode];
     on = [];
     lastNew = -1;
     shown = M.base;
@@ -1371,7 +1530,7 @@ export function initOwnJourney() {
         b.style.setProperty('--i', i);
         b.setAttribute('aria-pressed', 'false');
         b.innerHTML = '<i aria-hidden="true">✓</i><div><b id="x-add-b-' + i + '">' + a[0] + '</b><small>' + a[1] + '</small></div><em>' +
-          (a[2] ? '+' + fmtExp(a[2]) : 'rezerviši') + '</em>';
+          (a[2] ? '+' + fmtExp(a[2]) : (getLang() === 'en' ? 'reserve' : 'rezerviši')) + '</em>';
         b.addEventListener('click', () => {
           on[i] = !on[i];
           b.classList.toggle('on', on[i]);
@@ -1471,4 +1630,20 @@ export function initOwnJourney() {
   }
 
   setTimeout(initDropAnimations, 200);
+
+  window.addEventListener('bulevar:langchange', () => {
+    applyScene(OJ.mode);
+    calcMode(OJ.mode);
+    buildExp(OJ.mode);
+    decodeExpText();
+    drawFeed(lastP >= 0 ? lastP : 0, true);
+
+    const h1El = $('oj-h1'), ipEl = $('oj-ip');
+    if (h1El) h1El._renderedText = null;
+    if (ipEl) ipEl._renderedText = null;
+    const cnEl = $('oj-cn'), chEl = $('oj-ch'), cpEl = $('oj-cp');
+    if (cnEl) cnEl._renderedText = null;
+    if (chEl) chEl._renderedText = null;
+    if (cpEl) cpEl._renderedText = null;
+  });
 }

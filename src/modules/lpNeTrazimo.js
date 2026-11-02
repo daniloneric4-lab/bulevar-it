@@ -817,21 +817,22 @@ export function initLpNeTrazimo() {
 
       const sway = reduce ? 0 : Math.sin(sp * Math.PI * 7) * 0.06;
       const isMob = window.innerWidth <= 900;
+      const lapX = isMob ? 0 : 0.12;
       const lap = laptopCtrl.laptop;
       lap.rotation.y = -0.4 + 0.36 * open + sway * open;
       lap.rotation.x = 0.05;
       lap.position.y = (isMob ? -0.28 : -0.20) + (reduce ? 0 : Math.sin(now / 1600) * 0.025);
-      lap.position.x = isMob ? 0 : 0.22;
+      lap.position.x = lapX;
 
       const vFov = (laptopCtrl.camera.fov * Math.PI) / 180;
       const hFov = 2 * Math.atan(Math.tan(vFov / 2) * laptopCtrl.camera.aspect);
       const fitW = isMob ? 5.2 : 5.1;
-      const fitH = isMob ? 4.2 : 4.2;
+      const fitH = isMob ? 4.2 : 4.1;
       const distH = (fitH / 2) / Math.tan(vFov / 2);
       const distW = (fitW / 2) / Math.tan(hFov / 2);
       const baseZ = Math.max(distH, distW);
-      laptopCtrl.camera.position.set(0, 1.15, baseZ);
-      laptopCtrl.camera.lookAt(isMob ? 0 : 0.22, 0.52, 0);
+      laptopCtrl.camera.position.set(lapX, 1.15, baseZ);
+      laptopCtrl.camera.lookAt(lapX, 0.50, 0);
 
       laptopCtrl.renderer.render(laptopCtrl.scene, laptopCtrl.camera);
     }

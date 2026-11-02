@@ -20,30 +20,36 @@ export function createLandingLaptop({
   let currentLidAngle = initialLidAngle;
 
   const R3 = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-  R3.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
+  R3.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   host.appendChild(R3.domElement);
   R3.outputColorSpace = THREE.SRGBColorSpace;
 
   const S = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(fov, 1, 0.1, 100);
 
-  S.add(new THREE.AmbientLight(0xffffff, 0.55));
-  const dl = new THREE.DirectionalLight(0xffffff, 0.85);
-  dl.position.set(3, 6, 5);
+  // Studio lighting for rich metal, chassis highlights & key illumination
+  S.add(new THREE.AmbientLight(0x8090c0, 0.65));
+  const dl = new THREE.DirectionalLight(0xffffff, 0.95);
+  dl.position.set(2, 5, 4);
   S.add(dl);
-  const rim = new THREE.PointLight(0xD9B25F, 1.1, 14);
-  rim.position.set(-3, 2, -2);
+  const rim = new THREE.PointLight(0xD9B25F, 1.3, 12);
+  rim.position.set(-2.4, 1.6, -1.8);
   S.add(rim);
+  const rim2 = new THREE.PointLight(0xE8963A, 0.75, 9);
+  rim2.position.set(2.4, 0.6, 1.8);
+  S.add(rim2);
+  const frontFill = new THREE.PointLight(0xffffff, 0.45, 10);
+  frontFill.position.set(0, 1.8, 3.8);
+  S.add(frontFill);
 
   const lap = new THREE.Group();
   S.add(lap);
 
-  // Canvas texture with high-fidelity filtering
+  // Canvas texture: linear filtering without heavy mipmap recomputation every frame
   const tex = new THREE.CanvasTexture(canvas);
-  tex.generateMipmaps = true;
-  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.generateMipmaps = false;
+  tex.minFilter = THREE.LinearFilter;
   tex.magFilter = THREE.LinearFilter;
-  tex.anisotropy = R3.capabilities.getMaxAnisotropy();
   tex.colorSpace = THREE.SRGBColorSpace;
 
   // 1. Procedural laptop (appears immediately, zero delay)
@@ -199,7 +205,7 @@ export function createLandingLaptop({
     lap.remove(hinge);
 
     // Synchronize current hinge rotation angle
-    gltfHingePivot.rotation.x = currentLidAngle;
+    gltfHingePivot.rotation.x = currentLidAngle > -0.5 ? 0 : currentLidAngle;
     lap.add(gltfContainer);
     hingeRef.obj = gltfHingePivot;
   });
@@ -207,7 +213,11 @@ export function createLandingLaptop({
   function setLidAngle(ang) {
     currentLidAngle = ang;
     if (hingeRef.obj) {
-      hingeRef.obj.rotation.x = isGLTF ? ang : -ang;
+      if (isGLTF) {
+        hingeRef.obj.rotation.x = ang > -0.5 ? 0 : ang;
+      } else {
+        hingeRef.obj.rotation.x = ang > -0.5 ? -0.22 : -ang;
+      }
     }
   }
 

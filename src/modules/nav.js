@@ -350,7 +350,12 @@ export function initNav() {
   // Expose global helper for stage synchronization
   window.__setActiveNavLink = setActiveLink;
 
-  window.addEventListener('resize', initBlob);
+  let lastNavBlobWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastNavBlobWidth) return;
+    lastNavBlobWidth = window.innerWidth;
+    initBlob();
+  });
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(initBlob);
   }

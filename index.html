@@ -102,9 +102,9 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               <span>066 5852 052</span>
             </a>
-            <a href="mailto:office@bulevar.it" class="nav__mobile-contact-link">
+            <a href="mailto:bulevarit@gmail.com" class="nav__mobile-contact-link">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-              <span>office@bulevar.it</span>
+              <span>bulevarit@gmail.com</span>
             </a>
           </div>
         </div>
@@ -118,7 +118,7 @@
   <section id="hero" class="track track--hero-onama">
     <span id="o-nama" class="onama-anchor" aria-hidden="true"></span>
     <div class="stage stage--hero-onama" id="hero-stage">
-      <video class="hv" id="hero-video-player" muted playsinline webkit-playsinline autoplay loop preload="auto" aria-hidden="true" disablepictureinpicture disableremoteplayback>
+      <video class="hv" id="hero-video-player" muted playsinline webkit-playsinline preload="auto" aria-hidden="true" disablepictureinpicture disableremoteplayback>
         <source src="/hero-9x16.mp4" type="video/mp4" media="(max-aspect-ratio: 4/5)">
         <source src="/hero-16x9.mp4" type="video/mp4">
       </video>
@@ -126,8 +126,7 @@
       <div class="hero-onama-cap pad" id="hero-onama-cap" style="opacity: 0;">
         <div class="wrap">
           <div class="meta">
-            <div class="tag">02 · O nama</div>
-            <div class="cnt"><b id="hero-onama-ci">01</b> / 04</div>
+            <div class="tag" data-i18n="onama.tag">02 · O nama</div>
           </div>
           <div class="txt" aria-live="polite">
             <h2 id="hero-onama-th"></h2>
@@ -308,7 +307,7 @@
           <div class="scrim"></div>
           <div class="ptop pad">
             <div class="brand" id="ojBrand">Kuća pod Fruškom<small>primer · izmišljen smeštaj</small></div>
-            <div class="tag" style="color:var(--ink)">vaš sajt</div>
+            <div class="tag" style="color:var(--ink)" data-i18n="oj.yourSite">vaš sajt</div>
           </div>
           <div class="chap pad">
             <div class="n" id="oj-cn"></div>
@@ -374,44 +373,44 @@
     <!-- 3. Kalkulator provizije -->
     <section class="blk pad" id="calc">
       <div class="wrap">
-        <div class="tag">Koliko košta posrednik</div>
+        <div class="tag" data-i18n="oj.calcTag">Koliko košta posrednik</div>
         <h2>
-          <span data-m="stay">Svaka rezervacija preko platforme <em>ima svoj procenat.</em></span>
-          <span data-m="food">Svaka porudžbina preko aplikacije <em>ima svoj procenat.</em></span>
+          <span data-m="stay" data-i18n="oj.calcHStay">Svaka rezervacija preko platforme <em>ima svoj procenat.</em></span>
+          <span data-m="food" data-i18n="oj.calcHFood">Svaka porudžbina preko aplikacije <em>ima svoj procenat.</em></span>
         </h2>
-        <p class="lead" data-m="stay">Booking obično uzima oko 15% po rezervaciji, a Airbnb do 15,5% kod modela gde domaćin plaća celu naknadu. Pomerite klizače i pogledajte koliko je to za vas.</p>
-        <p class="lead" data-m="food">Wolt i Glovo uzimaju procenat od svake porudžbine. Tačan iznos zavisi od vašeg ugovora, zato ga ovde podesite sami.</p>
+        <p class="lead" data-m="stay" data-i18n="oj.calcLeadStay">Booking obično uzima oko 15% po rezervaciji, a Airbnb do 15,5% kod modela gde domaćin plaća celu naknadu. Pomerite klizače i pogledajte koliko je to za vas.</p>
+        <p class="lead" data-m="food" data-i18n="oj.calcLeadFood">Wolt i Glovo uzimaju procenat od svake porudžbine. Tačan iznos zavisi od vašeg ugovora, zato ga ovde podesite sami.</p>
         <div class="calc">
           <div class="sl glass drop" data-from="l">
             <span class="ripple" aria-hidden="true"></span>
             <div>
               <label for="pr">
-                <span><span data-m="stay">Prosečna cena noćenja</span><span data-m="food">Prosečna porudžbina</span></span>
+                <span><span data-m="stay" data-i18n="oj.calcPrStay">Prosečna cena noćenja</span><span data-m="food" data-i18n="oj.calcPrFood">Prosečna porudžbina</span></span>
                 <output id="prO"></output>
               </label>
               <input type="range" id="pr" min="30" max="300" step="5" value="80">
             </div>
             <div>
               <label for="nt">
-                <span><span data-m="stay">Noćenja preko platforme godišnje</span><span data-m="food">Porudžbine preko aplikacije godišnje</span></span>
+                <span><span data-m="stay" data-i18n="oj.calcNtStay">Noćenja preko platforme godišnje</span><span data-m="food" data-i18n="oj.calcNtFood">Porudžbine preko aplikacije godišnje</span></span>
                 <output id="ntO"></output>
               </label>
               <input type="range" id="nt" min="20" max="330" step="5" value="150">
             </div>
             <div>
-              <label for="pc">Provizija platforme <output id="pcO"></output></label>
+              <label for="pc"><span data-i18n="oj.calcPc">Provizija platforme</span> <output id="pcO"></output></label>
               <input type="range" id="pc" min="10" max="25" step=".5" value="15">
             </div>
           </div>
           <div class="res glass drop from-r" data-from="r" aria-live="polite">
             <span class="ripple" aria-hidden="true"></span>
-            <div class="k"><span data-m="stay" data-dec="Platformi godišnje ode">Platformi godišnje ode</span><span data-m="food" data-dec="Aplikaciji godišnje ode">Aplikaciji godišnje ode</span></div>
+            <div class="k"><span data-m="stay" data-i18n="oj.calcFeeStay" data-dec="Platformi godišnje ode">Platformi godišnje ode</span><span data-m="food" data-i18n="oj.calcFeeFood" data-dec="Aplikaciji godišnje ode">Aplikaciji godišnje ode</span></div>
             <div class="big" id="fee"></div>
             <p id="feeN"></p>
-            <p data-m="stay">Uz to platforma zadržava i kontakt gosta, pa sledeći put on opet kreće od pretrage, a ne od vas.</p>
-            <p data-m="food">Uz to aplikacija zadržava i kontakt gosta, pa sledeći put on opet bira iz iste liste, a ne kod vas.</p>
-            <small data-m="stay">Ovo je okvirni račun. I sopstveni sajt ima troškove: izradu, održavanje, naplatu karticom i oglase. Razlika je u tome što ti troškovi ne rastu sa svakom rezervacijom.</small>
-            <small data-m="food">Ovo je okvirni račun. I sopstveni sistem ima troškove: izradu, održavanje, naplatu karticom i oglase, a dostavu organizujete sami ili preko partnera. Razlika je u tome što ti troškovi ne rastu procentom sa svakom porudžbinom.</small>
+            <p data-m="stay" data-i18n="oj.calcSubStay">Uz to platforma zadržava i kontakt gosta, pa sledeći put on opet kreće od pretrage, a ne od vas.</p>
+            <p data-m="food" data-i18n="oj.calcSubFood">Uz to aplikacija zadržava i kontakt gosta, pa sledeći put on opet bira iz iste liste, a ne kod vas.</p>
+            <small data-m="stay" data-i18n="oj.calcNoteStay">Ovo je okvirni račun. I sopstveni sajt ima troškove: izradu, održavanje, naplatu karticom i oglase. Razlika je u tome što ti troškovi ne rastu sa svakom rezervacijom.</small>
+            <small data-m="food" data-i18n="oj.calcNoteFood">Ovo je okvirni račun. I sopstveni sistem ima troškove: izradu, održavanje, naplatu karticom i oglase, a dostavu organizujete sami ili preko partnera. Razlika je u tome što ti troškovi ne rastu procentom sa svakom porudžbinom.</small>
           </div>
         </div>
       </div>
@@ -433,58 +432,58 @@
         <div class="vs-pane" id="vs-pane">
           <section class="blk pad" id="vs">
             <div class="wrap" data-m="stay">
-              <div class="tag">Oglas ili iskustvo</div>
-              <h2>Na platformi ste oglas. <em>Na sajtu ste mesto.</em></h2>
+              <div class="tag" data-i18n="oj.vsTagStay">Oglas ili iskustvo</div>
+              <h2 data-i18n="oj.vsHStay">Na platformi ste oglas. <em>Na sajtu ste mesto.</em></h2>
               <div class="vs">
                 <div class="col plat glass drop" data-from="l">
                   <span class="ripple" aria-hidden="true"></span>
-                  <h3 data-dec="Na platformi">Na platformi</h3>
+                  <h3 data-dec="Na platformi" data-i18n="oj.vsColPlatStay">Na platformi</h3>
                   <dl>
-                    <div><dt data-dec="Izgled">Izgled</dt><dd>Isti šablon kao kod svakog drugog oglasa. Gost vas poredi po ceni i zvezdicama.</dd></div>
-                    <div><dt data-dec="Priča">Priča</dt><dd>Lista pogodnosti: Wi-Fi, parking, terasa.</dd></div>
-                    <div><dt data-dec="Provizija">Provizija</dt><dd>Procenat od svake rezervacije.</dd></div>
-                    <div><dt data-dec="Gost posle boravka">Gost posle boravka</dt><dd>Ostaje kontakt platforme. Sledeći put kreće od pretrage.</dd></div>
+                    <div><dt data-dec="Izgled" data-i18n="oj.vsDtLook">Izgled</dt><dd data-i18n="oj.vsDdLookPlatStay">Isti šablon kao kod svakog drugog oglasa. Gost vas poredi po ceni i zvezdicama.</dd></div>
+                    <div><dt data-dec="Priča" data-i18n="oj.vsDtStory">Priča</dt><dd data-i18n="oj.vsDdStoryPlatStay">Lista pogodnosti: Wi-Fi, parking, terasa.</dd></div>
+                    <div><dt data-dec="Provizija" data-i18n="oj.vsDtFee">Provizija</dt><dd data-i18n="oj.vsDdFeePlatStay">Procenat od svake rezervacije.</dd></div>
+                    <div><dt data-dec="Gost posle boravka" data-i18n="oj.vsDtAfterStay">Gost posle boravka</dt><dd data-i18n="oj.vsDdAfterPlatStay">Ostaje kontakt platforme. Sledeći put kreće od pretrage.</dd></div>
                   </dl>
                 </div>
                 <div class="col own glass drop from-r" data-from="r">
                   <span class="ripple" aria-hidden="true"></span>
-                  <h3 data-dec="Na vašem sajtu"><span class="gold-spark">✦</span>Na vašem sajtu</h3>
+                  <h3><span class="gold-spark">✦</span><span data-dec="Na vašem sajtu" data-i18n="oj.vsColOwn">Na vašem sajtu</span></h3>
                   <dl>
-                    <div><dt data-dec="Izgled">Izgled</dt><dd><strong class="highlight-gold">Vaš dizajn, vaše fotografije, vaš ritam.</strong> Gost oseti mesto pre nego što stigne.</dd></div>
-                    <div><dt data-dec="Priča">Priča</dt><dd>Kako izgleda jutro, <span class="gold-accent">gde je najbolja vinarija</span>, koja staza vodi do vidikovca.</dd></div>
-                    <div><dt data-dec="Provizija">Provizija</dt><dd><strong class="highlight-gold">Nema procenta po rezervaciji.</strong> Plaćate sajt, a ne svako noćenje.</dd></div>
-                    <div><dt data-dec="Gost posle boravka">Gost posle boravka</dt><dd><strong class="highlight-gold">Kontakt ostaje vama:</strong> poruka za sledeću sezonu, popust za povratak, preporuka prijatelju.</dd></div>
+                    <div><dt data-dec="Izgled" data-i18n="oj.vsDtLook">Izgled</dt><dd data-i18n="oj.vsDdLookOwnStay"><strong class="highlight-gold">Vaš dizajn, vaše fotografije, vaš ritam.</strong> Gost oseti mesto pre nego što stigne.</dd></div>
+                    <div><dt data-dec="Priča" data-i18n="oj.vsDtStory">Priča</dt><dd data-i18n="oj.vsDdStoryOwnStay">Kako izgleda jutro, <span class="gold-accent">gde je najbolja vinarija</span>, koja staza vodi do vidikovca.</dd></div>
+                    <div><dt data-dec="Provizija" data-i18n="oj.vsDtFee">Provizija</dt><dd data-i18n="oj.vsDdFeeOwnStay"><strong class="highlight-gold">Nema procenta po rezervaciji.</strong> Plaćate sajt, a ne svako noćenje.</dd></div>
+                    <div><dt data-dec="Gost posle boravka" data-i18n="oj.vsDtAfterStay">Gost posle boravka</dt><dd data-i18n="oj.vsDdAfterOwnStay"><strong class="highlight-gold">Kontakt ostaje vama:</strong> poruka za sledeću sezonu, popust za povratak, preporuka prijatelju.</dd></div>
                   </dl>
                 </div>
               </div>
-              <p class="fair">Ne kažemo da treba da odete sa platformi. One su dobre za prvi susret sa gostom. <strong class="highlight-gold">Sajt je mesto gde taj gost postaje vaš.</strong></p>
+              <p class="fair" data-i18n="oj.vsFair">Ne kažemo da treba da odete sa platformi. One su dobre za prvi susret sa gostom. <strong class="highlight-gold">Sajt je mesto gde taj gost postaje vaš.</strong></p>
             </div>
             <div class="wrap" data-m="food">
-              <div class="tag">Kartica ili lokal</div>
-              <h2>U aplikaciji ste kartica. <em>Na sajtu ste lokal.</em></h2>
+              <div class="tag" data-i18n="oj.vsTagFood">Kartica ili lokal</div>
+              <h2 data-i18n="oj.vsHFood">U aplikaciji ste kartica. <em>Na sajtu ste lokal.</em></h2>
               <div class="vs">
                 <div class="col plat glass drop" data-from="l">
                   <span class="ripple" aria-hidden="true"></span>
-                  <h3 data-dec="U aplikaciji">U aplikaciji</h3>
+                  <h3 data-dec="U aplikaciji" data-i18n="oj.vsColPlatFood">U aplikaciji</h3>
                   <dl>
-                    <div><dt data-dec="Izgled">Izgled</dt><dd>Ista kartica kao kod svakog lokala. Gost vas poredi po ceni i vremenu dostave.</dd></div>
-                    <div><dt data-dec="Priča">Priča</dt><dd>Lista jela sa sličicom.</dd></div>
-                    <div><dt data-dec="Provizija">Provizija</dt><dd>Procenat od svake porudžbine.</dd></div>
-                    <div><dt data-dec="Gost posle porudžbine">Gost posle porudžbine</dt><dd>Ostaje kontakt aplikacije. Sledeći put bira iz iste liste.</dd></div>
+                    <div><dt data-dec="Izgled" data-i18n="oj.vsDtLook">Izgled</dt><dd data-i18n="oj.vsDdLookPlatFood">Ista kartica kao kod svakog lokala. Gost vas poredi po ceni i vremenu dostave.</dd></div>
+                    <div><dt data-dec="Priča" data-i18n="oj.vsDtStory">Priča</dt><dd data-i18n="oj.vsDdStoryPlatFood">Lista jela sa sličicom.</dd></div>
+                    <div><dt data-dec="Provizija" data-i18n="oj.vsDtFee">Provizija</dt><dd data-i18n="oj.vsDdFeePlatFood">Procenat od svake porudžbine.</dd></div>
+                    <div><dt data-dec="Gost posle porudžbine" data-i18n="oj.vsDtAfterFood">Gost posle porudžbine</dt><dd data-i18n="oj.vsDdAfterPlatFood">Ostaje kontakt aplikacije. Sledeći put bira iz iste liste.</dd></div>
                   </dl>
                 </div>
                 <div class="col own glass drop from-r" data-from="r">
                   <span class="ripple" aria-hidden="true"></span>
-                  <h3 data-dec="Na vašem sajtu"><span class="gold-spark">✦</span>Na vašem sajtu</h3>
+                  <h3><span class="gold-spark">✦</span><span data-dec="Na vašem sajtu" data-i18n="oj.vsColOwn">Na vašem sajtu</span></h3>
                   <dl>
-                    <div><dt data-dec="Izgled">Izgled</dt><dd><strong class="highlight-gold">Vaš dizajn, vaše fotografije, vaša priča.</strong> Gost oseti lokal pre prvog zalogaja.</dd></div>
-                    <div><dt data-dec="Priča">Priča</dt><dd>Po čemu ste poznati, <span class="gold-accent">šta je preporuka kuće</span>, šta je novo ove nedelje.</dd></div>
-                    <div><dt data-dec="Provizija">Provizija</dt><dd><strong class="highlight-gold">Nema procenta po porudžbini.</strong> Plaćate sistem, a ne svaki obrok.</dd></div>
-                    <div><dt data-dec="Gost posle porudžbine">Gost posle porudžbine</dt><dd><strong class="highlight-gold">Kontakt ostaje vama:</strong> novi meni, akcija, poziv za rođendan ili proslavu.</dd></div>
+                    <div><dt data-dec="Izgled" data-i18n="oj.vsDtLook">Izgled</dt><dd data-i18n="oj.vsDdLookOwnFood"><strong class="highlight-gold">Vaš dizajn, vaše fotografije, vaša priča.</strong> Gost oseti lokal pre prvog zalogaja.</dd></div>
+                    <div><dt data-dec="Priča" data-i18n="oj.vsDtStory">Priča</dt><dd data-i18n="oj.vsDdStoryOwnFood">Po čemu ste poznati, <span class="gold-accent">šta je preporuka kuće</span>, šta je novo ove nedelje.</dd></div>
+                    <div><dt data-dec="Provizija" data-i18n="oj.vsDtFee">Provizija</dt><dd data-i18n="oj.vsDdFeeOwnFood"><strong class="highlight-gold">Nema procenta po porudžbini.</strong> Plaćate sistem, a ne svaki obrok.</dd></div>
+                    <div><dt data-dec="Gost posle porudžbine" data-i18n="oj.vsDtAfterFood">Gost posle porudžbine</dt><dd data-i18n="oj.vsDdAfterOwnFood"><strong class="highlight-gold">Kontakt ostaje vama:</strong> novi meni, akcija, poziv za rođendan ili proslavu.</dd></div>
                   </dl>
                 </div>
               </div>
-              <p class="fair">Ne kažemo da treba da odete sa aplikacija. One su dobre za prvi susret sa gostom. <strong class="highlight-gold">Sajt je mesto gde taj gost postaje vaš.</strong></p>
+              <p class="fair" data-i18n="oj.vsFair">Ne kažemo da treba da odete sa aplikacija. One su dobre za prvi susret sa gostom. <strong class="highlight-gold">Sajt je mesto gde taj gost postaje vaš.</strong></p>
             </div>
           </section>
         </div>
@@ -712,9 +711,9 @@
       </div>
 
       <div class="kf-dir">
-        <a class="dl" href="tel:+381665852052"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><span class="tx"><span class="k mono">TELEFON</span><span class="v">+381 66 585 2052</span></span>
+        <a class="dl" href="tel:+381665852052"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><span class="tx"><span class="k mono" data-i18n="kon.dirPhone">TELEFON</span><span class="v">+381 66 585 2052</span></span>
           <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
-        <a class="dl" href="mailto:kontakt@bulevar.it"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span class="tx"><span class="k mono">EMAIL</span><span class="v">kontakt@bulevar.it</span></span>
+        <a class="dl" href="mailto:bulevarit@gmail.com"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span class="tx"><span class="k mono">EMAIL</span><span class="v">bulevarit@gmail.com</span></span>
           <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
         <a class="dl" href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".9" fill="currentColor" stroke="none"/></svg></span><span class="tx"><span class="k mono">INSTAGRAM</span><span class="v">@bulevar.it</span></span>
           <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11.5l7-7M5.5 4.5h6v6"/></svg></a>
@@ -779,7 +778,7 @@
       <div class="meta mono" id="meta">
         <span data-i18n="footer.rights">© 2026 Bulevar.IT · Novi Sad</span>
         <span><a href="#services" data-i18n="nav.services">Usluge</a><a href="#portfolio" data-i18n="nav.portfolio">Radovi</a><a href="#contact" data-i18n="nav.contact">Kontakt</a></span>
-        <span><a href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu">Instagram</a><a href="tel:+381665852052">+381 66 585 2052</a><a href="mailto:kontakt@bulevar.it">kontakt@bulevar.it</a></span>
+        <span><a href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu">Instagram</a><a href="tel:+381665852052">+381&nbsp;66&nbsp;585&nbsp;2052</a><a href="mailto:bulevarit@gmail.com">bulevarit@gmail.com</a></span>
       </div>
     </div>
   </footer>

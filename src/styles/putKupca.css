@@ -166,7 +166,6 @@ body[data-oj="food"] [data-m="stay"] { display: none !important; }
   position: sticky;
   top: 0;
   height: 100vh;
-  height: 100svh;
   height: 100dvh;
   overflow: hidden;
   background: #191F32;
@@ -1271,19 +1270,22 @@ input[type=range] {
 @media (max-width: 860px) {
   .oj-intro {
     align-items: flex-start;
-    padding-top: clamp(88px, 11vh, 98px) !important;
+    padding-top: 68px !important;
   }
   .oj-intro .in {
     max-width: none;
   }
   .oj-intro h1 {
-    font-size: clamp(23px, 6.6vw, 30px);
-    min-height: 2.06em;
-    margin: 8px 0 8px;
+    font-size: clamp(20px, 5.8vw, 26px);
+    line-height: 1.18;
+    min-height: 2.1em;
+    margin: 4px 0 4px;
   }
   .oj-intro p {
-    font-size: 14px;
-    min-height: 4.5em;
+    font-size: 13px;
+    line-height: 1.4;
+    min-height: 3.2em;
+    margin: 0;
   }
   .calc, .vs {
     grid-template-columns: minmax(0, 1fr);
@@ -1292,7 +1294,7 @@ input[type=range] {
     font-size: 14.5px;
   }
   .ptop {
-    top: clamp(88px, 11vh, 98px) !important;
+    top: 68px !important;
   }
 }
 

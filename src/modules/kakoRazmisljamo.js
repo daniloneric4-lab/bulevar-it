@@ -144,7 +144,12 @@ export function initKakoRazmisljamo() {
     }
   }
 
-  window.addEventListener('resize', layout, { passive: true });
+  let lastKakoWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastKakoWidth) return;
+    lastKakoWidth = window.innerWidth;
+    layout();
+  }, { passive: true });
 
   // Decode text engine
   const GL = 'ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';

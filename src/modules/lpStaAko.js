@@ -111,6 +111,7 @@ export function initLpStaAko() {
           tOff[i] = performance.now();
         }
         kick = performance.now();
+        dirty = true;
         upd();
       };
       listEl.appendChild(b);
@@ -161,6 +162,7 @@ export function initLpStaAko() {
   sc.width = W;
   sc.height = H;
   const c = sc.getContext('2d');
+  let dirty = true;
 
   const C = {
     bg: '#0E1428',
@@ -424,6 +426,12 @@ export function initLpStaAko() {
     fov: 28
   });
 
+  let mx = 0, my = 0, tx = 0, ty = 0;
+  window.addEventListener('pointermove', e => {
+    tx = (e.clientX / window.innerWidth) - 0.5;
+    ty = (e.clientY / window.innerHeight) - 0.5;
+  }, { passive: true });
+
   let visible = false;
   if ('IntersectionObserver' in window) {
     const obs = new IntersectionObserver(es => {
@@ -436,24 +444,32 @@ export function initLpStaAko() {
 
   function frame(now) {
     if (visible) {
-      screen(now);
-      laptopCtrl.texture.needsUpdate = true;
+      const isAnim = (now - kick < 1600);
+      if (dirty || isAnim) {
+        screen(now);
+        laptopCtrl.texture.needsUpdate = true;
+        if (!isAnim) dirty = false;
+      }
 
-      const sec = host.closest('.app') || host;
+      const sec = document.getElementById('sklopi') || host;
       const r = sec.getBoundingClientRect();
       const enter = Math.max(0, Math.min(1, (window.innerHeight - r.top) / (window.innerHeight * 0.75)));
-      const open = reduce ? 1 : Math.max(0, Math.min(1, (enter - 0.2) / 0.7));
-      const hingeAngle = -1.894 * (1 - open) - 0.22 * open;
+      const open = reduce ? 1 : Math.max(0, Math.min(1, (enter - 0.2) / 0.65));
+      const hingeAngle = -1.894 * (1 - open) + 0.22 * open;
       laptopCtrl.setLidAngle(hingeAngle);
+
+      mx += (tx - mx) * 0.06;
+      my += (ty - my) * 0.06;
 
       const b = (now - kick) / 1000;
       const bump = (!reduce && b < 0.6) ? Math.sin(b / 0.6 * Math.PI) * 0.05 : 0;
       const isMob = window.innerWidth <= 900;
+      const lapX = isMob ? 0 : 0.12;
       const lap = laptopCtrl.laptop;
-      lap.position.x = isMob ? 0 : 0.22;
+      lap.position.x = lapX;
       if (!reduce) {
-        lap.rotation.y = -0.2 * open + Math.sin(now / 3200) * 0.04 * open;
-        lap.rotation.x = 0.05;
+        lap.rotation.y = -0.2 * open + mx * 0.18 + Math.sin(now / 3200) * 0.03 * open;
+        lap.rotation.x = 0.05 + my * 0.05;
         lap.position.y = (isMob ? -0.28 : -0.20) + Math.sin(now / 1600) * 0.025 + bump * 0.45;
         lap.scale.setScalar(1 + bump * 0.3);
       } else {
@@ -466,11 +482,11 @@ export function initLpStaAko() {
       const cam = laptopCtrl.camera;
       const vf = cam.fov * Math.PI / 180;
       const hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
-      const fitW = isMob ? 5.2 : 5.0;
+      const fitW = isMob ? 5.2 : 5.1;
       const fitH = isMob ? 4.2 : 4.1;
       const z = Math.max(fitW / 2 / Math.tan(hf / 2), fitH / 2 / Math.tan(vf / 2));
-      cam.position.set(0, 1.15, z);
-      cam.lookAt(isMob ? 0 : 0.22, 0.52, 0);
+      cam.position.set(lapX, 1.15, z);
+      cam.lookAt(lapX, 0.50, 0);
 
       laptopCtrl.renderer.render(laptopCtrl.scene, cam);
     }
