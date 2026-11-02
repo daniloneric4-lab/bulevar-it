@@ -1390,9 +1390,9 @@ export function initSistemIzaEkrana() {
     t.magFilter = THREE.LinearFilter;
 
     const g = new THREE.Group();
-    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true }));
     f.position.z = 0.003;
-    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false }));
+    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false, transparent: true }));
     bk.rotation.y = Math.PI;
     bk.position.z = -0.003;
 
@@ -1901,8 +1901,8 @@ export function initSistemIzaEkrana() {
         let lp = null;
 
         // Deck fly-out factor: 0 dok je laptop zatvoren/dok se otvara/pali,
-        // a tek od 0.18 do S0 (0.28) kartice elegantno izleću iz ekrana u špil
-        const deckFly = sm(0.18, S0, P_sis);
+        // a tek od S0 (0.28) kada krene Korak 02
+        const deckFly = sm(S0, S0 + 0.05, P_sis);
 
         // Slojevi 02–05 (j = 0..3) stoje u špilu iza ekrana
         for (let j = 0; j < 4; j++) {
@@ -1910,7 +1910,8 @@ export function initSistemIzaEkrana() {
           if (!c) continue;
           const s = j + 1; // sloj j pripada koraku s (1..4)
 
-          if (deckFly <= 0.01) {
+          // Pre početka slojeva (P_sis < S0) kartice su 100% skrivene i ne seku ekran
+          if (P_sis < S0 || deckFly <= 0.01) {
             c.g.visible = false;
             continue;
           }
@@ -1926,44 +1927,44 @@ export function initSistemIzaEkrana() {
 
           outMax = Math.max(outMax, out);
 
-          // 2. Špil slojeva iza ekrana: izleće iz samog ekrana (sp) u špil
-          const dx = 0.0223 * (j + 1) * spread;
-          const dup = 0.0843 * (j + 1) * spread;
-          const dnrm = -0.0347 - 0.0794 * (j + 1) * spread;
+          // Sakrij karticu ako nije aktivna da ne bi sekla ekran ili stajala poluvidljiva
+          if (out <= 0.01) {
+            c.g.visible = false;
+            continue;
+          }
 
-          const slotPos = {
-            x: lerp(sp.x, sp.x + dx, deckFly),
-            y: lerp(sp.y, sp.y + UP.y * dup + NRM.y * dnrm, deckFly),
-            z: lerp(sp.z, sp.z + UP.z * dup + NRM.z * dnrm, deckFly)
-          };
-
-          // 5. Koraci 02–05: sloj glatko izlazi ispred ekrana (malo iznad centra ekrana, z ≈ +0.28)
+          // 5. Koraci 02–05: aktivni sloj glatko izlazi ispred ekrana (malo iznad centra ekrana, z ≈ +0.28)
           const frontPos = {
             x: sp.x,
-            y: sp.y + UP.y * 0.065 + NRM.y * 0.273,
-            z: sp.z + UP.z * 0.065 + NRM.z * 0.273
+            y: sp.y + UP.y * 0.04 + NRM.y * 0.28,
+            z: sp.z + UP.z * 0.04 + NRM.z * 0.28
+          };
+
+          // Kada izleće, počinje u ravni ekrana i pruža se ka frontPos
+          const startPos = {
+            x: sp.x,
+            y: sp.y,
+            z: sp.z + NRM.z * 0.03
           };
 
           c.g.position.set(
-            lerp(slotPos.x, frontPos.x, out),
-            lerp(slotPos.y, frontPos.y, out),
-            lerp(slotPos.z, frontPos.z, out)
+            lerp(startPos.x, frontPos.x, out),
+            lerp(startPos.y, frontPos.y, out),
+            lerp(startPos.z, frontPos.z, out)
           );
 
-          const sc = sp.s * lerp(0.96, 1.02, out) * lerp(0.88, 1.0, deckFly);
+          const sc = sp.s * lerp(0.96, 1.02, out);
           c.g.scale.set(sc, sc, 1);
           c.g.rotation.set(sp.rx, sp.ry, sp.rz);
 
-          // Slojevi u špilu su zatamnjeni (~62% svetline), zlatni rub ostaje vidljiv, front 100%
-          const dim = lerp(0.62, 1, out) * deckFly;
-          c.f.material.color.setRGB(dim, dim, dim);
-          if (c.bk) c.bk.material.color.setRGB(dim, dim, dim);
+          c.f.material.color.setRGB(1, 1, 1);
+          if (c.bk) c.bk.material.color.setRGB(1, 1, 1);
 
-          c.g.renderOrder = out > 0.01 ? 10 : 1;
+          c.g.renderOrder = 10;
           c.g.visible = true;
 
-          if (out > 0.02 && deckFly > 0.8 && (!lp || out > lp.out)) {
-            lp = { c, slotPos, out, sc };
+          if (out > 0.05 && (!lp || out > lp.out)) {
+            lp = { c, slotPos: startPos, out, sc };
           }
         }
 

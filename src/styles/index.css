@@ -971,8 +971,8 @@ body.is-device-modal-open .device-click-hint {
   gap: 0;
   align-items: center;
   height: 100%;
-  padding-left: clamp(40px, 6vw, 100px);
-  padding-right: 420px;
+  padding-left: clamp(90px, 10vw, 200px);
+  padding-right: 380px;
   will-change: transform;
   z-index: 2;
   position: relative;
@@ -1366,7 +1366,6 @@ body.is-device-modal-open .device-click-hint {
 /* Body scroll lock when mobile navigation is open */
 body.nav-open-lock {
   overflow: hidden !important;
-  touch-action: none !important;
 }
 
 @media (max-width: 768px) {
@@ -1484,31 +1483,43 @@ body.nav-open-lock {
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    width: 100vw !important;
+    width: 100% !important;
     max-width: 100vw !important;
+    height: 100% !important;
     height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
     border-radius: 0 !important;
     border: none !important;
-    background: rgba(6, 9, 14, 0.97) !important;
+    background: rgba(6, 9, 14, 0.98) !important;
     backdrop-filter: blur(36px) saturate(200%) !important;
     -webkit-backdrop-filter: blur(36px) saturate(200%) !important;
     box-shadow: none !important;
-    padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 20px)) 20px !important;
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
     z-index: 99999 !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior-y: contain !important;
     transform: none !important;
     opacity: 1 !important;
     pointer-events: all !important;
   }
 
   .nav.is-open .nav__inner {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-height: 100%;
-    justify-content: space-between;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    min-height: 100dvh !important;
+    box-sizing: border-box !important;
+    padding: 16px 20px calc(80px + env(safe-area-inset-bottom, 32px)) 20px !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
   }
 
   /* Top bar inside open menu */
@@ -1539,11 +1550,11 @@ body.nav-open-lock {
   .nav.is-open .nav__menu-wrapper {
     display: flex;
     flex-direction: column;
-    flex: 1;
-    justify-content: space-between;
+    flex: none;
+    justify-content: flex-start;
     width: 100%;
     max-width: 440px;
-    margin: 28px auto 0;
+    margin: 20px auto 0;
     animation: navFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
@@ -1556,7 +1567,7 @@ body.nav-open-lock {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 9px;
   }
 
   .nav.is-open .nav__links li {
@@ -1569,8 +1580,8 @@ body.nav-open-lock {
     justify-content: space-between !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    padding: 16px 20px !important;
-    font-size: 1.15rem !important;
+    padding: 13px 18px !important;
+    font-size: 1.1rem !important;
     font-weight: 600 !important;
     letter-spacing: -0.01em !important;
     color: #FFFFFF !important;
@@ -1644,9 +1655,12 @@ body.nav-open-lock {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-top: 24px;
-    margin-top: 24px;
+    padding-top: 20px;
+    margin-top: 20px;
+    padding-bottom: 24px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+    flex-shrink: 0;
   }
 
   .nav.is-open .nav__mobile-tag {
@@ -1872,15 +1886,15 @@ body.nav-open-lock {
   .portfolio-cards-track {
     align-items: flex-start;
     padding-top: 138px; /* Spušteno niže prema želji korisnika za maksimalnu preglednost */
-    padding-left: 16px;
-    padding-right: 180px;
-    gap: 20px;
+    padding-left: 64px; /* Pomereno udesno da kartica stoji u punom fokusu i ništa ne viri sleva */
+    padding-right: 220px;
+    gap: 36px;
   }
 
   .curtis-card {
     width: 215px !important;
     padding: 8px;
-    margin-right: 44px !important;
+    margin-right: 120px !important; /* Povećan razmak između Mango Event i Ti Si Ovde */
     transform: none !important; /* Bez vertikalnog razbacivanja na telefonu radi maksimalnog prostora */
   }
 

@@ -12,8 +12,8 @@ import { projects, categoryConfig } from '../data/portfolio.js';
 // Organic staggered layout presets directly referencing Curtis Nguyen portfolio
 // Elevated vertically to align with the phone/laptop position while maintaining comfortable header margins
 export const scatteredProjects = [
-  { projectIndex: 0, w: 480, h: 300, yOffset: -25, marginR: 200, tag: 'SISTEM ZA DOGAĐAJE' },
-  { projectIndex: 1, w: 420, h: 340, yOffset: 25,  marginR: 300, tag: 'DIGITALNI SISTEM' },
+  { projectIndex: 0, w: 480, h: 300, yOffset: -25, marginR: 380, tag: 'SISTEM ZA DOGAĐAJE' },
+  { projectIndex: 1, w: 420, h: 340, yOffset: 25,  marginR: 360, tag: 'DIGITALNI SISTEM' },
 ];
 
 export function renderHorizontalPortfolio(trackSelector) {

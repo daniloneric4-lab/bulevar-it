@@ -58,10 +58,11 @@ export function initDevicePortfolioStage() {
     if (lastCard && cardsTrack) {
       const lastCardEnd = lastCard.offsetLeft + lastCard.offsetWidth;
       const isMobile = window.innerWidth <= 768;
-      const exitMargin = isMobile ? (window.innerWidth + 80) : Math.max(160, window.innerWidth * 0.25);
-      return Math.max(window.innerWidth * 0.8, lastCardEnd + exitMargin - window.innerWidth);
+      // Čim linija izađe iz vidokruga, horizontalno kretanje se završava
+      const exitMargin = isMobile ? 60 : 100;
+      return Math.max(window.innerWidth * 0.4, lastCardEnd + exitMargin - window.innerWidth);
     }
-    return Math.max(window.innerWidth * 0.8, cardsTrack.scrollWidth - window.innerWidth);
+    return Math.max(window.innerWidth * 0.4, cardsTrack.scrollWidth - window.innerWidth);
   };
 
   const getTotalTravel = () => {
@@ -70,8 +71,8 @@ export function initDevicePortfolioStage() {
 
   // Udoban hold na #vs (1.0 visina ekrana) da korisnik u miru pročita poređenje bez ikakvog preskakanja
   const getHoldVs = () => Math.round(window.innerHeight * 1.0);
-  // Kratak hold na kraju radova (0.15 visina ekrana ~120px) tako da sekcija Kako razmišljamo odmah krene gore bez praznog skrolovanja
-  const getHoldEnd = () => Math.round(window.innerHeight * 0.15);
+  // Bez mrtvog praznog skrolovanja: čim linija izađe iz vidokruga, odmah se diže sekcija Kako razmišljamo
+  const getHoldEnd = () => 0;
 
   const getScrollEnd = () => {
     return getHoldVs() + getTotalTravel() + getHoldEnd();

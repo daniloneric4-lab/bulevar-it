@@ -39,7 +39,7 @@ export function initHeroOnama() {
 
   const F = [
     { m: 'BULEVAR', a: '.IT', h: t('onama.f0.h', 'Studio iz Novog Sada.'), p: t('onama.f0.p', 'Pravimo digitalne sisteme koji posle ostaju u rukama vlasnika.') },
-    { m: '18', a: '', h: t('onama.f1.h', 'Najmlađi u timu imaju 18 godina.'), p: t('onama.f1.p', 'Rastu uz alate koji su izašli prošle nedelje. Brzi su i ne boje se novog.') },
+    { m: '18', a: '', h: t('onama.f1.h', 'Najmlađi u timu imaju 18 godina.'), p: t('onama.f1.p', 'Prvi primete kada se internet promeni. Vi to vidite na svom sajtu.') },
     { m: '25', a: '+', h: t('onama.f2.h', 'Godina iskustva mentora u marketingu.'), p: t('onama.f2.p', 'Znaju šta prodaje i zašto. Paze da sve što napravimo ima poslovni smisao.') },
     { m: '', a: '', h: t('onama.f3.h', 'Sistem. I ostaje vaš.'), p: t('onama.f3.p', 'Ne iznajmljujemo vam sajt. Gradimo ga za vas, i ključevi ostaju kod vas.') }
   ];
@@ -736,7 +736,7 @@ export function initHeroOnama() {
     F[0].h = t('onama.f0.h', 'Studio iz Novog Sada.');
     F[0].p = t('onama.f0.p', 'Pravimo digitalne sisteme koji posle ostaju u rukama vlasnika.');
     F[1].h = t('onama.f1.h', 'Najmlađi u timu imaju 18 godina.');
-    F[1].p = t('onama.f1.p', 'Rastu uz alate koji su izašli prošle nedelje. Brzi su i ne boje se novog.');
+    F[1].p = t('onama.f1.p', 'Prvi primete kada se internet promeni. Vi to vidite na svom sajtu.');
     F[2].h = t('onama.f2.h', 'Godina iskustva mentora u marketingu.');
     F[2].p = t('onama.f2.p', 'Znaju šta prodaje i zašto. Paze da sve što napravimo ima poslovni smisao.');
     F[3].h = t('onama.f3.h', 'Sistem. I ostaje vaš.');
