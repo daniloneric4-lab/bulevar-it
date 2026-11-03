@@ -47,6 +47,7 @@ export function initHeroOnama() {
   const x = cv.getContext('2d');
   let W = 0, H = 0, dpr = Math.min(2, window.devicePixelRatio || 1);
   let STEP = 12, N = 0, P = [], SH = [], ARC = [], SC = [];
+  let logoReady = false;
   const off = document.createElement('canvas');
   const ox = off.getContext('2d', { willReadFrequently: true });
 
@@ -54,8 +55,12 @@ export function initHeroOnama() {
     const mob = W < 760, stepS = STEP;
     off.width = W; off.height = H;
     ox.clearRect(0, 0, W, H);
-    const kh = H * (mob ? 0.48 : 0.60), s = kh / 256;
-    const ox0 = W / 2 - 150 * s, oy0 = H * (mob ? 0.35 : 0.42) - 152 * s;
+    const shortH = !mob && H < 860;
+    off.width = W; off.height = H;
+    ox.clearRect(0, 0, W, H);
+    const kh = mob ? H * 0.48 : Math.min(W * 0.55, H * (shortH ? 0.48 : 0.60)), s = kh / 256;
+    const ox0 = W / 2 - 150 * s, oy0 = H * (mob ? 0.35 : (shortH ? 0.39 : 0.42)) - 152 * s;
+
     ox.setTransform(s, 0, 0, s, ox0, oy0);
     ox.fillStyle = '#fff';
     ox.beginPath();
@@ -80,6 +85,7 @@ export function initHeroOnama() {
         if (d[i + 3] > 140) o.push({ x: xx, y: yy, a: true, isKey: true });
       }
     }
+
     return o;
   }
 
@@ -91,13 +97,14 @@ export function initHeroOnama() {
     let size = 400;
     ox.font = '900 ' + size + 'px Montserrat, sans-serif';
     const tw = ox.measureText(txt).width;
-    const maxW = W * (mob ? 0.92 : 0.86), maxH = H * (mob ? 0.42 : 0.56);
-    size = Math.min(size * maxW / tw, maxH / 0.74);
+    const maxW = W * (mob ? 0.92 : 0.86), maxH = H * (mob ? 0.42 : (!mob && H < 860 ? 0.46 : 0.56));
+    size = Math.max(24, Math.min(size * maxW / Math.max(1, tw), maxH / 0.74));
+
     ox.font = '900 ' + size + 'px Montserrat, sans-serif';
     ox.textBaseline = 'alphabetic';
     ox.textAlign = 'left';
     const mw = ox.measureText(f.m).width, aw = ox.measureText(f.a).width;
-    const x0 = (W - mw - aw) / 2, y0 = H * (mob ? 0.4 : 0.44) + size * 0.36;
+    const x0 = (W - mw - aw) / 2, y0 = H * (mob ? 0.4 : (!mob && H < 860 ? 0.41 : 0.44)) + size * 0.36;
     ox.fillStyle = '#fff';
     ox.fillText(f.m, x0, y0);
     ox.fillStyle = '#f00';
@@ -110,6 +117,7 @@ export function initHeroOnama() {
         if (d[i + 3] > 140) o.push({ x: xx, y: yy, a: d[i + 1] < 100 });
       }
     }
+
     return o;
   }
 
@@ -119,7 +127,8 @@ export function initHeroOnama() {
 
   let LST = 8;
   function sampleLogo() {
-    const mob = W < 760;
+    if (!LM.complete || !LM.naturalWidth) { logoReady = false; return sample(F[0]); }
+    const mob = W < 760, shortH = !mob && H < 860;
     off.width = W; off.height = H;
     ox.clearRect(0, 0, W, H);
     const IW = 984, IH = 165;
@@ -131,14 +140,22 @@ export function initHeroOnama() {
       lw = IW * sc;
       lh = H * 0.3;
     }
-    const x0 = (W - lw) / 2;
-    const y0 = H * (mob ? 0.36 : 0.38) - lh / 2;
+    let x0 = (W - lw) / 2;
+    const maxLh = H * (mob ? 0.3 : (shortH ? 0.26 : 0.3));
+    if (lh > maxLh) {
+      sc = maxLh / IH;
+      lw = IW * sc;
+      lh = maxLh;
+    }
+    x0 = (W - lw) / 2;
+    const y0 = H * (mob ? 0.36 : (shortH ? 0.36 : 0.38)) - lh / 2;
     ox.imageSmoothingEnabled = true;
     ox.drawImage(LM, x0, y0, lw, lh);
     const d = ox.getImageData(0, 0, W, H).data;
     const o = [];
     const ST = Math.max(4, Math.round(lh / (mob ? 12 : 17)));
     LST = ST;
+    logoReady = true;
 
     /* Letter boundaries in pixels: B u l e v a r | . I T */
     const BX = [
@@ -279,6 +296,7 @@ export function initHeroOnama() {
       });
     }
 
+
     return o;
   }
 
@@ -298,12 +316,13 @@ export function initHeroOnama() {
 
   function build() {
     const r = cv.getBoundingClientRect();
-    W = r.width || window.innerWidth;
-    H = r.height || window.innerHeight;
-    cv.width = W * dpr;
-    cv.height = H * dpr;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = Math.max(1, Math.round(r.width || window.innerWidth)) | 0;
+    H = Math.max(1, Math.round(r.height || window.innerHeight)) | 0;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
     x.setTransform(dpr, 0, 0, dpr, 0, 0);
-    STEP = W < 760 ? 8 : 12;
+    STEP = (W < 760 || H < 700) ? 8 : (H < 820 ? 10 : 12);
 
     SH = F.map(function (f, i) {
       if (i === 0) return sampleLogo();
@@ -318,7 +337,8 @@ export function initHeroOnama() {
         o[i] = o[j]; o[j] = t;
       }
       while (o.length < N) o.push({ x: W / 2, y: H / 2, a: false, dust: true });
-      return o;
+  
+    return o;
     });
 
     /* kraj O nama: polazi se od samog ključa (figura 3); svaka tačka dobija svoje mesto u luku (u) */
@@ -509,6 +529,7 @@ export function initHeroOnama() {
     const t = now / 1000;
     if (hint) hint.style.opacity = G < 0.01 ? '1' : '0';
 
+    if (!logoReady && LM.complete && LM.naturalWidth > 0) build();
     videoScrub(G);
 
     if (!N) {
@@ -724,9 +745,33 @@ export function initHeroOnama() {
   videoScrub(0);
   requestAnimationFrame(frame);
 
-  let lastHeroWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  let lastHeroWidth = typeof window !== 'undefined' ? Math.round(window.innerWidth) : 0;
+  let lastHeroHeight = typeof window !== 'undefined' ? Math.round(window.innerHeight) : 0;
+  let lastHeroDpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+  function onHeroResize() {
+    const curW = Math.round(window.innerWidth);
+    const curH = Math.round(window.innerHeight);
+    const curDpr = window.devicePixelRatio || 1;
+    const isMob = curW <= 768;
+    const widthChanged = curW !== lastHeroWidth;
+    const dprChanged = Math.abs(curDpr - lastHeroDpr) > 0.001;
+    const heightChanged = isMob ? Math.abs(curH - lastHeroHeight) > 100 : curH !== lastHeroHeight;
+    if (!widthChanged && !heightChanged && !dprChanged) return;
+    lastHeroWidth = curW;
+    lastHeroHeight = curH;
+    lastHeroDpr = curDpr;
+    if (widthChanged) pickVideo();
+    build();
+  }
+  window.addEventListener('resize', onHeroResize, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onHeroResize, { passive: true });
+  }
+  if (!LM.complete) {
+    LM.addEventListener('load', () => build(), { once: true });
+  }
   window.addEventListener('resize', () => {
-    if (window.innerWidth === lastHeroWidth) return;
+    if (true) return;
     lastHeroWidth = window.innerWidth;
     pickVideo();
     build();

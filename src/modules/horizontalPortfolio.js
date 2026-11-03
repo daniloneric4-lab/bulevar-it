@@ -34,12 +34,13 @@ export function renderHorizontalPortfolio(trackSelector) {
     card.className = 'curtis-card curtis-card--scattered';
     card.dataset.category = proj.category;
     card.dataset.projIndex = String(item.projectIndex);
-    card.dataset.baseY = String(item.yOffset);
-    card.style.setProperty('--base-y', `${item.yOffset}px`);
+    const getEffY = () => (typeof window !== 'undefined' && window.innerWidth > 768 && window.innerHeight <= 880) ? (item.yOffset < 0 ? -8 : 8) : item.yOffset;
+    card.dataset.baseY = String(getEffY());
+    card.style.setProperty('--base-y', `${getEffY()}px`);
 
     card.style.width = `${item.w}px`;
     card.style.marginRight = `${item.marginR}px`;
-    card.style.transform = `translateY(${item.yOffset}px)`;
+    card.style.transform = `translateY(${getEffY()}px)`;
 
     card.innerHTML = `
       <div class="curtis-card__frame ios27-glass" style="height: ${item.h}px;">
@@ -82,18 +83,18 @@ export function renderHorizontalPortfolio(trackSelector) {
       const rot = Math.max(-2.5, Math.min(2.5, deltaX * 0.4));
       const transX = Math.max(-4, Math.min(4, deltaX * 0.3));
 
-      card.style.transform = `translateY(${item.yOffset}px) rotate(${rot}deg) translateX(${transX}px)`;
+      card.style.transform = `translateY(${getEffY()}px) rotate(${rot}deg) translateX(${transX}px)`;
 
       clearTimeout(shakeTimer);
       shakeTimer = setTimeout(() => {
-        card.style.transform = `translateY(${item.yOffset}px) rotate(0deg) translateX(0px)`;
+        card.style.transform = `translateY(${getEffY()}px) rotate(0deg) translateX(0px)`;
       }, 100);
     });
 
     card.addEventListener('mouseleave', () => {
       lastMouseX = null;
       clearTimeout(shakeTimer);
-      card.style.transform = `translateY(${item.yOffset}px) rotate(0deg) translateX(0px)`;
+      card.style.transform = `translateY(${getEffY()}px) rotate(0deg) translateX(0px)`;
     });
 
     card.addEventListener('click', (e) => {
@@ -136,6 +137,14 @@ export function drawCircuitLines(track) {
   if (!svg || !track) return;
 
   const cards = track.querySelectorAll('.curtis-card');
+  cards.forEach((c, idx) => {
+    const item = scatteredProjects[idx];
+    if (!item) return;
+    const ey = (typeof window !== 'undefined' && window.innerWidth > 768 && window.innerHeight <= 880) ? (item.yOffset < 0 ? -8 : 8) : item.yOffset;
+    c.dataset.baseY = String(ey);
+    c.style.setProperty('--base-y', `${ey}px`);
+    if (window.innerWidth > 768) c.style.transform = `translateY(${ey}px)`;
+  });
   if (cards.length < 2) return;
 
   const totalWidth = Math.max(track.scrollWidth, track.offsetWidth);

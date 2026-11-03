@@ -170,8 +170,12 @@ export function initDevicePortfolioStage() {
   initPinnedOverlapReveal();
 
   let lastDevWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  let lastDevHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
   window.addEventListener('resize', () => {
-    if (window.innerWidth === lastDevWidth) return;
+    const wSame = window.innerWidth === lastDevWidth;
+    const hSame = window.innerWidth <= 768 ? Math.abs(window.innerHeight - lastDevHeight) < 100 : window.innerHeight === lastDevHeight;
+    if (wSame && hSame) return;
+    lastDevHeight = window.innerHeight;
     lastDevWidth = window.innerWidth;
     updateStageHeight();
     drawCircuitLines(cardsTrack);

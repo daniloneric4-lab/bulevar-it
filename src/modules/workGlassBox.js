@@ -139,6 +139,8 @@ export function initWorkGlassBox() {
     const stageRect = stage ? stage.getBoundingClientRect() : null;
     const isStageVisible = stageRect ? (stageRect.bottom > 100 && stageRect.top < vh - 60) : true;
 
+    const isShortScreen = vw > 768 && vh <= 880;
+    const boxStates = [];
     boxes.forEach((box, i) => {
       const card = cards[i];
       if (!card || !isStageVisible) {
@@ -161,19 +163,19 @@ export function initWorkGlassBox() {
       const bw = box.offsetWidth || Math.min(480, vw - 32);
       const left = isMobile
         ? Math.max(16, (vw - bw) / 2)
-        : Math.max(16, Math.min(vw - bw - 16, cardRect.left));
+        : (isShortScreen ? cardRect.left : Math.max(16, Math.min(vw - bw - 16, cardRect.left)));
 
       const boxH = box.offsetHeight || (isMobile ? 135 : 180);
       const maxTop = vh - boxH - (isMobile ? 14 : 20);
       const computedTop = Math.min(maxTop, capRect.bottom + (isMobile ? 8 : 12));
-      const top = computedTop;
+      const top = isShortScreen ? Math.max(capRect.bottom + 8, Math.min(vh - boxH - 12, capRect.bottom + 10)) : computedTop;
 
       box.style.left = `${left.toFixed(1)}px`;
       box.style.top = `${top.toFixed(1)}px`;
 
       // Check if card is comfortably inside visible viewport BOTH horizontally and vertically
       const cc = (cardRect.left + cardRect.right) / 2;
-      const inViewVert = cardRect.bottom > (isMobile ? 180 : 120) && cardRect.top < vh - 80;
+      const inViewVert = cardRect.bottom > (isMobile ? 180 : (isShortScreen ? 90 : 120)) && cardRect.top < vh - 80;
       const inViewHoriz = isMobile
         ? (cardRect.right > vw * 0.20 && cardRect.left < vw * 0.80)
         : (cc > vw * 0.05 && cc < vw * 0.95);
@@ -190,7 +192,17 @@ export function initWorkGlassBox() {
       }
 
       const isVisible = hasReached && inView;
-      if (isVisible !== shown[i]) {
+      boxStates[i] = {
+        vis: isVisible,
+        left,
+        right: left + bw,
+        top,
+        bottom: top + boxH,
+        cardLeft: cardRect.left,
+        cardRight: cardRect.right,
+        dist: Math.abs(cc - vw * 0.5)
+      };
+      if (false && isVisible !== shown[i]) {
         shown[i] = isVisible;
         box.classList.toggle('on', isVisible);
         box.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
@@ -199,6 +211,32 @@ export function initWorkGlassBox() {
       }
     });
 
+    if (boxStates[0] && boxStates[1]) {
+      const s0 = boxStates[0], s1 = boxStates[1];
+      if (s0.vis && s1.vis) {
+        const noRoom = isMobile || s0.right + 20 > s1.left || s0.right + 16 > s1.cardLeft || s1.left - 16 < s0.cardRight || s0.left < 8 || s1.right > vw - 8 || s0.bottom > vh - 6 || s1.bottom > vh - 6;
+        if (noRoom) {
+          if (s0.dist <= s1.dist) s1.vis = false;
+          else s0.vis = false;
+        }
+      } else if (s0.vis && s0.right + 16 > s1.cardLeft) {
+        s0.vis = false;
+      } else if (s1.vis && s1.left - 16 < s0.cardRight) {
+        s1.vis = false;
+      }
+    }
+    boxes.forEach((box, i) => {
+      const st = boxStates[i];
+      if (!st) return;
+      const isVisible = st.vis;
+      if (isVisible !== shown[i]) {
+        shown[i] = isVisible;
+        box.classList.toggle('on', isVisible);
+        box.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+        const moreBtn = box.querySelector('.more');
+        if (moreBtn) moreBtn.tabIndex = isVisible ? 0 : -1;
+      }
+    });
     rafId = requestAnimationFrame(updateBoxes);
   }
 

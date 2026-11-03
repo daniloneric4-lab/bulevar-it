@@ -67,12 +67,15 @@ const lenis = new Lenis({
 lenis.resize();
 
 let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+let lastHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
 let resizeDebounce;
 window.addEventListener('resize', () => {
   clearTimeout(resizeDebounce);
   resizeDebounce = setTimeout(() => {
     lenis.resize();
-    if (window.innerWidth !== lastWidth) {
+    const heightChanged = window.innerWidth > 768 && window.innerHeight !== lastHeight;
+    if (window.innerWidth !== lastWidth || heightChanged) {
+      lastHeight = window.innerHeight;
       lastWidth = window.innerWidth;
       ScrollTrigger.refresh();
     }

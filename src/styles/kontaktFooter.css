@@ -764,7 +764,8 @@
 
 .ft .logo {
   position: relative;
-  width: min(980px, 92vw);
+  width: min(980px, 92vw, calc((100vh - 210px) * 1.36));
+  width: min(980px, 92vw, calc((100dvh - 210px) * 1.36));
   will-change: transform;
   transform-origin: 50% 55%;
 }
@@ -936,4 +937,17 @@
 
 #pDa.bad .err {
   opacity: 1;
+}
+
+
+@media (min-width: 641px) and (max-height: 860px) {
+  .ft .stage {
+    padding-bottom: 40px;
+  }
+  .ft .sub {
+    margin-top: 14px;
+  }
+  .ft .meta {
+    padding: 16px 6vw 18px;
+  }
 }
