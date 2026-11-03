@@ -1876,7 +1876,12 @@ body.nav-open-lock {
   }
 
   .portfolio-intro__subtitle {
-    display: none; /* Uklanjamo predugačak podnaslov na mobilnom koji je stvarao gužvu i preklapanje */
+    display: block;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+    margin-top: 4px;
+    max-width: 90vw;
   }
 
   .portfolio-curtis__location {
@@ -1884,63 +1889,71 @@ body.nav-open-lock {
   }
 
   .portfolio-cards-track {
-    align-items: flex-start;
-    padding-top: 138px; /* Spušteno niže prema želji korisnika za maksimalnu preglednost */
-    padding-left: 64px; /* Pomereno udesno da kartica stoji u punom fokusu i ništa ne viri sleva */
-    padding-right: 220px;
-    gap: 36px;
+    align-items: center;
+    padding-top: 110px;
+    padding-left: clamp(24px, 6vw, 48px);
+    padding-right: clamp(140px, 25vw, 240px);
+    gap: 0;
   }
 
   .curtis-card {
-    width: 215px !important;
-    padding: 8px;
-    margin-right: 120px !important; /* Povećan razmak između Mango Event i Ti Si Ovde */
-    transform: none !important; /* Bez vertikalnog razbacivanja na telefonu radi maksimalnog prostora */
+    width: min(330px, 82vw) !important;
+    padding: 0;
+    margin-right: clamp(100px, 24vw, 160px) !important;
+    transform: translateY(calc(var(--base-y, 0px) * 0.75)) !important;
+  }
+
+  .curtis-card[data-proj-index="0"] .curtis-card__frame {
+    height: auto !important;
+    aspect-ratio: 480 / 300 !important;
+  }
+
+  .curtis-card[data-proj-index="1"] .curtis-card__frame {
+    height: auto !important;
+    aspect-ratio: 420 / 340 !important;
   }
 
   .curtis-card__frame {
-    height: 142px !important;
     border-radius: 14px;
-    overflow: visible !important;
+    overflow: hidden !important;
   }
 
   .curtis-card__img {
-    border-radius: 14px;
-    object-position: center 25% !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: 0 !important;
   }
 
   .curtis-card__badge-wrap {
     position: absolute;
-    bottom: -11px !important;
-    left: 10px !important;
+    bottom: 12px !important;
+    left: 12px !important;
     z-index: 5;
   }
 
   .curtis-card__badge {
-    padding: 3px 8px !important;
-    font-size: 0.60rem !important;
-    letter-spacing: 0.06em !important;
+    padding: 4px 9px !important;
+    font-size: 0.64rem !important;
+    letter-spacing: 0.08em !important;
   }
 
   .curtis-card__caption {
-    margin-top: 16px;
+    margin-top: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 4px;
   }
 
   .curtis-card__title {
-    font-size: 0.76rem;
+    font-size: 0.82rem;
     letter-spacing: 0.04em;
   }
 
   .curtis-card__visit {
-    font-size: 0.72rem;
-  }
-
-  .curtis-card--high,
-  .curtis-card--low {
-    transform: none !important;
+    font-size: 0.76rem;
   }
 
   .curtis-card--high:hover,
@@ -2048,13 +2061,6 @@ body.nav-open-lock {
   .nav__toggle {
     width: 34px;
     height: 34px;
-  }
-  .curtis-card {
-    width: 205px !important;
-    margin-right: 36px !important;
-  }
-  .curtis-card__frame {
-    height: 136px !important;
   }
 }
 

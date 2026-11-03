@@ -15,12 +15,12 @@
   height: calc(7 * 70vh + 300vh);
 }
 
-/* The Rise: slides up over the completed portfolio seamlessly (no ears, no top shadow) */
+/* The Rise: slides up over the completed portfolio like an elegant sheet with a soft gold border and shadow */
 #kako-razmisljamo .kr-track.rise {
   background: #182032;
   border-radius: 0;
-  box-shadow: none;
-  border-top: none;
+  box-shadow: 0 -30px 80px rgba(0, 0, 0, 0.8);
+  border-top: 1px solid rgba(217, 178, 95, 0.25);
 }
 
 #kako-razmisljamo .kr-stage {
@@ -226,8 +226,8 @@
   #kako-razmisljamo .kr-track.rise,
   #kako-razmisljamo .kr-stage {
     border-radius: 0;
-    box-shadow: none;
-    border-top: none;
+    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.85);
+    border-top: 1px solid rgba(217, 178, 95, 0.25);
   }
   #kako-razmisljamo .kr-head {
     top: 68px;

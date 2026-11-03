@@ -135,10 +135,20 @@ export function initWorkGlassBox() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
+    const stage = document.querySelector('#devices');
+    const stageRect = stage ? stage.getBoundingClientRect() : null;
+    const isStageVisible = stageRect ? (stageRect.bottom > 100 && stageRect.top < vh - 60) : true;
+
     boxes.forEach((box, i) => {
       const card = cards[i];
-      if (!card) {
-        box.classList.remove('on');
+      if (!card || !isStageVisible) {
+        if (shown[i]) {
+          shown[i] = false;
+          box.classList.remove('on');
+          box.setAttribute('aria-hidden', 'true');
+          const moreBtn = box.querySelector('.more');
+          if (moreBtn) moreBtn.tabIndex = -1;
+        }
         return;
       }
 
@@ -156,16 +166,19 @@ export function initWorkGlassBox() {
       const boxH = box.offsetHeight || (isMobile ? 135 : 180);
       const maxTop = vh - boxH - (isMobile ? 14 : 20);
       const computedTop = Math.min(maxTop, capRect.bottom + (isMobile ? 10 : 12));
-      const top = Math.max(isMobile ? 60 : 70, computedTop);
+      const top = computedTop;
 
       box.style.left = `${left.toFixed(1)}px`;
       box.style.top = `${top.toFixed(1)}px`;
 
-      // Check if card is comfortably inside visible viewport
+      // Check if card is comfortably inside visible viewport BOTH horizontally and vertically
       const cc = (cardRect.left + cardRect.right) / 2;
-      const inView = isMobile
+      const inViewVert = cardRect.bottom > (isMobile ? 180 : 120) && cardRect.top < vh - 80;
+      const inViewHoriz = isMobile
         ? (cardRect.right > vw * 0.20 && cardRect.left < vw * 0.80)
-        : (cc > vw * 0.05 && cc < vw * 0.95 && cardRect.top < vh && cardRect.bottom > 0);
+        : (cc > vw * 0.05 && cc < vw * 0.95);
+
+      const inView = inViewVert && inViewHoriz;
 
       // Check if stretching circuit line has reached this card
       let hasReached = false;

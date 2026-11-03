@@ -209,14 +209,15 @@ export function initKakoRazmisljamo() {
     // Section 08 rises over Section 07 in the final window.innerHeight (100vh) of this track.
     const riseDist = window.innerHeight;
     const totAnim = Math.max(1, tot - riseDist);
-    let P = Math.max(0, Math.min(1, -r.top / totAnim));
+    // P only advances once section has reached the top of the viewport (r.top <= 0)
+    let P = r.top <= 0 ? Math.max(0, Math.min(1, -r.top / totAnim)) : 0;
 
     // Sheet rise entrance: 0 while section top is below viewport, 1 when it reaches top of screen
     const up = Math.max(0, Math.min(1, 1 - r.top / window.innerHeight));
     track.style.setProperty('--in', reduce ? '1' : Math.max(0, Math.min(1, (up - 0.55) / 0.4)).toFixed(3));
 
-    const steps = P * 8.2 - 0.2;
-    const act = Math.max(-1, Math.min(6, Math.floor(steps)));
+    const steps = r.top <= 0 ? (P * 8.2 - 0.2) : -1;
+    const act = r.top <= 0 ? Math.max(-1, Math.min(6, Math.floor(steps))) : -1;
 
     if (act !== cur) {
       W.forEach((o, i) => {
