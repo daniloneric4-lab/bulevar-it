@@ -9,7 +9,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DeviceShowcase } from './deviceShowcase.js';
-import { renderHorizontalPortfolio, animatePortfolioCards, drawCircuitLines, updateCircuitProgress, computeRevealedX } from './horizontalPortfolio.js';
+import { renderHorizontalPortfolio, animatePortfolioCards, drawCircuitLines, updateCircuitProgress, computeRevealedX, getCircuitAnchors } from './horizontalPortfolio.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,11 +30,22 @@ export function initDevicePortfolioStage() {
 
   // 1. Render Curtis Nguyen 9 project cards in iOS27 Liquid Glass style
   renderHorizontalPortfolio('#portfolio-cards-track');
+  drawCircuitLines(cardsTrack);
 
   // Draw SVG circuit lines for portfolio cards
   setTimeout(() => {
+
+    updateStageHeight();
     drawCircuitLines(cardsTrack);
-  }, 120);
+    ScrollTrigger.refresh();
+  }, 150);
+
+  setTimeout(() => {
+    drawCircuitLines(cardsTrack);
+    updateStageHeight();
+    drawCircuitLines(cardsTrack);
+    ScrollTrigger.refresh();
+  }, 150);
 
   // 2. Hide optional elements if present
   if (container) {
@@ -53,15 +64,18 @@ export function initDevicePortfolioStage() {
   };
 
   const getCardsTravel = () => {
+    const anchors = getCircuitAnchors();
+    if (anchors && anchors.length > 0) return Math.round(anchors[anchors.length - 1].right + 90);
     const cards = cardsTrack.querySelectorAll('.curtis-card');
     const lastCard = cards[cards.length - 1];
     if (lastCard && cardsTrack) {
-      const lastCardEnd = lastCard.offsetLeft + lastCard.offsetWidth;
+      const trackOffset = cardsTrack.offsetLeft || 0;
+      const lastCardEnd = trackOffset + lastCard.offsetLeft + lastCard.offsetWidth;
       const leadOutLen = 90;
       const lineEndX = lastCardEnd + leadOutLen;
       // Kad se linija završi, nastavlja da se skroluje ka desno dok ona skroz ne izađe iz vidokruga
       // Čim kraj linije prođe levu ivicu ekrana i izađe iz vidokruga, horizontalni skrol se završava
-      return lineEndX + 50;
+      return lineEndX;
     }
     return Math.max(window.innerWidth * 0.85, cardsTrack.scrollWidth - window.innerWidth);
   };
@@ -81,12 +95,14 @@ export function initDevicePortfolioStage() {
 
   function updateStageHeight() {
     const totalDist = getScrollEnd();
-    stage.style.height = `${totalDist + window.innerHeight}px`;
+    const climbOverlap = Math.round(window.innerHeight * 0.78);
+    stage.style.height = `${totalDist + window.innerHeight + climbOverlap}px`;
   }
 
   updateStageHeight();
   requestAnimationFrame(() => {
     updateStageHeight();
+    drawCircuitLines(cardsTrack);
     ScrollTrigger.refresh();
   });
 
@@ -103,7 +119,8 @@ export function initDevicePortfolioStage() {
       const holdVs = getHoldVs();
       const totalTravel = getTotalTravel();
       const vsW = getVsWidth();
-      const scrollPx = self.progress * totalDist;
+      const maxScrollPx = Math.max(1, stage.offsetHeight - window.innerHeight);
+      const scrollPx = self.progress * maxScrollPx;
 
       let currentX = 0;
       let moved = 0;
@@ -158,6 +175,7 @@ export function initDevicePortfolioStage() {
     lastDevWidth = window.innerWidth;
     updateStageHeight();
     drawCircuitLines(cardsTrack);
+
     ScrollTrigger.refresh();
   });
 }

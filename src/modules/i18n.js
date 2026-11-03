@@ -209,7 +209,9 @@ export const TRANSLATIONS = {
     'kon.submit': 'Pošaljite upit',
     'kon.legal': 'Slanjem pristajete da vas kontaktiramo u vezi sa upitom.',
     'kon.doneH': 'Stiglo je.',
-    'kon.doneP': 'Hvala! Javljamo se u roku od 24 sata.',
+    'kon.doneP': 'Hvala! Javićemo vam se u roku od 24 sata.',
+    'kon.sending': 'Šaljem…',
+    'kon.error': 'Nešto nije u redu. Pozovite nas na 066 5852 052 ili pišite na bulevarit@gmail.com.',
     'kon.again': 'Pošaljite još jednu',
     'kon.dirPhone': 'TELEFON',
 
@@ -493,7 +495,9 @@ export const TRANSLATIONS = {
     'kon.submit': 'Send Inquiry',
     'kon.legal': 'By submitting, you agree to be contacted regarding your inquiry.',
     'kon.doneH': 'Message received.',
-    'kon.doneP': 'Thank you! We will reply within 24 hours.',
+    'kon.doneP': 'Thank you! We’ll get back to you within 24 hours.',
+    'kon.sending': 'Sending…',
+    'kon.error': 'Something went wrong. Call us at +381 66 5852 052 or email bulevarit@gmail.com.',
     'kon.again': 'Send another message',
     'kon.dirPhone': 'PHONE NUMBER',
 

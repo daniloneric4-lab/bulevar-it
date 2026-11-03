@@ -5,7 +5,7 @@
  * - Shared questionnaire modal with multi-step choice chips and prefill
  */
 
-import { initI18n } from './i18n.js';
+import { initI18n, t, getLang } from './i18n.js';
 
 export function initLandingPage({ defaultAnchor = 'uloga', defaultCilj = '', defaultIzvor = 'lp' } = {}) {
   // 0. Initialize language switcher for landing pages
@@ -168,52 +168,93 @@ function setupQuestionnaireModal(currentParams) {
       });
     });
 
-    // AJAX submit handler
+    // Hidden load-time field (anti-spam: server odbija slanje brže od 3 s od učitavanja)
+    let loadedInput = form.querySelector('input[name="ucitano"]');
+    if (!loadedInput) {
+      loadedInput = document.createElement('input');
+      loadedInput.type = 'hidden';
+      loadedInput.name = 'ucitano';
+      form.appendChild(loadedInput);
+    }
+    loadedInput.value = String(Date.now());
+
+    let hpInput = form.querySelector('input[name="website"]');
+    if (!hpInput) {
+      hpInput = document.createElement('input');
+      hpInput.type = 'text';
+      hpInput.name = 'website';
+      hpInput.tabIndex = -1;
+      hpInput.autocomplete = 'off';
+      hpInput.setAttribute('aria-hidden', 'true');
+      hpInput.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;';
+      form.appendChild(hpInput);
+    }
+
+    // AJAX submit handler connected to /api/contact
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = form.querySelector('button[type="submit"]');
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Šaljem upit...';
-      }
+      const submitSpan = submitBtn ? (submitBtn.querySelector('[data-i18n="modal.submit"]') || submitBtn) : null;
+      const origText = submitSpan ? submitSpan.textContent : '';
+
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitSpan) submitSpan.textContent = t('kon.sending', 'Šaljem…');
 
       const formData = new FormData(form);
+      const utmData = {};
+      ['gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'izvor', 'cilj'].forEach((k) => {
+        const v = formData.get(k) || currentParams.get(k);
+        if (v) utmData[k] = String(v);
+      });
+
+      const payload = {
+        ime: String(formData.get('name') || '').trim(),
+        email: String(formData.get('email') || '').trim(),
+        telefon: String(formData.get('phone') || '').trim(),
+        poruka: String(formData.get('message') || '').trim(),
+        cilj: String(formData.get('cilj') || '').trim(),
+        delatnost: String(formData.get('delatnost') || '').trim(),
+        stranica: window.location.pathname,
+        jezik: getLang() === 'en' ? 'en' : 'sr',
+        website: String(formData.get('website') || ''),
+        ucitano: Number(loadedInput?.value) || 0,
+        poslato: Date.now(),
+        utm: utmData,
+      };
+
+      let success = false;
       try {
-        const res = await fetch(form.action, {
+        const res = await fetch('/api/contact', {
           method: 'POST',
-          body: formData,
-          headers: { 'Accept': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
         });
-        if (res.ok) {
-          if (successBanner) {
-            successBanner.style.display = 'block';
-            successBanner.textContent = 'Hvala! Vaš upit je uspešno primljen. Javljamo se u najkraćem roku.';
-          }
-          form.reset();
-          setTimeout(() => closeModal(), 2800);
-        } else {
-          throw new Error('Submit failed');
-        }
+        const json = await res.json().catch(() => null);
+        success = res.ok && !!json && json.ok === true;
       } catch (err) {
-        // Fallback email client
-        const email = 'bulevarit@gmail.com';
-        const name = formData.get('name') || '';
-        const phone = formData.get('phone') || '';
-        const cilj = formData.get('cilj') || '';
-        const del = formData.get('delatnost') || '';
-        const msg = formData.get('message') || '';
-        const subject = encodeURIComponent(`Bulevar.IT Upit (${cilj || 'Landing'})`);
-        const body = encodeURIComponent(`Ime: ${name}\nTelefon: ${phone}\nCilj: ${cilj}\nDelatnost: ${del}\nPoruka: ${msg}`);
-        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        success = false;
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitSpan) submitSpan.textContent = t('modal.submit', origText || 'Pošaljite upit →');
+      }
+
+      if (success) {
         if (successBanner) {
           successBanner.style.display = 'block';
-          successBanner.textContent = 'Upit se priprema u vašem email programu.';
+          successBanner.style.borderColor = 'rgba(52, 199, 89, 0.35)';
+          successBanner.style.background = 'rgba(52, 199, 89, 0.12)';
+          successBanner.style.color = '#75f096';
+          successBanner.textContent = t('kon.doneP');
         }
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Pošaljite upit →';
-        }
+        form.reset();
+        loadedInput.value = String(Date.now());
+      } else if (successBanner) {
+        // Polja ostaju popunjena
+        successBanner.style.display = 'block';
+        successBanner.style.borderColor = 'rgba(232, 150, 58, 0.45)';
+        successBanner.style.background = 'rgba(232, 150, 58, 0.12)';
+        successBanner.style.color = '#E8963A';
+        successBanner.textContent = t('kon.error');
       }
     });
   }

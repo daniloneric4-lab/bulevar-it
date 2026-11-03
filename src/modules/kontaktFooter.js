@@ -153,9 +153,58 @@ function initContactForm() {
     }
   });
 
+  // Hidden load-time field (anti-spam: server odbija slanje brže od 3 s od učitavanja)
+  const loadedField = form.querySelector('input[name="ucitano"]');
+  if (loadedField) loadedField.value = String(Date.now());
+
+  const msgEl = document.getElementById('kfMsg');
+  const sendBtn = form.querySelector('.send');
+  const sendLabel = sendBtn ? sendBtn.querySelector('span.t') : null;
+  const sendArrow = sendBtn ? sendBtn.querySelector('svg.t') : null;
+
+  function setSending(on) {
+    if (!sendBtn) return;
+    sendBtn.disabled = on;
+    sendBtn.setAttribute('aria-busy', on ? 'true' : 'false');
+    if (sendLabel) sendLabel.textContent = on ? t('kon.sending', 'Šaljem…') : t('kon.submit', 'Pošaljite upit');
+    if (sendArrow) sendArrow.style.display = on ? 'none' : '';
+  }
+
+  function showError(on) {
+    if (!msgEl) return;
+    msgEl.textContent = on ? t('kon.error') : '';
+    msgEl.hidden = !on;
+  }
+
+  window.addEventListener('bulevar:langchange', () => {
+    if (msgEl && !msgEl.hidden) msgEl.textContent = t('kon.error');
+    if (sendBtn && sendBtn.disabled && sendLabel) sendLabel.textContent = t('kon.sending', 'Šaljem…');
+  });
+
+  // Clears all fields and pill selections (used after successful send and by "Pošaljite još jednu")
+  function resetFormState() {
+    form.reset(); // hidden "ucitano" keeps its value (value attribute), honeypot is emptied
+    ideja = null;
+    if (seg) {
+      seg.classList.remove('picked');
+      seg.querySelectorAll('button').forEach((x) => x.classList.remove('on'));
+    }
+    if (pDa) pDa.classList.remove('open');
+    if (pNe) pNe.classList.remove('open');
+    document.querySelectorAll('#muke .pill').forEach((c) => c.classList.remove('on'));
+    if (kanal) {
+      const firstKanal = kanal.querySelector('button');
+      if (firstKanal) pick(kanal, firstKanal);
+    }
+    rows.forEach((r) => r.classList.remove('bad'));
+  }
+
+  let sending = false;
+
   // Form submission
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (sending) return;
 
     let ok = true;
     rows.forEach((r) => {
@@ -169,10 +218,7 @@ function initContactForm() {
         ok = false;
       }
     });
-
-    // Honeypot check
-    const hp = form.querySelector('.hp');
-    if (!ok || (hp && hp.value)) return;
+    if (!ok) return;
 
     const chosenContact = kanal?.querySelector('button.on')?.dataset?.k || 'poziv';
     const chosenProblems = [...document.querySelectorAll('#muke .pill.on')].map((c) => c.textContent.trim());
@@ -180,80 +226,64 @@ function initContactForm() {
     // Extract UTM parameters
     const urlParams = new URLSearchParams(window.location.search);
     const utmData = {};
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'].forEach((param) => {
-      const val = urlParams.get(param);
-      if (val) utmData[param] = val;
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'izvor', 'cilj'].forEach((param) => {
+      const v = urlParams.get(param);
+      if (v) utmData[param] = v;
     });
 
     const data = {
       ime: form.ime.value.trim(),
-      telefon: '+381 ' + form.telefon.value.trim(),
+      telefon: form.telefon.value.trim() ? '+381 ' + form.telefon.value.trim() : '',
       email: form.email.value.trim(),
-      imaIdeju: ideja === 'da' ? 'Da' : (ideja === 'ne' ? 'Još nema' : 'Nije odabrao'),
-      ideja: form.ideja ? form.ideja.value.trim() : '',
-      problemi: chosenProblems,
+      imaIdeju: ideja === 'da' ? 'Ima ideju' : (ideja === 'ne' ? 'Još nema ideju' : ''),
+      ideja: ideja === 'da' && form.ideja ? form.ideja.value.trim() : '',
+      problemi: ideja === 'ne' ? chosenProblems : [],
       kontakt: chosenContact,
-      url: window.location.href,
+      stranica: window.location.pathname,
+      jezik: getLang() === 'en' ? 'en' : 'sr',
       utm: utmData,
+      website: form.website ? form.website.value : '',
+      ucitano: Number(loadedField?.value) || 0,
+      poslato: Date.now(),
     };
 
-    console.log('[Bulevar.IT] Upit spreman za slanje:', data);
+    sending = true;
+    showError(false);
+    setSending(true);
 
-    const btn = form.querySelector('.send');
-    if (btn) btn.classList.add('load');
-
+    let success = false;
     try {
-      // 1. Attempt sending to backend serverless function /api/kontakt
-      let sentSuccessfully = false;
-      try {
-        const res = await fetch('/api/kontakt', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (res.ok) sentSuccessfully = true;
-      } catch (err) {
-        // Fallback or demo simulation
-      }
-
-      // If no serverless API route deployed yet, wait for visual polish demo simulation
-      if (!sentSuccessfully) {
-        await new Promise((resolve) => setTimeout(resolve, 1100));
-      }
-
-      if (btn) btn.classList.remove('load');
-
-      const firstName = data.ime.split(' ')[0].replace(/[<>&]/g, '');
-      const isEn = getLang() === 'en';
-      const kakoMap = {
-        poziv: isEn ? 'call you' : 'pozivamo vas',
-        WhatsApp: isEn ? 'message you on WhatsApp' : 'pišemo vam na WhatsApp',
-        email: isEn ? 'email you' : 'pišemo vam na email',
-      };
-      const kako = kakoMap[data.kontakt] || (isEn ? 'contact you' : 'kontaktiramo vas');
-
-      const doneP = document.getElementById('doneP');
-      if (doneP) {
-        doneP.innerHTML = isEn
-          ? `Thank you, <b>${firstName}</b>! We will ${kako} within 24 hours.`
-          : `Hvala, <b>${firstName}</b>! U roku od 24 sata ${kako}.`;
-      }
-
-      card.classList.add('sent');
-      const doneH = document.getElementById('doneH');
-      if (doneH) decodeEl(doneH, 800);
-
-      // Google Ads Conversion trigger
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', 'conversion', { send_to: 'AW-XXXX/XXXX' });
-      }
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json().catch(() => null);
+      success = res.ok && !!json && json.ok === true;
     } catch (err) {
-      console.error('[Bulevar.IT] Greška pri slanju upita:', err);
-      if (btn) {
-        btn.classList.remove('load');
-        const btnText = btn.querySelector('.t');
-        if (btnText) btnText.textContent = 'Nešto nije u redu – pozovite nas direktno: +381 66 585 2052';
-      }
+      success = false;
+    }
+
+    sending = false;
+    setSending(false);
+
+    if (!success) {
+      // Polja ostaju popunjena
+      showError(true);
+      return;
+    }
+
+    const doneP = document.getElementById('doneP');
+    if (doneP) doneP.textContent = t('kon.doneP');
+
+    resetFormState();
+    card.classList.add('sent');
+    const doneH = document.getElementById('doneH');
+    if (doneH) decodeEl(doneH, 800);
+
+    // Google Ads Conversion trigger
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', { send_to: 'AW-XXXX/XXXX' });
     }
   });
 
@@ -261,22 +291,9 @@ function initContactForm() {
   const againBtn = document.getElementById('again');
   if (againBtn) {
     againBtn.onclick = () => {
-      form.reset();
+      resetFormState();
+      showError(false);
       card.classList.remove('sent');
-      ideja = null;
-      if (seg) {
-        seg.classList.remove('picked');
-        seg.querySelectorAll('button').forEach((x) => x.classList.remove('on'));
-      }
-      if (pDa) pDa.classList.remove('open');
-      if (pNe) pNe.classList.remove('open');
-      document.querySelectorAll('#muke .pill').forEach((c) => c.classList.remove('on'));
-      if (kanal) {
-        const firstKanal = kanal.querySelector('button');
-        if (firstKanal) pick(kanal, firstKanal);
-      }
-      const btnText = form.querySelector('.send .t');
-      if (btnText) btnText.textContent = 'Pošaljite upit';
     };
   }
 }

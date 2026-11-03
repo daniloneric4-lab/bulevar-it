@@ -1858,7 +1858,7 @@ body.nav-open-lock {
   }
 
   .portfolio-intro-header {
-    top: 52px;
+    top: 78px;
     left: 16px;
     max-width: calc(100vw - 32px);
     z-index: 25;
@@ -1885,7 +1885,7 @@ body.nav-open-lock {
 
   .portfolio-cards-track {
     align-items: flex-start;
-    padding-top: clamp(68px, 10vh, 84px);
+    padding-top: clamp(134px, 18vh, 164px);
     padding-left: clamp(140px, 32vw, 220px);
     padding-right: clamp(140px, 25vw, 240px);
     gap: 0;
@@ -1901,7 +1901,12 @@ body.nav-open-lock {
   .curtis-card__frame {
     height: 142px !important;
     border-radius: 14px;
-    overflow: hidden !important;
+    overflow: visible !important;
+  }
+
+  .curtis-card__glass-reflection,
+  .curtis-card__overlay {
+    border-radius: 14px;
   }
 
   .curtis-card__img {
@@ -1914,19 +1919,20 @@ body.nav-open-lock {
 
   .curtis-card__badge-wrap {
     position: absolute;
-    bottom: -11px !important;
+    bottom: -15px !important;
     left: 10px !important;
     z-index: 5;
   }
 
   .curtis-card__badge {
-    padding: 3px 8px !important;
-    font-size: 0.60rem !important;
+    padding: 4px 8px !important;
+    font-size: 0.62rem !important;
+    line-height: 1.2 !important;
     letter-spacing: 0.06em !important;
   }
 
   .curtis-card__caption {
-    margin-top: 16px;
+    margin-top: 22px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2039,11 +2045,11 @@ body.nav-open-lock {
   }
 
   .portfolio-intro-header {
-    top: 46px;
+    top: 76px;
   }
 
   .portfolio-cards-track {
-    padding-top: 64px;
+    padding-top: clamp(128px, 17.5vh, 154px);
   }
 
   .curtis-card {

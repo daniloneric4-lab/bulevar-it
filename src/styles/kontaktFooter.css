@@ -534,6 +534,11 @@
   pointer-events: none;
 }
 
+/* poruka o grešci pri slanju (vidljiva samo kad slanje ne uspe) */
+.kf-msg { margin-top: 12px; font-size: 13px; line-height: 1.5; text-align: center; color: var(--or); }
+.kf-msg[hidden] { display: none; }
+.send:disabled { cursor: default; }
+
 /* uspeh */
 .done {
   position: absolute;

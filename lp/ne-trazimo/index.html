@@ -91,9 +91,11 @@
       <h3 class="modal-step-title" data-i18n="modal.title">Zakažite besplatne konsultacije</h3>
       <p class="modal-step-sub" data-i18n="modal.sub">Bez ikakvih obaveza: pogledaćemo vaš trenutni sajt ili ideju i predložiti optimalan pristup.</p>
 
-      <form id="lp-questionnaire-form" action="https://formspree.io/f/placeholder" method="POST">
+      <form id="lp-questionnaire-form" action="/api/contact" method="POST">
         <input type="hidden" name="cilj" value="metodologija" />
         <input type="hidden" name="delatnost" value="usluge" />
+        <input type="hidden" name="ucitano" value="" />
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" />
 
         <div class="form-group">
           <label class="form-label" data-i18n="modal.q1">1. Šta vam je trenutno najveći izazov?</label>
@@ -129,7 +131,7 @@
 
         <div class="form-group">
           <label class="form-label" for="inp-email" data-i18n="modal.emailLbl">Email adresa</label>
-          <input type="email" id="inp-email" name="email" class="form-input" placeholder="vas@email.com" data-i18n-ph="modal.emailPh" />
+          <input type="email" id="inp-email" name="email" class="form-input" placeholder="vas@email.com" data-i18n-ph="modal.emailPh" required />
         </div>
 
         <div class="form-group">

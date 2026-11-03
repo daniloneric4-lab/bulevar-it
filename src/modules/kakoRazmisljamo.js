@@ -214,10 +214,11 @@ export function initKakoRazmisljamo() {
 
     // Sheet rise entrance: 0 while section top is below viewport, 1 when it reaches top of screen
     const up = Math.max(0, Math.min(1, 1 - r.top / window.innerHeight));
-    track.style.setProperty('--in', reduce ? '1' : Math.max(0, Math.min(1, (up - 0.55) / 0.4)).toFixed(3));
+    track.style.setProperty('--in', '1');
 
-    const steps = r.top <= 0 ? (P * 8.2 - 0.2) : -1;
-    const act = r.top <= 0 ? Math.max(-1, Math.min(6, Math.floor(steps))) : -1;
+    const isRisingOrPinned = r.top < window.innerHeight * 0.92;
+    const steps = r.top <= 0 ? (P * 8.0) : (isRisingOrPinned ? 0 : -1);
+    const act = isRisingOrPinned ? Math.max(0, Math.min(6, Math.floor(steps))) : -1;
 
     if (act !== cur) {
       W.forEach((o, i) => {
