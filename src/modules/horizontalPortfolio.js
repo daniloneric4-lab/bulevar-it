@@ -257,12 +257,21 @@ export function drawCircuitLines(track) {
     }
   }
 
-  // 3. Lead out past the last card
+  // 3. Lead out past the last card (skraćen čist završetak linije)
   const last = circuitAnchors[circuitAnchors.length - 1];
-  pathD += ` M ${last.right} ${last.centerY} L ${last.right + 120} ${last.centerY} L ${totalWidth} ${last.centerY}`;
-  circuitSegments.push({ x1: last.right, y1: last.centerY, x2: last.right + 120, y2: last.centerY });
-  circuitSegments.push({ x1: last.right + 120, y1: last.centerY, x2: totalWidth, y2: last.centerY });
-  circuitEnd = { x: totalWidth, y: last.centerY };
+  const leadOutLen = 90;
+  const leadEndX = last.right + leadOutLen;
+  pathD += ` M ${last.right} ${last.centerY} L ${leadEndX} ${last.centerY}`;
+  circuitSegments.push({ x1: last.right, y1: last.centerY, x2: leadEndX, y2: last.centerY });
+  circuitEnd = { x: leadEndX, y: last.centerY };
+
+  // Terminal connector dot na samom kraju linije
+  nodesHtml += `
+    <g class="circuit-connector-node" transform="translate(${leadEndX}, ${last.centerY})">
+      <circle cx="0" cy="0" r="3" fill="#F0D9A0" opacity="0.9" />
+      <circle cx="0" cy="0" r="6" fill="none" stroke="#C9A063" stroke-width="1" opacity="0.5" />
+    </g>
+  `;
 
   svg.innerHTML = `
     <defs>
@@ -408,7 +417,7 @@ export function computeRevealedX(horizProg, portfolioTravel = 0) {
     if (rLast.right <= X_start) {
       const leadOutProg = Math.max(0, Math.min(1.0, (X_start - rLast.right) / span));
       const aLast = circuitAnchors[lastIdx];
-      const extraDist = Math.max(120, (circuitEnd?.x || aLast.right + 200) - aLast.right);
+      const extraDist = 90;
       return aLast.right + leadOutProg * extraDist;
     }
   }

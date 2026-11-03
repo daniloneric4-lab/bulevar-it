@@ -165,7 +165,7 @@ export function initWorkGlassBox() {
 
       const boxH = box.offsetHeight || (isMobile ? 135 : 180);
       const maxTop = vh - boxH - (isMobile ? 14 : 20);
-      const computedTop = Math.min(maxTop, capRect.bottom + (isMobile ? 10 : 12));
+      const computedTop = Math.min(maxTop, capRect.bottom + (isMobile ? 8 : 12));
       const top = computedTop;
 
       box.style.left = `${left.toFixed(1)}px`;

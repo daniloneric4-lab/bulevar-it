@@ -57,10 +57,11 @@ export function initDevicePortfolioStage() {
     const lastCard = cards[cards.length - 1];
     if (lastCard && cardsTrack) {
       const lastCardEnd = lastCard.offsetLeft + lastCard.offsetWidth;
-      const isMobile = window.innerWidth <= 768;
-      // Linija i radovi putuju desno, linija izlazi iz kadra i tek onda kreće sekcija Kako razmišljamo
-      const exitMargin = isMobile ? (window.innerWidth + 80) : Math.max(window.innerWidth * 0.45, 360);
-      return Math.max(window.innerWidth * 0.85, lastCardEnd + exitMargin - window.innerWidth);
+      const leadOutLen = 90;
+      const lineEndX = lastCardEnd + leadOutLen;
+      // Kad se linija završi, nastavlja da se skroluje ka desno dok ona skroz ne izađe iz vidokruga
+      // Čim kraj linije prođe levu ivicu ekrana i izađe iz vidokruga, horizontalni skrol se završava
+      return lineEndX + 50;
     }
     return Math.max(window.innerWidth * 0.85, cardsTrack.scrollWidth - window.innerWidth);
   };

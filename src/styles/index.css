@@ -1858,7 +1858,7 @@ body.nav-open-lock {
   }
 
   .portfolio-intro-header {
-    top: 68px;
+    top: 52px;
     left: 16px;
     max-width: calc(100vw - 32px);
     z-index: 25;
@@ -1876,12 +1876,7 @@ body.nav-open-lock {
   }
 
   .portfolio-intro__subtitle {
-    display: block;
-    font-size: 0.8rem;
-    line-height: 1.4;
-    color: var(--text-muted);
-    margin-top: 4px;
-    max-width: 90vw;
+    display: none; /* Uklonjen podnaslov na telefonu radi maksimalnog prostora i vidljivosti boksa */
   }
 
   .portfolio-curtis__location {
@@ -1889,8 +1884,8 @@ body.nav-open-lock {
   }
 
   .portfolio-cards-track {
-    align-items: center;
-    padding-top: 110px;
+    align-items: flex-start;
+    padding-top: clamp(68px, 10vh, 84px);
     padding-left: clamp(140px, 32vw, 220px);
     padding-right: clamp(140px, 25vw, 240px);
     gap: 0;
@@ -2041,6 +2036,14 @@ body.nav-open-lock {
 
   .hero__headline {
     font-size: clamp(1.6rem, 8vw, 2.4rem);
+  }
+
+  .portfolio-intro-header {
+    top: 46px;
+  }
+
+  .portfolio-cards-track {
+    padding-top: 64px;
   }
 
   .curtis-card {
