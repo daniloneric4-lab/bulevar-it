@@ -114,9 +114,12 @@
 .dl {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  text-align: center;
   gap: 16px;
   padding: 18px 0;
+  justify-content: space-between;
+  text-align: left;
   border-bottom: none;
   color: var(--ink);
   text-decoration: none;
@@ -299,6 +302,8 @@
   color: var(--ink);
   font: 500 16px Montserrat, sans-serif;
   padding: 18px 0;
+  justify-content: space-between;
+  text-align: left;
 }
 
 .row input::placeholder {
@@ -807,7 +812,8 @@
   bottom: 0;
   padding: 22px 6vw 26px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  text-align: center;
   gap: 20px;
   flex-wrap: wrap;
   font-size: 12px;

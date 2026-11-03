@@ -139,7 +139,21 @@ export function initWorkGlassBox() {
     const stageRect = stage ? stage.getBoundingClientRect() : null;
     const isStageVisible = stageRect ? (stageRect.bottom > 100 && stageRect.top < vh - 60) : true;
 
+    const isMobile = vw <= 768;
     const isShortScreen = vw > 768 && vh <= 880;
+    if (!isStageVisible) {
+      boxes.forEach((box, i) => {
+        if (shown[i]) {
+          shown[i] = false;
+          box.classList.remove('on');
+          box.setAttribute('aria-hidden', 'true');
+          const moreBtn = box.querySelector('.more');
+          if (moreBtn) moreBtn.tabIndex = -1;
+        }
+      });
+      rafId = requestAnimationFrame(updateBoxes);
+      return;
+    }
     const boxStates = [];
     boxes.forEach((box, i) => {
       const card = cards[i];
@@ -163,12 +177,12 @@ export function initWorkGlassBox() {
       const bw = box.offsetWidth || Math.min(480, vw - 32);
       const left = isMobile
         ? Math.max(16, (vw - bw) / 2)
-        : (isShortScreen ? cardRect.left : Math.max(16, Math.min(vw - bw - 16, cardRect.left)));
+        : cardRect.left;
 
       const boxH = box.offsetHeight || (isMobile ? 135 : 180);
       const maxTop = vh - boxH - (isMobile ? 14 : 20);
       const computedTop = Math.min(maxTop, capRect.bottom + (isMobile ? 8 : 12));
-      const top = isShortScreen ? Math.max(capRect.bottom + 8, Math.min(vh - boxH - 12, capRect.bottom + 10)) : computedTop;
+      const top = capRect.bottom + (isMobile ? 8 : 12);
 
       box.style.left = `${left.toFixed(1)}px`;
       box.style.top = `${top.toFixed(1)}px`;
@@ -178,14 +192,14 @@ export function initWorkGlassBox() {
       const inViewVert = cardRect.bottom > (isMobile ? 180 : (isShortScreen ? 90 : 120)) && cardRect.top < vh - 80;
       const inViewHoriz = isMobile
         ? (cardRect.right > vw * 0.20 && cardRect.left < vw * 0.80)
-        : (cc > vw * 0.05 && cc < vw * 0.95);
+        : (cardRect.left >= 12 && (cardRect.left + bw) <= vw - 12);
 
       const inView = inViewVert && inViewHoriz;
 
       // Check if stretching circuit line has reached this card
       let hasReached = false;
       if (anchors && anchors[i]) {
-        hasReached = currentLineX >= anchors[i].left - 10;
+        hasReached = currentLineX >= anchors[i].left - 10 || cardRect.left < vw * 0.62;
       } else {
         // Fallback: if anchors not ready yet, reveal when in view
         hasReached = cardRect.left < vw * 0.75;
@@ -214,15 +228,10 @@ export function initWorkGlassBox() {
     if (boxStates[0] && boxStates[1]) {
       const s0 = boxStates[0], s1 = boxStates[1];
       if (s0.vis && s1.vis) {
-        const noRoom = isMobile || s0.right + 20 > s1.left || s0.right + 16 > s1.cardLeft || s1.left - 16 < s0.cardRight || s0.left < 8 || s1.right > vw - 8 || s0.bottom > vh - 6 || s1.bottom > vh - 6;
-        if (noRoom) {
+        if (isMobile || s0.right + 20 > s1.left) {
           if (s0.dist <= s1.dist) s1.vis = false;
           else s0.vis = false;
         }
-      } else if (s0.vis && s0.right + 16 > s1.cardLeft) {
-        s0.vis = false;
-      } else if (s1.vis && s1.left - 16 < s0.cardRight) {
-        s1.vis = false;
       }
     }
     boxes.forEach((box, i) => {

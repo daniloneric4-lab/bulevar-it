@@ -1784,6 +1784,14 @@ export function initSistemIzaEkrana() {
 
   function frame(now) {
     const stageRect = masterStage.getBoundingClientRect();
+    if (stageRect.top > window.innerHeight || stageRect.bottom <= 0) {
+      if (cv.style.visibility !== 'hidden') {
+        cv.style.opacity = '0';
+        cv.style.visibility = 'hidden';
+      }
+      requestAnimationFrame(frame);
+      return;
+    }
     const rUloga = ulogaTrack ? ulogaTrack.getBoundingClientRect() : { bottom: 0, top: 0, offsetHeight: 0 };
 
     const contactSection = document.getElementById('contact');

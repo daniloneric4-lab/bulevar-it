@@ -34,7 +34,7 @@ export function renderHorizontalPortfolio(trackSelector) {
     card.className = 'curtis-card curtis-card--scattered';
     card.dataset.category = proj.category;
     card.dataset.projIndex = String(item.projectIndex);
-    const getEffY = () => (typeof window !== 'undefined' && window.innerWidth > 768 && window.innerHeight <= 880) ? (item.yOffset < 0 ? -8 : 8) : item.yOffset;
+    const getEffY = () => (typeof window !== 'undefined' && window.innerWidth > 768) ? (window.innerHeight <= 880 ? (item.yOffset < 0 ? -8 : 8) : (item.yOffset - 80)) : item.yOffset;
     card.dataset.baseY = String(getEffY());
     card.style.setProperty('--base-y', `${getEffY()}px`);
 
@@ -140,7 +140,7 @@ export function drawCircuitLines(track) {
   cards.forEach((c, idx) => {
     const item = scatteredProjects[idx];
     if (!item) return;
-    const ey = (typeof window !== 'undefined' && window.innerWidth > 768 && window.innerHeight <= 880) ? (item.yOffset < 0 ? -8 : 8) : item.yOffset;
+    const ey = (typeof window !== 'undefined' && window.innerWidth > 768) ? (window.innerHeight <= 880 ? (item.yOffset < 0 ? -8 : 8) : (item.yOffset - 80)) : item.yOffset;
     c.dataset.baseY = String(ey);
     c.style.setProperty('--base-y', `${ey}px`);
     if (window.innerWidth > 768) c.style.transform = `translateY(${ey}px)`;

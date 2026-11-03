@@ -517,12 +517,13 @@ function initFooterLogoAnimation() {
   function target() {
     if (reduce) return 1;
     const r = ft.getBoundingClientRect();
+    if (r.top > window.innerHeight + 200) return 0;
     const span = ft.offsetHeight - window.innerHeight;
-    if (span <= 0) return 1;
+    if (span <= 0 || r.bottom <= window.innerHeight + 35) return 1;
 
     // Kad god je korisnik na dnu ili pri dnu stranice, garantujemo potpuno (100%) učitavanje footera
     const scrollY = window.lenis ? window.lenis.scroll : (window.scrollY || document.documentElement.scrollTop || 0);
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const maxScroll = 0;
     if (maxScroll > 0 && scrollY >= maxScroll - 35) {
       return 1;
     }
@@ -580,11 +581,16 @@ function initFooterLogoAnimation() {
     }
   }
 
+  let lastRenderedCur = -1;
+  render(0, 0);
   function loop(t) {
     const tg = target();
     cur += (tg - cur) * 0.11;
     if (Math.abs(tg - cur) < 0.0005) cur = tg;
-    render(cur, t);
+    if (cur !== lastRenderedCur || (cur > 0.50 && cur < 0.86)) {
+      render(cur, t);
+      lastRenderedCur = cur;
+    }
     requestAnimationFrame(loop);
   }
 

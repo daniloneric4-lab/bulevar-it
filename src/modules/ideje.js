@@ -87,8 +87,8 @@ export function initIdeje() {
   function buildUslugeSymbols() {
     const mob = W < 900;
     const cx = W * 0.50; // Centered horizontally
-    const cy = mob ? H * 0.28 : H * 0.35; // Positioned cleanly above cards on mobile
-    const sc = mob ? 0.70 : 1.60;
+    const cy = mob ? H * 0.28 : (H * 0.5 - 65); // Centered vertically between title and bottom cards
+    const sc = mob ? 0.70 : Math.min(1.30, Math.max(0.72, (H - 390) / 400));
 
     const ORANGE = [238, 126, 34];
     const GOLD = [245, 178, 75];
@@ -134,10 +134,10 @@ export function initIdeje() {
 
     // 02: Cik-cak linija rasta — ukoso nagore udesno, vrh strelice gore desno, cela zlatna
     const raw02 = [];
-    const p0 = [cx - 150 * sc, cy + 70 * sc];
-    const p1 = [cx - 65 * sc, cy - 25 * sc];
-    const p2 = [cx - 15 * sc, cy + 18 * sc];
-    const p3 = [cx + 140 * sc, cy - 95 * sc];
+    const p0 = [cx - 145 * sc, cy + 82.5 * sc];
+    const p1 = [cx - 60 * sc, cy - 12.5 * sc];
+    const p2 = [cx - 10 * sc, cy + 30.5 * sc];
+    const p3 = [cx + 145 * sc, cy - 82.5 * sc];
     raw02.push(...line(p0[0], p0[1], p1[0], p1[1], 75, GOLD, 4.6));
     raw02.push(...line(p1[0], p1[1], p2[0], p2[1], 50, GOLD, 4.6));
     raw02.push(...line(p2[0], p2[1], p3[0], p3[1], 120, GOLD, 4.8));
@@ -149,7 +149,7 @@ export function initIdeje() {
     const hw = 95 * sc;
     const hh = 80 * sc;
     const cr = 26 * sc;
-    const cyHead = cy + 14 * sc;
+    const cyHead = cy + 35.5 * sc;
 
     raw03.push(...line(cx - hw + cr, cyHead - hh, cx + hw - cr, cyHead - hh, 45, GOLD, 4.4));
     raw03.push(...arc(cx + hw - cr, cyHead - hh + cr, cr, -Math.PI * 0.5, 0, 22, GOLD, 4.4));
@@ -657,12 +657,13 @@ export function initIdeje() {
   });
 
   function frame(now) {
-    const DATA = getData();
+
     const rc = track.getBoundingClientRect();
     const tot = track.offsetHeight - window.innerHeight;
     const inVisibleZone = rc.bottom > -200 && rc.top < window.innerHeight + 200;
 
     if (inVisibleZone) {
+      const DATA = getData();
       const Q = Math.max(0, Math.min(1, tot > 0 ? -rc.top / tot : 0));
 
       /* Smooth progression: Ideje (cases 0..3) -> Manifesto -> Usluge (3 pillars) -> Exit */
@@ -1064,8 +1065,10 @@ export function initIdeje() {
   }
 
   let lastIdejeWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  let lastIdejeHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
   window.addEventListener('resize', () => {
-    if (window.innerWidth === lastIdejeWidth) return;
+    if (window.innerWidth === lastIdejeWidth && (window.innerWidth <= 768 || window.innerHeight === lastIdejeHeight)) return;
+    lastIdejeHeight = window.innerHeight;
     lastIdejeWidth = window.innerWidth;
     build();
   }, { passive: true });
