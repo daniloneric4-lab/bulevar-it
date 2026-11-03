@@ -44,7 +44,7 @@ export function renderHorizontalPortfolio(trackSelector) {
 
     card.innerHTML = `
       <div class="curtis-card__frame ios27-glass" style="height: ${item.h}px;">
-        <img class="curtis-card__img" src="${proj.thumbnail}" alt="${proj.name}" loading="lazy" />
+        <img class="curtis-card__img" src="${proj.thumbnail}" alt="${proj.name}" width="1040" height="1040" loading="lazy" decoding="async" />
         <div class="curtis-card__glass-reflection" aria-hidden="true"></div>
         <div class="curtis-card__badge-wrap">
           <span class="curtis-card__badge curtis-card__badge--${catCfg.colorClass}">${item.tag || catCfg.label}</span>

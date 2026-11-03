@@ -8,7 +8,6 @@
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { DeviceShowcase } from './deviceShowcase.js';
 import { renderHorizontalPortfolio, animatePortfolioCards, drawCircuitLines, updateCircuitProgress, computeRevealedX, getCircuitAnchors } from './horizontalPortfolio.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -17,31 +16,21 @@ export function initDevicePortfolioStage() {
   const stage = document.querySelector('#devices');
   const motionTrack = document.querySelector('#unified-motion-track');
   const container = document.querySelector('#devices-3d-container');
-  const canvas = document.querySelector('#devices-3d-canvas');
   const hintBtn = document.querySelector('#device-click-hint');
   const header = document.querySelector('.unified-showcase__header');
   const cardsTrack = document.querySelector('#portfolio-cards-track');
-  const sheet = document.querySelector('#contact-footer-sheet');
 
   if (!stage || !motionTrack || !cardsTrack) {
     console.warn('[devicePortfolioStage] Required elements not found');
     return;
   }
 
-  // 1. Render Curtis Nguyen 9 project cards in iOS27 Liquid Glass style
+  // 1. Render project cards in iOS27 Liquid Glass style
   renderHorizontalPortfolio('#portfolio-cards-track');
   drawCircuitLines(cardsTrack);
 
   // Draw SVG circuit lines for portfolio cards
   setTimeout(() => {
-
-    updateStageHeight();
-    drawCircuitLines(cardsTrack);
-    ScrollTrigger.refresh();
-  }, 150);
-
-  setTimeout(() => {
-    drawCircuitLines(cardsTrack);
     updateStageHeight();
     drawCircuitLines(cardsTrack);
     ScrollTrigger.refresh();
@@ -73,8 +62,6 @@ export function initDevicePortfolioStage() {
       const lastCardEnd = trackOffset + lastCard.offsetLeft + lastCard.offsetWidth;
       const leadOutLen = 90;
       const lineEndX = lastCardEnd + leadOutLen;
-      // Kad se linija završi, nastavlja da se skroluje ka desno dok ona skroz ne izađe iz vidokruga
-      // Čim kraj linije prođe levu ivicu ekrana i izađe iz vidokruga, horizontalni skrol se završava
       return lineEndX;
     }
     return Math.max(window.innerWidth * 0.85, cardsTrack.scrollWidth - window.innerWidth);
@@ -84,9 +71,7 @@ export function initDevicePortfolioStage() {
     return getVsWidth() + getCardsTravel();
   };
 
-  // Udoban hold na #vs (1.0 visina ekrana) da korisnik u miru pročita poređenje bez ikakvog preskakanja
   const getHoldVs = () => Math.round(window.innerHeight * 1.0);
-  // Čim linija i kartice izađu iz kadra, sekcija Kako razmišljamo odmah kreće da se penje gore bez čekanja
   const getHoldEnd = () => 0;
 
   const getScrollEnd = () => {
@@ -111,11 +96,10 @@ export function initDevicePortfolioStage() {
     trigger: stage,
     start: 'top top',
     end: 'bottom bottom',
-    pin: false, // 100% Native CSS position: sticky — eliminiše sve pin-spacere, skokove, teleporte i padanje radova!
+    pin: false,
     scrub: true,
     invalidateOnRefresh: true,
     onUpdate: (self) => {
-      const totalDist = getScrollEnd();
       const holdVs = getHoldVs();
       const totalTravel = getTotalTravel();
       const vsW = getVsWidth();
@@ -130,12 +114,6 @@ export function initDevicePortfolioStage() {
       }
       gsap.set(motionTrack, { x: currentX });
       window.__updateOjswVis?.();
-
-      if (moved < vsW * 0.45) {
-        window.__setActiveNavLink?.('put-kupca');
-      } else if (self.progress < 0.96) {
-        window.__setActiveNavLink?.('portfolio');
-      }
 
       let cardProgress = 0;
       const cardsTravel = totalTravel - vsW;
@@ -160,13 +138,11 @@ export function initDevicePortfolioStage() {
       updateCircuitProgress(revealedX);
       const circuitSvg = document.querySelector('.portfolio-circuit-svg');
       if (circuitSvg) {
-        // Linija nigde ne nestaje na mestu — ostaje potpuno vidljiva i putuje sa radovima van kadra
         circuitSvg.style.opacity = '1';
       }
     },
   });
 
-  // ─── PINNED OVERLAP-REVEAL: Section A pinned, Section B pulls up like a curtain ───
   initPinnedOverlapReveal();
 
   let lastDevWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
@@ -179,16 +155,10 @@ export function initDevicePortfolioStage() {
     lastDevWidth = window.innerWidth;
     updateStageHeight();
     drawCircuitLines(cardsTrack);
-
     ScrollTrigger.refresh();
-  });
+  }, { passive: true });
 }
 
-/**
- * Pinned Overlap-Reveal Scroll Transition:
- * Section A stays pinned in place (fills viewport) while Section B
- * slides up from below and completely covers Section A like a curtain.
- */
 export function initPinnedOverlapReveal() {
   const overlapWrap = document.querySelector('.overlap-wrap');
   const overlapA = document.querySelector('.overlap-a');
@@ -196,9 +166,6 @@ export function initPinnedOverlapReveal() {
 
   if (!overlapWrap || !overlapA || !overlapB) return;
 
-  // Section A stays pinned for 1 full viewport height while Section B
-  // slides up naturally 1:1 from below, completely covering Section A.
-  // Then normal scroll continues into Section B's content below the fold.
   ScrollTrigger.create({
     id: 'pinned-overlap-reveal',
     trigger: '.overlap-wrap',
@@ -216,4 +183,3 @@ export function initPinnedOverlapReveal() {
     },
   });
 }
-

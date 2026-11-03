@@ -9,7 +9,108 @@ gsap.registerPlugin(ScrollTrigger);
 const nav = document.getElementById('main-nav');
 const toggle = document.getElementById('nav-toggle');
 const links = document.getElementById('nav-links');
-const navLinks = document.querySelectorAll('.nav__link');
+
+function getDocTop(el) {
+  if (!el) return 0;
+  const scrollY = window.scrollY || window.pageYOffset || 0;
+  return Math.round(el.getBoundingClientRect().top + scrollY);
+}
+
+/**
+ * Computes exact scroll target Y and active scroll-spy ranges for every section.
+ * Accounts for sticky/pinned tracks and negative margin sheet overlaps.
+ */
+export function getSectionScrollMetrics() {
+  const vh = window.innerHeight || 1080;
+  const vw = window.innerWidth || 1920;
+
+  const heroEl = document.getElementById('hero');
+  const trackEl = document.getElementById('track');
+  const pkEl = document.getElementById('put-kupca');
+  const ojTrack = document.getElementById('oj-track');
+  const devicesEl = document.getElementById('devices');
+  const vsPane = document.getElementById('vs-pane');
+  const krTrack = document.getElementById('kr-track') || document.getElementById('kako-razmisljamo');
+  const sisTrack = document.getElementById('s-track') || document.getElementById('sis') || document.getElementById('laptop-master-stage');
+  const ulogaTrack = document.getElementById('uloga-track') || document.getElementById('uloga');
+  const contactEl = document.getElementById('contact');
+
+  const heroTop = heroEl ? getDocTop(heroEl) : 0;
+  const heroSpan = heroEl ? Math.max(1, heroEl.offsetHeight - vh) : vh * 6;
+
+  // O nama: G = 0.285 in #hero (where BULEVAR.IT dot logo is 100% assembled & 01 caption is decoded)
+  const oNamaTarget = Math.round(heroTop + heroSpan * 0.285);
+  const oNamaStart = Math.round(heroTop + heroSpan * 0.22);
+
+  // Ideje / Usluge (#track): Q = 0.095 (where golden wave is settled & "Ideje nemaju veličinu firme." is decoded)
+  const trackTop = trackEl ? getDocTop(trackEl) : oNamaTarget + vh * 4;
+  const trackSpan = trackEl ? Math.max(1, trackEl.offsetHeight - vh) : vh * 8;
+  const servicesTarget = Math.round(trackTop + trackSpan * 0.095);
+
+  // Put kupca (#put-kupca): P = 0.035 in #oj-track (3D phone & first intro text decoded)
+  const pkTop = pkEl ? getDocTop(pkEl) : trackTop + trackSpan + vh;
+  const ojSpan = ojTrack ? Math.max(1, ojTrack.offsetHeight - vh) : vh * 5;
+  const pkTarget = Math.round(pkTop + ojSpan * 0.035);
+
+  // Radovi (#portfolio inside #devices): right after holdVs (1.0 * vh) + vsW (width of #vs-pane)
+  const st = ScrollTrigger.getById('unified-showcase-trigger');
+  const devicesStart = st ? Math.round(st.start) : (devicesEl ? getDocTop(devicesEl) : pkTop + ojSpan + vh);
+  const holdVs = Math.round(vh * 1.0);
+  const vsW = vsPane ? vsPane.offsetWidth : vw;
+  const portfolioTarget = Math.round(devicesStart + holdVs + vsW);
+  const portfolioRangeStart = Math.round(devicesStart + holdVs + vsW * 0.5);
+
+  // Kako razmišljamo (#kr-track): when sticky stage reaches top of viewport
+  const krTop = krTrack ? getDocTop(krTrack) : portfolioTarget + vh * 3;
+  const krTarget = Math.round(krTop + 15);
+
+  // Sistem iza ekrana (#s-track) & Uloga sajta (#uloga-track) — non-menu sections
+  const sisTop = sisTrack ? getDocTop(sisTrack) : krTop + vh * 6;
+  const sisTarget = Math.round(sisTop + 15);
+  const ulogaTop = ulogaTrack ? getDocTop(ulogaTrack) : sisTop + vh * 5;
+  const ulogaTarget = Math.round(ulogaTop + 15);
+
+  // Kontakt (#contact): top of .kf section where heading and entire #kfCard form are visible
+  const contactTop = contactEl ? getDocTop(contactEl) : ulogaTop + vh * 5;
+  const contactTarget = Math.round(contactTop);
+
+  return {
+    targets: {
+      'hero': 0,
+      'o-nama': oNamaTarget,
+      'about': oNamaTarget,
+      'services': servicesTarget,
+      'usluge': servicesTarget,
+      'ideje': servicesTarget,
+      'put-kupca': pkTarget,
+      'journey': pkTarget,
+      'devices': devicesStart,
+      'portfolio': portfolioTarget,
+      'radovi': portfolioTarget,
+      'work': portfolioTarget,
+      'kako-razmisljamo': krTarget,
+      'kako-radimo': krTarget,
+      'ne-trazimo': krTarget,
+      'approach': krTarget,
+      'sistem-iza-ekrana': sisTarget,
+      'sta-ako': sisTarget,
+      'sis': sisTarget,
+      'zasto-sajt': ulogaTarget,
+      'uloga': ulogaTarget,
+      'contact': contactTarget,
+      'kontakt': contactTarget,
+    },
+    ranges: [
+      { id: 'o-nama', start: oNamaStart, end: trackTop - Math.round(vh * 0.25) },
+      { id: 'services', start: trackTop - Math.round(vh * 0.25), end: pkTop - Math.round(vh * 0.25) },
+      { id: 'put-kupca', start: pkTop - Math.round(vh * 0.25), end: portfolioRangeStart },
+      { id: 'portfolio', start: portfolioRangeStart, end: krTop - Math.round(vh * 0.35) },
+      { id: 'kako-razmisljamo', start: krTop - Math.round(vh * 0.35), end: sisTop - Math.round(vh * 0.35) },
+      // Between sisTop - 0.35*vh and contactTop - 0.35*vh ("Sistem iza ekrana" & "Zašto imate sajt?"), no menu item is active (null)
+      { id: 'contact', start: contactTop - Math.round(vh * 0.35), end: Infinity },
+    ],
+  };
+}
 
 /**
  * Initialize navigation
@@ -17,7 +118,7 @@ const navLinks = document.querySelectorAll('.nav__link');
 export function initNav() {
   if (!nav) return;
 
-  // Show nav & language button when reached Screenshot 3 (Figure 01 'BULEVAR.IT' at 24% of #hero)
+  // Show nav & language button when reached Figure 01 'BULEVAR.IT' at 24% of #hero
   const heroSection = document.getElementById('hero');
   const updateNavLangVisibility = (visible) => {
     nav.classList.toggle('nav--visible', visible);
@@ -83,7 +184,6 @@ export function initNav() {
     }
   };
 
-  // Mobile toggle
   if (toggle) {
     toggle.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -95,169 +195,24 @@ export function initNav() {
       }
     });
 
-    // Close on Escape key
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && nav.classList.contains('is-open')) {
         closeMobileMenu(false);
       }
     });
 
-    // Support Android Back button & iOS swipe right to close mobile menu
     window.addEventListener('popstate', () => {
       if (nav && nav.classList.contains('is-open')) {
         closeMobileMenu(true);
       }
     });
 
-    // Close on resize to desktop
     window.addEventListener('resize', () => {
       if (window.innerWidth > 768 && nav.classList.contains('is-open')) {
         closeMobileMenu(false);
       }
     });
   }
-
-  // Logo click
-  const logo = nav.querySelector('.nav__logo');
-  if (logo) {
-    logo.addEventListener('click', (e) => {
-      e.preventDefault();
-      closeMobileMenu();
-      if (window.lenis) window.lenis.scrollTo(0, { duration: 1.2 });
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-
-  // Mobile contact links
-  const mobileContactLinks = nav.querySelectorAll('.nav__mobile-contact-link');
-  mobileContactLinks.forEach((link) => {
-    link.addEventListener('click', () => {
-      closeMobileMenu();
-    });
-  });
-
-  // Smooth scroll click handler
-  // Smooth scroll click handler
-  const currentNavLinks = document.querySelectorAll('.nav__link');
-  currentNavLinks.forEach((link) => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      if (!href || !href.startsWith('#')) return;
-
-      const targetId = href.slice(1);
-      closeMobileMenu();
-
-      // 01. O nama: scrolls to BULEVAR.IT dot figures & numbers at 26% of #hero
-      if (targetId === 'o-nama' || targetId === 'about') {
-        e.preventDefault();
-        const heroEl = document.getElementById('hero');
-        if (heroEl) {
-          const tot = heroEl.offsetHeight - window.innerHeight;
-          const targetY = heroEl.offsetTop + tot * 0.26;
-          setTimeout(() => {
-            if (window.lenis) window.lenis.scrollTo(targetY, { duration: 1.2 });
-            else window.scrollTo({ top: targetY, behavior: 'smooth' });
-          }, 80);
-          setActiveLink('o-nama');
-          return;
-        }
-      }
-
-      // 02. Usluge / Services: scrolls to start of Ideje & Usluge track (#track)
-      if (targetId === 'services' || targetId === 'usluge' || targetId === 'ideje') {
-        e.preventDefault();
-        const trackEl = document.getElementById('track');
-        if (trackEl) {
-          setTimeout(() => {
-            if (window.lenis) window.lenis.scrollTo(trackEl.offsetTop + 10, { duration: 1.2 });
-            else window.scrollTo({ top: trackEl.offsetTop + 10, behavior: 'smooth' });
-          }, 80);
-          setActiveLink('services');
-          return;
-        }
-      }
-
-      // 03. Put kupca: scrolls directly to Put kupca section
-      if (targetId === 'put-kupca' || targetId === 'journey') {
-        e.preventDefault();
-        const pkEl = document.getElementById('put-kupca');
-        if (pkEl) {
-          setTimeout(() => {
-            if (window.lenis) window.lenis.scrollTo(pkEl, { duration: 1.2 });
-            else window.scrollTo({ top: pkEl.offsetTop, behavior: 'smooth' });
-          }, 80);
-          setActiveLink('put-kupca');
-          return;
-        }
-      }
-
-      // Responzivnost: scrolls directly to before laptop opens (start of 3D showcase)
-      if (targetId === 'devices') {
-        e.preventDefault();
-        const st = ScrollTrigger.getById('unified-showcase-trigger');
-        if (st) {
-          setTimeout(() => {
-            if (window.lenis) window.lenis.scrollTo(st.start, { duration: 1.2 });
-            else window.scrollTo({ top: st.start, behavior: 'smooth' });
-          }, 80);
-          setActiveLink('devices');
-          return;
-        }
-      }
-
-      // 04. Portfolio / Radovi: scrolls directly to where the horizontal projects begin ("Naši radovi")
-      if (targetId === 'portfolio' || targetId === 'radovi' || targetId === 'work') {
-        e.preventDefault();
-        const st = ScrollTrigger.getById('unified-showcase-trigger');
-        if (st) {
-          const portfolioStart = st.start + Math.round(window.innerHeight * 0.65) + window.innerWidth;
-          setTimeout(() => {
-            if (window.lenis) window.lenis.scrollTo(portfolioStart, { duration: 1.2 });
-            else window.scrollTo({ top: portfolioStart, behavior: 'smooth' });
-          }, 80);
-          setActiveLink('portfolio');
-          return;
-        }
-      }
-
-      // 05. Kako radimo / Kako razmišljamo / Approach
-      if (targetId === 'kako-razmisljamo' || targetId === 'kako-radimo' || targetId === 'approach') {
-        e.preventDefault();
-        const krEl = document.getElementById('kako-razmisljamo');
-        if (krEl) {
-          setTimeout(() => {
-            if (window.lenis) window.lenis.scrollTo(krEl, { duration: 1.2 });
-            else krEl.scrollIntoView({ behavior: 'smooth' });
-          }, 80);
-          setActiveLink('kako-razmisljamo');
-          return;
-        }
-      }
-
-      // 06. Kontakt / Contact
-      if (targetId === 'contact' || targetId === 'kontakt') {
-        e.preventDefault();
-        const contactEl = document.getElementById('contact');
-        if (contactEl) {
-          setTimeout(() => {
-            if (window.lenis) window.lenis.scrollTo(contactEl, { duration: 1.2 });
-            else contactEl.scrollIntoView({ behavior: 'smooth' });
-          }, 80);
-          setActiveLink('contact');
-          return;
-        }
-      }
-
-      const targetEl = document.getElementById(targetId);
-      if (targetEl) {
-        e.preventDefault();
-        setTimeout(() => {
-          if (window.lenis) window.lenis.scrollTo(targetEl, { duration: 1.2 });
-          else targetEl.scrollIntoView({ behavior: 'smooth' });
-        }, 80);
-      }
-    });
-  });
 
   // Active link helper & spring blob physics
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -266,13 +221,18 @@ export function initNav() {
 
   function updateBlobTarget(activeEl) {
     if (window.innerWidth <= 768) return;
-    if (!links || !blob || !activeEl) return;
+    if (!links || !blob) return;
+    if (!activeEl) {
+      blob.style.opacity = '0';
+      return;
+    }
+    blob.style.opacity = '1';
     const nr = links.getBoundingClientRect();
     const r = activeEl.getBoundingClientRect();
     if (r.width <= 0) return;
     btx = r.left - nr.left;
     btw = r.width;
-    if (reduce) {
+    if (reduce || bw === 0) {
       bx = btx;
       bw = btw;
       blob.style.width = `${bw}px`;
@@ -311,8 +271,9 @@ export function initNav() {
   function initBlob() {
     if (window.innerWidth <= 768) return;
     if (!links || !blob) return;
-    const active = document.querySelector('.nav__link--active') || document.querySelector('.nav__link');
+    const active = document.querySelector('.nav__link--active');
     if (active) {
+      blob.style.opacity = '1';
       const nr = links.getBoundingClientRect();
       const r = active.getBoundingClientRect();
       if (r.width > 0) {
@@ -323,107 +284,165 @@ export function initNav() {
         blob.style.width = `${bw}px`;
         blob.style.transform = `translateX(${bx}px)`;
       }
+    } else {
+      blob.style.opacity = '0';
     }
   }
 
+  let currentActiveId = undefined;
+  let programmaticScrollUntil = 0;
+
   const setActiveLink = (id) => {
+    if (id === currentActiveId) return;
+    currentActiveId = id;
     let activeEl = null;
     const linksList = document.querySelectorAll('.nav__link');
     linksList.forEach((link) => {
       const href = link.getAttribute('href');
-      const isMatch = href === `#${id}` ||
+      const isMatch = !!id && (
+        href === `#${id}` ||
         ((id === 'o-nama' || id === 'about') && href === '#o-nama') ||
         ((id === 'services' || id === 'usluge' || id === 'ideje' || id === 'track') && href === '#services') ||
         ((id === 'put-kupca' || id === 'journey') && href === '#put-kupca') ||
         ((id === 'portfolio' || id === 'radovi' || id === 'work') && href === '#portfolio') ||
         ((id === 'kako-razmisljamo' || id === 'kako-radimo' || id === 'approach') && href === '#kako-razmisljamo') ||
-        ((id === 'contact' || id === 'kontakt') && href === '#contact');
+        ((id === 'contact' || id === 'kontakt') && href === '#contact')
+      );
       link.classList.toggle('nav__link--active', isMatch);
       link.setAttribute('aria-current', isMatch ? 'true' : 'false');
       if (isMatch) activeEl = link;
     });
-    if (activeEl && window.innerWidth > 768) {
+    if (window.innerWidth > 768) {
       updateBlobTarget(activeEl);
     }
   };
 
-  // Expose global helper for stage synchronization
   window.__setActiveNavLink = setActiveLink;
+
+  // Unified Scroll-Spy using the exact same section boundaries
+  const updateActiveNavOnScroll = () => {
+    if (performance.now() < programmaticScrollUntil) return;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const { ranges } = getSectionScrollMetrics();
+    let matchedId = null;
+    for (let i = 0; i < ranges.length; i++) {
+      const r = ranges[i];
+      if (scrollY >= r.start && scrollY < r.end) {
+        matchedId = r.id;
+        break;
+      }
+    }
+    setActiveLink(matchedId);
+  };
+
+  window.addEventListener('scroll', updateActiveNavOnScroll, { passive: true });
+  ScrollTrigger.addEventListener('refresh', updateActiveNavOnScroll);
+
+  // Unified programmatic scroll to section
+  const scrollToSection = (rawId, immediate = false) => {
+    const cleanId = (rawId || '').replace(/^#/, '').trim();
+    if (!cleanId) return;
+
+    if (window.ScrollTrigger) {
+      window.ScrollTrigger.refresh();
+    }
+
+    const { targets } = getSectionScrollMetrics();
+    let targetY = targets[cleanId];
+
+    if (targetY === undefined) {
+      const fallbackEl = document.getElementById(cleanId);
+      if (!fallbackEl) return;
+      const headerOffset = window.innerWidth <= 768 ? 68 : 80;
+      targetY = Math.max(0, getDocTop(fallbackEl) - headerOffset);
+    }
+
+    const curY = window.scrollY || window.pageYOffset || 0;
+    const dist = Math.abs(targetY - curY);
+    const vh = window.innerHeight || 1080;
+    const duration = immediate ? 0 : (dist > vh * 6 ? 0.85 : 1.2);
+
+    const activeMenuIds = ['o-nama', 'about', 'services', 'usluge', 'ideje', 'put-kupca', 'journey', 'portfolio', 'radovi', 'work', 'kako-razmisljamo', 'kako-radimo', 'approach', 'contact', 'kontakt'];
+    if (activeMenuIds.includes(cleanId)) {
+      programmaticScrollUntil = performance.now() + duration * 1000 + 120;
+      setActiveLink(cleanId);
+    } else if (cleanId === 'hero') {
+      programmaticScrollUntil = performance.now() + duration * 1000 + 120;
+      setActiveLink(null);
+    }
+
+    if (window.lenis) {
+      window.lenis.scrollTo(targetY, {
+        immediate,
+        duration,
+        onComplete: () => {
+          programmaticScrollUntil = 0;
+          if (window.ScrollTrigger) window.ScrollTrigger.update();
+          updateActiveNavOnScroll();
+        },
+      });
+    } else {
+      window.scrollTo({
+        top: targetY,
+        behavior: immediate ? 'auto' : 'smooth',
+      });
+    }
+  };
+
+  window.__scrollToSection = scrollToSection;
+
+  // Logo click -> top of page (start of hero video)
+  const logo = nav.querySelector('.nav__logo');
+  if (logo) {
+    logo.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeMobileMenu();
+      setTimeout(() => scrollToSection('hero', false), 40);
+    });
+  }
+
+  // Mobile contact links
+  const mobileContactLinks = nav.querySelectorAll('.nav__mobile-contact-link');
+  mobileContactLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      closeMobileMenu();
+    });
+  });
+
+  // Nav links click handler (desktop & mobile)
+  const currentNavLinks = document.querySelectorAll('.nav__link');
+  currentNavLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      if (!href || !href.startsWith('#')) return;
+      e.preventDefault();
+      const targetId = href.slice(1);
+      const wasMobileOpen = nav.classList.contains('is-open');
+      closeMobileMenu();
+      setTimeout(() => {
+        scrollToSection(targetId, false);
+      }, wasMobileOpen ? 60 : 0);
+    });
+  });
 
   let lastNavBlobWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
   window.addEventListener('resize', () => {
     if (window.innerWidth === lastNavBlobWidth) return;
     lastNavBlobWidth = window.innerWidth;
     initBlob();
-  });
+    updateActiveNavOnScroll();
+  }, { passive: true });
+
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(initBlob);
-  }
-  setTimeout(initBlob, 250);
-
-  // Scroll spy: O nama (24% of #hero to end of #hero)
-  if (heroSection) {
-    ScrollTrigger.create({
-      trigger: heroSection,
-      start: '24% top',
-      end: 'bottom top',
-      onToggle: ({ isActive }) => {
-        if (isActive) setActiveLink('o-nama');
-      }
+    document.fonts.ready.then(() => {
+      initBlob();
+      updateActiveNavOnScroll();
     });
   }
-
-  // Scroll spy: Usluge (#track)
-  const trackEl = document.getElementById('track');
-  if (trackEl) {
-    ScrollTrigger.create({
-      trigger: trackEl,
-      start: 'top center',
-      end: 'bottom center',
-      onToggle: ({ isActive }) => {
-        if (isActive) setActiveLink('services');
-      },
-    });
-  }
-
-  // Scroll spy: Put kupca
-  const putKupcaEl = document.getElementById('put-kupca');
-  if (putKupcaEl) {
-    ScrollTrigger.create({
-      trigger: putKupcaEl,
-      start: 'top center',
-      end: 'bottom center',
-      onToggle: ({ isActive }) => {
-        if (isActive) setActiveLink('put-kupca');
-      },
-    });
-  }
-
-  // Scroll spy: Kako razmišljamo
-  const krSection = document.getElementById('kako-razmisljamo');
-  if (krSection) {
-    ScrollTrigger.create({
-      trigger: krSection,
-      start: 'top center',
-      end: 'bottom center',
-      onToggle: ({ isActive }) => {
-        if (isActive) setActiveLink('kako-razmisljamo');
-      },
-    });
-  }
-
-  // Scroll spy: Kontakt
-  const contactSection = document.getElementById('contact');
-  if (contactSection) {
-    ScrollTrigger.create({
-      trigger: contactSection,
-      start: 'top center',
-      end: 'bottom center',
-      onToggle: ({ isActive }) => {
-        if (isActive) setActiveLink('contact');
-      },
-    });
-  }
+  setTimeout(() => {
+    initBlob();
+    updateActiveNavOnScroll();
+  }, 250);
 
   // Handle deep-link anchor routing on hash changes
   window.addEventListener('hashchange', () => handleUrlLandingRoute(false));
@@ -438,7 +457,6 @@ export function handleUrlLandingRoute(isInitial = false) {
   const searchRaw = window.location.search || '';
   if (!hashRaw && !searchRaw) return;
 
-  // Prevent browser default uncoordinated jump before GSAP initializes
   if (hashRaw && 'scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
@@ -457,18 +475,6 @@ export function handleUrlLandingRoute(isInitial = false) {
     } else {
       hashAnchor = hashRaw.slice(1);
     }
-  }
-
-  // Destination target sections based on landing
-  let targetElement = null;
-  if (hashAnchor === 'zasto-sajt' || hashAnchor === 'uloga') {
-    targetElement = document.getElementById('uloga') || document.getElementById('zasto-sajt');
-  } else if (hashAnchor === 'kako-razmisljamo' || hashAnchor === 'ne-trazimo') {
-    targetElement = document.getElementById('kako-razmisljamo');
-  } else if (hashAnchor === 'sistem-iza-ekrana' || hashAnchor === 'sta-ako' || hashAnchor === 'sis') {
-    targetElement = document.getElementById('laptop-master-stage') || document.getElementById('sis') || document.getElementById('sistem-iza-ekrana');
-  } else if (hashAnchor) {
-    targetElement = document.getElementById(hashAnchor);
   }
 
   // Activate matching role chip in Section 09 if goal passed
@@ -491,23 +497,10 @@ export function handleUrlLandingRoute(isInitial = false) {
     }
   }
 
-  if (targetElement) {
-    const headerOffset = window.innerWidth <= 768 ? 68 : 80;
+  if (hashAnchor) {
     const performScroll = (immediate) => {
-      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
-      const rect = targetElement.getBoundingClientRect();
-      const currentScroll = window.scrollY || window.pageYOffset || 0;
-      const targetY = Math.max(0, rect.top + currentScroll - headerOffset);
-      if (window.lenis) {
-        window.lenis.scrollTo(targetY, {
-          immediate: immediate,
-          duration: immediate ? 0 : 1.2
-        });
-      } else {
-        window.scrollTo({
-          top: targetY,
-          behavior: immediate ? 'auto' : 'smooth'
-        });
+      if (window.__scrollToSection) {
+        window.__scrollToSection(hashAnchor, immediate);
       }
     };
 
@@ -532,8 +525,8 @@ export function handleUrlLandingRoute(isInitial = false) {
   const izvor = params.get('izvor');
   const gclid = params.get('gclid');
   if (cilj || izvor || gclid) {
-    const form = document.getElementById('contact-form');
-    const msgInput = document.getElementById('contact-message');
+    const form = document.getElementById('kfForm') || document.getElementById('contact-form');
+    const msgInput = document.getElementById('f-msg') || document.getElementById('contact-message');
 
     ['gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'izvor', 'cilj'].forEach((key) => {
       const val = params.get(key);

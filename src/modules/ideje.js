@@ -10,7 +10,7 @@
  * 5. Clean, production-ready: switcher buttons and debug UI completely removed.
  */
 
-import { getShapePoints } from './serviceShapes.js';
+
 import { t, getLang } from './i18n.js';
 
 export function initIdeje() {
@@ -87,8 +87,13 @@ export function initIdeje() {
   function buildUslugeSymbols() {
     const mob = W < 900;
     const cx = W * 0.50; // Centered horizontally
-    const cy = mob ? H * 0.28 : (H * 0.5 - 65); // Centered vertically between title and bottom cards
-    const sc = mob ? 0.70 : Math.min(1.30, Math.max(0.72, (H - 390) / 400));
+    const uhEl = document.querySelector('#usluge .uh');
+    const rowEl = document.getElementById('services-blocks-row');
+    const topBound = (uhEl && uhEl.offsetHeight > 0) ? (uhEl.offsetTop + uhEl.offsetHeight) : (mob ? 135 : 170);
+    const botBound = (rowEl && rowEl.offsetTop > topBound + 80) ? rowEl.offsetTop : (mob ? H * 0.54 : H - 300);
+    const gapH = Math.max(120, botBound - topBound);
+    const cy = topBound + gapH * 0.5;
+    const sc = mob ? Math.min(0.84, Math.max(0.58, (gapH * 0.68) / 231)) : Math.min(1.56, Math.max(0.80, (gapH * 0.74) / 231));
 
     const ORANGE = [238, 126, 34];
     const GOLD = [245, 178, 75];
@@ -660,7 +665,7 @@ export function initIdeje() {
 
     const rc = track.getBoundingClientRect();
     const tot = track.offsetHeight - window.innerHeight;
-    const inVisibleZone = rc.bottom > -200 && rc.top < window.innerHeight + 200;
+    const inVisibleZone = rc.bottom > 0 && rc.top < window.innerHeight + 120;
 
     if (inVisibleZone) {
       const DATA = getData();

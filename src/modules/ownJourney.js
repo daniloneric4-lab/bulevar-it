@@ -246,26 +246,57 @@ export function initOwnJourney() {
     }
   })();
 
+  const svgCache = {
+    cfar: document.querySelectorAll('.cf'),
+    cmid: document.querySelectorAll('.cm'),
+    cground: $('cground'),
+    rb: document.querySelectorAll('.rb'),
+    door: document.querySelectorAll('.door'),
+    cw: document.querySelectorAll('.cw'),
+    bulbs: document.querySelectorAll('.bulb'),
+    courier: $('courier'),
+    wh1: $('wh1'),
+    wh2: $('wh2'),
+    beam: $('beam'),
+    blight: $('blight'),
+    cfarEl: $('cfar'),
+    cmidEl: $('cmid'),
+    s0: $('s0'),
+    s1: $('s1'),
+    farP: $('farP'),
+    midP: $('midP'),
+    nearP: $('nearP'),
+    rows: document.querySelectorAll('.row'),
+    trees: document.querySelectorAll('.crown,.trunk'),
+    hb: $('hb'),
+    hr: $('hr'),
+    wins: document.querySelectorAll('.win'),
+    sun: $('sun'),
+    farG: $('far'),
+    midG: $('mid'),
+    nearG: $('near'),
+  };
+
   function paintCity(t) {
-    const cfar = document.querySelectorAll('.cf');
+    const cfar = svgCache.cfar;
     cfar.forEach((r) => r.setAttribute('fill', ramp(CC.far, t)));
-    const cmid = document.querySelectorAll('.cm');
+    const cmid = svgCache.cmid;
     cmid.forEach((r) => r.setAttribute('fill', ramp(CC.mid, t)));
     const cground = $('cground');
     if (cground) cground.setAttribute('fill', ramp(CC.gr, t));
-    const rb = document.querySelectorAll('.rb');
+    const rb = svgCache.rb;
     rb.forEach((r) => r.setAttribute('fill', ramp(CC.rb, t)));
-    const door = document.querySelectorAll('.door');
+    const door = svgCache.door;
     door.forEach((r) => r.setAttribute('fill', ramp(C.roof, t)));
 
     const wo = sm(0.5, 0.85, t);
-    const cw = document.querySelectorAll('.cw');
+    const cw = svgCache.cw;
     cw.forEach((r) => {
       r.setAttribute('fill', '#ffd27a');
       r.setAttribute('opacity', (0.08 + 0.8 * wo).toFixed(2));
     });
 
-    const bulbs = document.querySelectorAll('.bulb');
+    const bulbs = svgCache.bulbs;
     bulbs.forEach((r) => r.setAttribute('opacity', (0.2 + 0.8 * sm(0.55, 0.85, t)).toFixed(2)));
 
     const courier = $('courier');
@@ -303,15 +334,15 @@ export function initOwnJourney() {
     const nearP = $('nearP');
     if (nearP) nearP.setAttribute('fill', ramp(C.near, t));
 
-    document.querySelectorAll('.row').forEach((r) => r.setAttribute('stroke', ramp(C.row, t)));
-    document.querySelectorAll('.crown,.trunk').forEach((r) => r.setAttribute('fill', ramp(C.near, Math.min(1, t + 0.12))));
+    svgCache.rows.forEach((r) => r.setAttribute('stroke', ramp(C.row, t)));
+    svgCache.trees.forEach((r) => r.setAttribute('fill', ramp(C.near, Math.min(1, t + 0.12))));
 
     const hb = $('hb');
     if (hb) hb.setAttribute('fill', ramp(C.house, t));
     const hr = $('hr');
     if (hr) hr.setAttribute('fill', ramp(C.roof, t));
 
-    document.querySelectorAll('.win').forEach((w) => {
+    svgCache.wins.forEach((w) => {
       w.setAttribute('fill', '#ffd27a');
       w.setAttribute('opacity', (0.15 + 0.85 * sm(0.55, 0.85, t)).toFixed(2));
     });
@@ -932,9 +963,14 @@ export function initOwnJourney() {
   let lastFeedP = -1;
   let lastFeedMode = '';
   let lastFeedLang = '';
+  let lastFeedOff = -1, lastFeedTag = false, lastFeedMine = false;
   function drawFeed(P, force = false) {
     const curLang = getLang();
-    if (!force && Math.abs(P - lastFeedP) < 0.0005 && OJ.mode === lastFeedMode && curLang === lastFeedLang) return;
+    const feedOff = Math.round(sm(0, 0.2, P) * 1000);
+    const tag = P > 0.09, mine = P > 0.17;
+    if (!force && feedOff === lastFeedOff && tag === lastFeedTag && mine === lastFeedMine && OJ.mode === lastFeedMode && curLang === lastFeedLang) return;
+    lastFeedOff = feedOff; lastFeedTag = tag; lastFeedMine = mine;
+
     lastFeedP = P;
     lastFeedMode = OJ.mode;
     lastFeedLang = curLang;
@@ -943,11 +979,14 @@ export function initOwnJourney() {
   }
 
   let narrow = false;
+  let stageW = 1920, stageH = 1080;
   let basePosY = -0.08;
 
   function layout() {
     if (!stage || !cv) return;
     const r = stage.getBoundingClientRect();
+    stageW = r.width || window.innerWidth;
+    stageH = r.height || window.innerHeight;
     renderer.setSize(r.width, r.height, false);
     cam.aspect = r.width / r.height;
     narrow = r.width <= 860;
@@ -987,7 +1026,7 @@ export function initOwnJourney() {
 
   const vv = new THREE.Vector3();
   function screenRect() {
-    const sr = stage.getBoundingClientRect();
+    const sr = { width: stageW, height: stageH };
     if (!phoneScreenMesh) {
       return [sr.width * 0.5, sr.height * 0.2, sr.width * 0.8, sr.height * 0.8, 30];
     }
@@ -1081,9 +1120,11 @@ export function initOwnJourney() {
         renderer.render(scene, cam);
       }
 
-      const sr = screenRect();
-      const W = stage.clientWidth;
-      const H = stage.clientHeight;
+      const W = stageW;
+      const H = stageH;
+      const sr = (P > 0.26 && e < 1) ? screenRect() : null;
+
+
 
       if (P <= 0.26) {
         if (portal) {
@@ -1096,7 +1137,8 @@ export function initOwnJourney() {
       } else {
         if (portal) {
           portal.style.display = 'block';
-          portal.style.clipPath =
+
+          portal.style.clipPath = e >= 1 ? 'none' :
             'inset(' + (sr[1] * (1 - e)) + 'px ' +
             ((W - sr[2]) * (1 - e)) + 'px ' +
             ((H - sr[3]) * (1 - e)) + 'px ' +
@@ -1105,7 +1147,7 @@ export function initOwnJourney() {
           portal.style.opacity = fade;
           const pSvg = portal.querySelector('svg');
           if (pSvg) {
-            pSvg.style.transform = 'scale(' + (1.12 - 0.12 * e) + ')';
+            pSvg.style.transform = e >= 1 ? 'none' : 'scale(' + (1.12 - 0.12 * e) + ')';
           }
         }
       }
@@ -1140,13 +1182,11 @@ export function initOwnJourney() {
       if (book) book.classList.toggle('on', ci === 3);
       dots.forEach((d, i) => d.classList.toggle('on', i <= ci));
 
-      if (r.top >= 0) {
-        iStep = -1;
-        cStep = -1;
-      }
+      if (r.top >= 0) { iStep = -1; cStep = -1; }
+      updateDecodeText(now);
     }
 
-    updateDecodeText(now);
+
 
     requestAnimationFrame(frame);
   }

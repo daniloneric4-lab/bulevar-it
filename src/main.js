@@ -20,10 +20,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './styles/index.css';
 
 import { initHeroOnama } from './modules/heroOnama.js';
-import { initScrollAnimations, initServicesReveal } from './modules/animations.js';
+import { initScrollAnimations } from './modules/animations.js';
 import { initIdeje } from './modules/ideje.js';
 import { initOwnJourney } from './modules/ownJourney.js';
-import { DotGrid } from './modules/dotGrid.js';
+
 import { initDevicePortfolioStage } from './modules/devicePortfolioStage.js';
 import { initKakoRazmisljamo } from './modules/kakoRazmisljamo.js';
 import { initSistemIzaEkrana } from './modules/sistemIzaEkrana.js';
