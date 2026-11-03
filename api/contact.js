@@ -105,13 +105,13 @@ async function sendMail(u, meta) {
     .filter(Boolean);
 
   const vreme = formatBelgrade(meta.date);
-  const subject = oneLine(`Novi upit: ${u.ime}${u.firma ? ` - ${u.firma}` : ''}`).slice(0, 250);
+  const subject = oneLine(`Novi upit: ${u.ime}${u.firma ? ` – ${u.firma}` : ''}`).slice(0, 250);
 
   const fields = [
     ['Ime', u.ime],
+    ...(u.firma ? [['Naziv biznisa', u.firma]] : []),
     ['Email', u.email],
     ['Telefon', u.telefon],
-    ['Firma', u.firma],
     ['Šta traže / usluga', u.usluga],
     ['Poruka', u.poruka],
     ['Stranica', u.stranica],

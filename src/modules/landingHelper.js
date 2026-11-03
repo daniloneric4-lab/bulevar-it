@@ -209,6 +209,7 @@ function setupQuestionnaireModal(currentParams) {
 
       const payload = {
         ime: String(formData.get('name') || '').trim(),
+        firma: String(formData.get('firma') || '').trim(),
         email: String(formData.get('email') || '').trim(),
         telefon: String(formData.get('phone') || '').trim(),
         poruka: String(formData.get('message') || '').trim(),

@@ -233,6 +233,7 @@ function initContactForm() {
 
     const data = {
       ime: form.ime.value.trim(),
+      firma: form.firma ? form.firma.value.trim() : '',
       telefon: form.telefon.value.trim() ? '+381 ' + form.telefon.value.trim() : '',
       email: form.email.value.trim(),
       imaIdeju: ideja === 'da' ? 'Ima ideju' : (ideja === 'ne' ? 'Još nema ideju' : ''),
