@@ -31,6 +31,7 @@ import { initNav, handleUrlLandingRoute } from './modules/nav.js';
 import { initKontaktFooter } from './modules/kontaktFooter.js';
 import { initI18n } from './modules/i18n.js';
 import { initWorkGlassBox } from './modules/workGlassBox.js';
+import { initScrollHint } from './modules/scrollHint.js';
 
 // ─── Register GSAP plugins ───
 gsap.registerPlugin(ScrollTrigger);
@@ -133,6 +134,7 @@ async function init() {
 
   // 5. Contact form & Animated Logo Footer
   initKontaktFooter();
+  initScrollHint(lenis);
 
   // 6. Sort and refresh GSAP ScrollTrigger & Lenis to ensure all trigger ranges are strictly ordered
   lenis.resize();

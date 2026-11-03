@@ -2177,3 +2177,55 @@ body.nav-open-lock {
   }
 }
 
+
+/* ─── Smart Idle Scroll Hint ─── */
+.scroll-hint {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  font-family: var(--mono, 'IBM Plex Mono', ui-monospace, Menlo, monospace);
+  font-size: 11px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgba(167, 174, 194, .75);
+  pointer-events: none;
+  z-index: 950;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s, transform 0s linear 0.3s;
+}
+
+.scroll-hint.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, visibility 0s linear 0s, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scroll-hint i {
+  display: block;
+  width: 1px;
+  height: 28px;
+  margin: 10px auto 0;
+  background: linear-gradient(var(--gold, #D9B25F), transparent);
+  animation: heroHintAnim 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint {
+    transform: none;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+  }
+
+  .scroll-hint.is-visible {
+    transform: none;
+    transition: opacity 0.5s ease, visibility 0s linear 0s;
+  }
+
+  .scroll-hint i {
+    animation: none;
+  }
+}
