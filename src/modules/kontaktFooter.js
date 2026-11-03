@@ -114,6 +114,8 @@ function initContactForm() {
       btn.onclick = () => {
         ideja = btn.dataset.v;
         pick(seg, btn);
+        seg.classList.remove('bad');
+        if (pDa) pDa.classList.remove('bad');
         if (pDa) pDa.classList.toggle('open', ideja === 'da');
         if (pNe) pNe.classList.toggle('open', ideja === 'ne');
         if (ideja === 'da') {
@@ -141,7 +143,7 @@ function initContactForm() {
   // Validation
   const val = {
     ime: (v) => v.trim().length > 1,
-    tel: (v) => v.replace(/\D/g, '').length >= 8,
+    tel: (v) => v.replace(/\D/g, '').length >= 6,
     mail: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
   };
 
@@ -150,6 +152,11 @@ function initContactForm() {
     const input = r.querySelector('input');
     if (input) {
       input.addEventListener('input', () => r.classList.remove('bad'));
+    }
+    const ideaInput = document.getElementById('f-ideja');
+    if (ideaInput && pDa) {
+      ideaInput.addEventListener('input', () => pDa.classList.remove('bad'));
+    }
     }
   });
 
@@ -186,10 +193,10 @@ function initContactForm() {
     form.reset(); // hidden "ucitano" keeps its value (value attribute), honeypot is emptied
     ideja = null;
     if (seg) {
-      seg.classList.remove('picked');
+      seg.classList.remove('picked', 'bad');
       seg.querySelectorAll('button').forEach((x) => x.classList.remove('on'));
     }
-    if (pDa) pDa.classList.remove('open');
+    if (pDa) pDa.classList.remove('open', 'bad');
     if (pNe) pNe.classList.remove('open');
     document.querySelectorAll('#muke .pill').forEach((c) => c.classList.remove('on'));
     if (kanal) {
@@ -218,6 +225,22 @@ function initContactForm() {
         ok = false;
       }
     });
+    if (seg) {
+      seg.classList.remove('bad');
+      void seg.offsetWidth;
+      if (!ideja) {
+        seg.classList.add('bad');
+        ok = false;
+      }
+    }
+    if (pDa) {
+      pDa.classList.remove('bad');
+      void pDa.offsetWidth;
+      if (ideja === 'da' && (!form.ideja || !form.ideja.value.trim())) {
+        pDa.classList.add('bad');
+        ok = false;
+      }
+    }
     if (!ok) return;
 
     const chosenContact = kanal?.querySelector('button.on')?.dataset?.k || 'poziv';
@@ -234,7 +257,7 @@ function initContactForm() {
     const data = {
       ime: form.ime.value.trim(),
       firma: form.firma ? form.firma.value.trim() : '',
-      telefon: form.telefon.value.trim() ? '+381 ' + form.telefon.value.trim() : '',
+      telefon: form.telefon.value.trim(),
       email: form.email.value.trim(),
       imaIdeju: ideja === 'da' ? 'Ima ideju' : (ideja === 'ne' ? 'Još nema ideju' : ''),
       ideja: ideja === 'da' && form.ideja ? form.ideja.value.trim() : '',

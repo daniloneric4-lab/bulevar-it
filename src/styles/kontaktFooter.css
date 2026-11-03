@@ -883,3 +883,57 @@
   }
   .ft .sub { letter-spacing: .16em; font-size: 9px; }
 }
+
+
+#seg {
+  position: relative;
+  align-items: center;
+}
+
+#seg .err {
+  font-size: 12px;
+  color: var(--or);
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+  margin-left: 6px;
+}
+
+#seg.bad {
+  animation: shake .4s;
+}
+
+#seg.bad .pill {
+  border-color: var(--or);
+}
+
+#seg.bad .err {
+  opacity: 1;
+}
+
+#pDa .inner {
+  position: relative;
+}
+
+#pDa .err {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  font-size: 12px;
+  color: var(--or);
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none;
+}
+
+#pDa.bad .inner {
+  animation: shake .4s;
+}
+
+#pDa.bad textarea {
+  border-color: var(--or);
+}
+
+#pDa.bad .err {
+  opacity: 1;
+}
