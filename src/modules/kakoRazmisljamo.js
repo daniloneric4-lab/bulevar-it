@@ -159,6 +159,41 @@ export function initKakoRazmisljamo() {
     L.push({ el: o.q, ms: 30, t: '', h: '', st: 0 });
   });
 
+  const headEl = section.querySelector('.kr-head');
+  const tagEl = headEl ? headEl.querySelector('.kr-tag') : null;
+  const h2El = headEl ? headEl.querySelector('h2') : null;
+  const subEl = headEl ? headEl.querySelector('.kr-sub') : null;
+  let h1Span = null;
+  let h2Span = null;
+
+  if (tagEl) tagEl.removeAttribute('data-i18n');
+  if (subEl) subEl.removeAttribute('data-i18n');
+  if (h2El) {
+    h2El.innerHTML = '<span class="kr-h1"></span><em><span class="kr-h2"></span></em>';
+    h1Span = h2El.querySelector('.kr-h1');
+    h2Span = h2El.querySelector('.kr-h2');
+  }
+
+  function getHeadTexts() {
+    const tagTxt = t('kr.tag', '07 · Kako razmišljamo');
+    const rawH = t('kr.h', 'Bolja pitanja vode do <em>boljih sistema.</em>');
+    const subTxt = t('kr.sub', 'Ne počinjemo pitanjem „koji sajt želite?“, nego pitanjem šta vaš biznis pokušava da postigne.');
+    const m = rawH.match(/^(.*?)<em>(.*?)<\/em>(.*)$/i);
+    if (m) {
+      return { tag: tagTxt, h1: m[1], h2: m[2] + (m[3] || ''), sub: subTxt };
+    }
+    return { tag: tagTxt, h1: rawH, h2: '', sub: subTxt };
+  }
+
+  L.push({ el: tagEl, ms: 32, t: '', h: '', st: 0 });
+  L.push({ el: h1Span, ms: 42, t: '', h: '', st: 0 });
+  L.push({ el: h2Span, ms: 42, t: '', h: '', st: 0 });
+  L.push({ el: subEl, ms: 22, t: '', h: '', st: 0 });
+
+  let headOn = false;
+  [0].forEach(() => {
+  });
+
   function esc(s) {
     return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
   }
@@ -170,6 +205,7 @@ export function initKakoRazmisljamo() {
 
   function text(now) {
     L.forEach((l) => {
+      if (!l.el) return;
       if (!l.t) {
         if (l.h !== '') {
           l.el.innerHTML = '';
@@ -217,6 +253,21 @@ export function initKakoRazmisljamo() {
     track.style.setProperty('--in', '1');
 
     const isRisingOrPinned = r.top < window.innerHeight * 0.92;
+    if (isRisingOrPinned && !headOn) {
+      headOn = true;
+      const ht = getHeadTexts();
+      say(14, ht.tag, 0);
+      say(15, ht.h1, 80);
+      const h1Delay = 80 + ht.h1.length * 42 * 0.6;
+      say(16, ht.h2, h1Delay);
+      say(17, ht.sub, h1Delay + ht.h2.length * 42 * 0.6);
+    } else if (!isRisingOrPinned && headOn) {
+      headOn = false;
+      L[14].t = '';
+      L[15].t = '';
+      L[16].t = '';
+      L[17].t = '';
+    }
     const steps = r.top <= 0 ? (P * 8.0) : (isRisingOrPinned ? 0 : -1);
     const act = isRisingOrPinned ? Math.max(0, Math.min(6, Math.floor(steps))) : -1;
 
@@ -286,6 +337,14 @@ export function initKakoRazmisljamo() {
 
   window.addEventListener('bulevar:langchange', () => {
     const fresh = getSteps();
+    if (headOn) {
+      const ht = getHeadTexts();
+      say(14, ht.tag, 0);
+      say(15, ht.h1, 60);
+      const h1Delay = 60 + ht.h1.length * 42 * 0.5;
+      say(16, ht.h2, h1Delay);
+      say(17, ht.sub, h1Delay + ht.h2.length * 42 * 0.5);
+    }
     fresh.forEach((s, i) => {
       if (W[i]) {
         W[i].word = s[0];

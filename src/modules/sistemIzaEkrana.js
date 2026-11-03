@@ -204,7 +204,7 @@ export function initSistemIzaEkrana() {
   function glass(x) {
     x.clearRect(0, 0, CW, CH);
     rr(x, 4, 4, CW - 8, CH - 8, 26);
-    x.fillStyle = 'rgba(15, 22, 40, .75)';
+    x.fillStyle = 'rgba(15, 22, 40, .92)';
     x.fill();
     x.strokeStyle = 'rgba(217, 178, 95, .9)';
     x.lineWidth = 4;
@@ -1386,9 +1386,9 @@ export function initSistemIzaEkrana() {
     t.magFilter = THREE.LinearFilter;
 
     const g = new THREE.Group();
-    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true, depthWrite: false }));
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true }));
     f.position.z = 0.003;
-    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false, transparent: true, depthWrite: false }));
+    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false, transparent: true }));
     bk.rotation.y = Math.PI;
     bk.position.z = -0.003;
 
@@ -1898,7 +1898,8 @@ export function initSistemIzaEkrana() {
 
         // Deck fly-out factor: 0 dok je laptop zatvoren/dok se otvara/pali,
         // a tek od 0.18 do S0 (0.28) kartice elegantno izleću iz ekrana u špil
-        const deckFly = sm(0.18, S0, P_sis);
+        const deckFly = sm(0.18, S0, P_sis) * (1 - sm(0.86, 0.94, P_sis));
+        const screenRx = sp.rx - Math.atan2(NRM.y, NRM.z);
 
         // Slojevi 02–05 (j = 0..3) stoje u špilu iza ekrana
         for (let j = 0; j < 4; j++) {
@@ -1925,12 +1926,12 @@ export function initSistemIzaEkrana() {
           // 2. Špil slojeva iza ekrana: izleće iz samog ekrana (sp) u špil
           const dx = 0.0223 * (j + 1) * spread;
           const dup = 0.0843 * (j + 1) * spread;
-          const dnrm = -0.0347 - 0.0794 * (j + 1) * spread;
+          const dnrm = -0.065 - 0.0794 * (j + 1) * spread * deckFly;
 
           const slotPos = {
             x: lerp(sp.x, sp.x + dx, deckFly),
-            y: lerp(sp.y, sp.y + UP.y * dup + NRM.y * dnrm, deckFly),
-            z: lerp(sp.z, sp.z + UP.z * dup + NRM.z * dnrm, deckFly)
+            y: sp.y + UP.y * dup * deckFly + NRM.y * dnrm,
+            z: sp.z + UP.z * dup * deckFly + NRM.z * dnrm
           };
 
           // 5. Koraci 02–05: sloj glatko izlazi ispred ekrana (malo iznad centra ekrana, z ≈ +0.28)
@@ -1948,14 +1949,21 @@ export function initSistemIzaEkrana() {
 
           const sc = sp.s * lerp(0.96, 1.02, out) * lerp(0.88, 1.0, deckFly);
           c.g.scale.set(sc, sc, 1);
-          c.g.rotation.set(sp.rx, sp.ry, sp.rz);
+          c.g.rotation.set(screenRx, sp.ry, sp.rz);
 
           // Slojevi u špilu su zatamnjeni (~62% svetline), zlatni rub ostaje vidljiv, front 100%
-          const dim = lerp(0.62, 1, out) * deckFly;
+          const dim = lerp(0.76, 1, out);
+          const cardAlpha = cl(deckFly * 1.25);
+          c.f.material.opacity = cardAlpha;
+          c.f.material.depthTest = out <= 0.01;
+          if (c.bk) {
+            c.bk.material.opacity = cardAlpha;
+            c.bk.material.depthTest = out <= 0.01;
+          }
           c.f.material.color.setRGB(dim, dim, dim);
           if (c.bk) c.bk.material.color.setRGB(dim, dim, dim);
 
-          c.g.renderOrder = out > 0.01 ? 10 : 1;
+          c.g.renderOrder = out > 0.01 ? Math.round(10 + out * 20) : (5 - j);
           c.g.visible = true;
 
           if (out > 0.02 && deckFly > 0.8 && (!lp || out > lp.out)) {
