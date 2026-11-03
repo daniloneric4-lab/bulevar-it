@@ -147,16 +147,16 @@ function initContactForm() {
     mail: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()),
   };
 
+  const ideaInput = document.getElementById('f-ideja');
+  if (ideaInput && pDa) {
+    ideaInput.addEventListener('input', () => pDa.classList.remove('bad'));
+  }
+
   const rows = [...form.querySelectorAll('.row[data-req]')];
   rows.forEach((r) => {
     const input = r.querySelector('input');
     if (input) {
       input.addEventListener('input', () => r.classList.remove('bad'));
-    }
-    const ideaInput = document.getElementById('f-ideja');
-    if (ideaInput && pDa) {
-      ideaInput.addEventListener('input', () => pDa.classList.remove('bad'));
-    }
     }
   });
 
