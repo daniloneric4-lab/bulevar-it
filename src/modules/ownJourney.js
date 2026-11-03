@@ -1239,6 +1239,37 @@ export function initOwnJourney() {
     iStep = -1;
     cStep = -1;
     lastT = -1;
+
+    // Reset rendered cache so next frame or immediate call re-renders
+    const h1El = $('oj-h1'), ipEl = $('oj-ip');
+    if (h1El) h1El._renderedText = null;
+    if (ipEl) ipEl._renderedText = null;
+    const cnEl = $('oj-cn'), chEl = $('oj-ch'), cpEl = $('oj-cp');
+    if (cnEl) cnEl._renderedText = null;
+    if (chEl) chEl._renderedText = null;
+    if (cpEl) cpEl._renderedText = null;
+
+    const IN = getIntro(m);
+    const CHX = getChapters(m);
+
+    // If currently on phone feed intro stage, update text immediately
+    if (lastP >= 0 && lastP <= 0.26) {
+      const ia = lastP < 0.08 ? 0 : lastP < 0.16 ? 1 : 2;
+      if (h1El && IN[ia]) h1El.innerHTML = esc(IN[ia][0]);
+      if (ipEl && IN[ia]) ipEl.innerHTML = esc(IN[ia][1]);
+    } else if (lastP >= 0.40) {
+      const c = cl((lastP - 0.40) / 0.60);
+      const ci = Math.min(3, Math.floor(c * 4));
+      if (cnEl && CHX[ci]) cnEl.innerHTML = esc(CHX[ci][0]);
+      if (chEl && CHX[ci]) chEl.innerHTML = esc(CHX[ci][1]);
+      if (cpEl && CHX[ci]) cpEl.innerHTML = esc(CHX[ci][2]);
+    }
+
+    drawFeed(lastP >= 0 ? lastP : 0, true);
+    if (typeof scene !== 'undefined' && typeof cam !== 'undefined' && typeof renderer !== 'undefined') {
+      renderer.render(scene, cam);
+    }
+    paint(lastT >= 0 ? lastT : 0);
   }
 
   OJ.fns.push(applyScene);
@@ -1347,7 +1378,7 @@ export function initOwnJourney() {
       base: 1780,
       unit: 'din',
       q: 'Dodajte porudžbini',
-      ph: 'Vaša večer',
+      ph: 'Vaša večera',
       empty: 'Za sada samo glavno jelo. Dodajte nešto levo.',
       full: (n, w) => 'Porudžbina i ' + n + ' ' + w + '. Sve u jednoj kupovini.',
       vl: 'Vrednost porudžbine',
@@ -1546,6 +1577,25 @@ export function initOwnJourney() {
     const xBp = $('x-bp'), xBen = $('x-ben');
     if (xBp) xBp.textContent = fmtExp(M.base);
 
+    // Direct text sync: ensure every element displays the active mode's text immediately
+    const xBn = $('x-bn'), xBs = $('x-bs'), xQ = $('x-q');
+    if (xBn) xBn.textContent = M.bn;
+    if (xBs) xBs.textContent = M.bs;
+    if (xQ) xQ.textContent = M.q;
+
+    const xPh = $('x-ph'), xVl = $('x-vl'), xL1 = $('x-l1'), xL2 = $('x-l2'), xNote = $('x-note');
+    if (xPh) xPh.textContent = M.ph;
+    if (xVl) xVl.textContent = M.vl;
+    if (xL1) xL1.textContent = M.l1;
+    if (xL2) xL2.textContent = M.l2;
+    if (xNote) xNote.textContent = M.note;
+
+    const xH = $('x-h'), xLead = $('x-lead'), xMsg = $('x-msg'), xOther = $('x-other');
+    if (xH) xH.innerHTML = M.h;
+    if (xLead) xLead.textContent = M.lead;
+    if (xMsg) xMsg.innerHTML = M.msg;
+    if (xOther) xOther.innerHTML = M.other || '';
+
     if (xBen) {
       xBen.innerHTML = M.ben
         .map((b, i) => {
@@ -1585,8 +1635,24 @@ export function initOwnJourney() {
     renderExp();
 
     const expEl = $('exp');
-    if (expEl && (expHasAnimated || expEl.classList.contains('in-view'))) {
+    const isExpVisible = expEl && (expHasAnimated || expEl.classList.contains('in-view'));
+    if (isExpVisible) {
       decodeExpText();
+      const panelLeft = document.querySelector('#exp .panel:not(.plan)');
+      const panelPlan = document.querySelector('#exp .panel.plan');
+      if (panelLeft) decodeBlockText(panelLeft, 0);
+      if (panelPlan) decodeBlockText(panelPlan, 0);
+      if (xBen) decodeIn(xBen, 0);
+    }
+
+    // Refresh decode on active #vs comparison wrap if present
+    const activeVsWrap = document.querySelector('#vs .wrap[data-m="' + mode + '"]');
+    if (activeVsWrap) {
+      const vsDrops = activeVsWrap.querySelectorAll('.drop');
+      vsDrops.forEach((d) => {
+        d.classList.add('in');
+        decodeIn(d, 0);
+      });
     }
 
     setTimeout(initDropAnimations, 80);

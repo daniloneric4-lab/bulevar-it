@@ -1527,14 +1527,20 @@ body.nav-open-lock {
     font-size: 1.15rem;
   }
 
-  /* Morph hamburger to X */
+  /* Morph hamburger to X / centered arrow */
+  .nav.is-open .lang-mobile-wrap {
+    margin-right: 0 !important;
+    margin: 8px 0 10px 0 !important;
+  }
+
   .nav.is-open .nav__toggle {
     background: rgba(255, 255, 255, 0.12);
     border-color: rgba(255, 255, 255, 0.25);
+    margin: 6px auto 16px auto !important;
   }
 
   .nav.is-open .nav__toggle-bar:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
+    transform: translateY(9.5px) rotate(45deg);
   }
 
   .nav.is-open .nav__toggle-bar:nth-child(2) {
@@ -1543,7 +1549,7 @@ body.nav-open-lock {
   }
 
   .nav.is-open .nav__toggle-bar:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
+    transform: translateY(-4.5px) rotate(-45deg);
   }
 
   /* Open menu content */
