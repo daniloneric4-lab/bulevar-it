@@ -1891,29 +1891,20 @@ body.nav-open-lock {
   .portfolio-cards-track {
     align-items: center;
     padding-top: 110px;
-    padding-left: clamp(180px, 45vw, 320px);
+    padding-left: clamp(140px, 32vw, 220px);
     padding-right: clamp(140px, 25vw, 240px);
     gap: 0;
   }
 
   .curtis-card {
-    width: min(330px, 82vw) !important;
-    padding: 0;
-    margin-right: clamp(100px, 24vw, 160px) !important;
-    transform: translateY(calc(var(--base-y, 0px) * 0.75)) !important;
-  }
-
-  .curtis-card[data-proj-index="0"] .curtis-card__frame {
-    height: auto !important;
-    aspect-ratio: 480 / 300 !important;
-  }
-
-  .curtis-card[data-proj-index="1"] .curtis-card__frame {
-    height: auto !important;
-    aspect-ratio: 420 / 340 !important;
+    width: 215px !important;
+    padding: 8px;
+    margin-right: 120px !important;
+    transform: none !important;
   }
 
   .curtis-card__frame {
+    height: 142px !important;
     border-radius: 14px;
     overflow: hidden !important;
   }
@@ -1923,24 +1914,24 @@ body.nav-open-lock {
     height: 100% !important;
     object-fit: cover !important;
     object-position: center !important;
-    border-radius: 0 !important;
+    border-radius: 14px !important;
   }
 
   .curtis-card__badge-wrap {
     position: absolute;
-    bottom: 12px !important;
-    left: 12px !important;
+    bottom: -11px !important;
+    left: 10px !important;
     z-index: 5;
   }
 
   .curtis-card__badge {
-    padding: 4px 9px !important;
-    font-size: 0.64rem !important;
-    letter-spacing: 0.08em !important;
+    padding: 3px 8px !important;
+    font-size: 0.60rem !important;
+    letter-spacing: 0.06em !important;
   }
 
   .curtis-card__caption {
-    margin-top: 12px;
+    margin-top: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1948,12 +1939,17 @@ body.nav-open-lock {
   }
 
   .curtis-card__title {
-    font-size: 0.82rem;
+    font-size: 0.76rem;
     letter-spacing: 0.04em;
   }
 
   .curtis-card__visit {
-    font-size: 0.76rem;
+    font-size: 0.72rem;
+  }
+
+  .curtis-card--high,
+  .curtis-card--low {
+    transform: none !important;
   }
 
   .curtis-card--high:hover,
@@ -2045,6 +2041,14 @@ body.nav-open-lock {
 
   .hero__headline {
     font-size: clamp(1.6rem, 8vw, 2.4rem);
+  }
+
+  .curtis-card {
+    width: 205px !important;
+    margin-right: 60px !important;
+  }
+  .curtis-card__frame {
+    height: 136px !important;
   }
 }
 

@@ -204,7 +204,7 @@ export function initSistemIzaEkrana() {
   function glass(x) {
     x.clearRect(0, 0, CW, CH);
     rr(x, 4, 4, CW - 8, CH - 8, 26);
-    x.fillStyle = 'rgba(15, 22, 40, .94)';
+    x.fillStyle = 'rgba(15, 22, 40, .75)';
     x.fill();
     x.strokeStyle = 'rgba(217, 178, 95, .9)';
     x.lineWidth = 4;
@@ -1386,9 +1386,9 @@ export function initSistemIzaEkrana() {
     t.magFilter = THREE.LinearFilter;
 
     const g = new THREE.Group();
-    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true }));
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true, depthWrite: false }));
     f.position.z = 0.003;
-    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false, transparent: true }));
+    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false, transparent: true, depthWrite: false }));
     bk.rotation.y = Math.PI;
     bk.position.z = -0.003;
 
@@ -2049,8 +2049,9 @@ export function initSistemIzaEkrana() {
 
           c.g.visible = true;
           apply(c, pose, 0, 0);
-          c.f.material.color.setScalar(act >= 0 ? (0.38 + 0.62 * lf) : 1);
-          if (c.bk) c.bk.material.color.setScalar(act >= 0 ? (0.38 + 0.62 * lf) : 1);
+          const cardBrightness = (i === 0) ? 1 : (act >= 0 ? (0.38 + 0.62 * lf) : 1);
+          c.f.material.color.setScalar(cardBrightness);
+          if (c.bk) c.bk.material.color.setScalar(cardBrightness);
         });
 
         if (allDocked) {

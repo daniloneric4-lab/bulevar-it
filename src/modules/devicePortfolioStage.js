@@ -58,11 +58,11 @@ export function initDevicePortfolioStage() {
     if (lastCard && cardsTrack) {
       const lastCardEnd = lastCard.offsetLeft + lastCard.offsetWidth;
       const isMobile = window.innerWidth <= 768;
-      // Čim nestane linija, sekcija Kako razmišljamo kreće da se penje bez praznog hoda
-      const exitMargin = isMobile ? 60 : 100;
-      return Math.max(window.innerWidth * 0.4, lastCardEnd + exitMargin - window.innerWidth);
+      // Linija i radovi putuju desno, linija izlazi iz kadra i tek onda kreće sekcija Kako razmišljamo
+      const exitMargin = isMobile ? (window.innerWidth + 80) : Math.max(window.innerWidth * 0.45, 360);
+      return Math.max(window.innerWidth * 0.85, lastCardEnd + exitMargin - window.innerWidth);
     }
-    return Math.max(window.innerWidth * 0.4, cardsTrack.scrollWidth - window.innerWidth);
+    return Math.max(window.innerWidth * 0.85, cardsTrack.scrollWidth - window.innerWidth);
   };
 
   const getTotalTravel = () => {
@@ -71,7 +71,7 @@ export function initDevicePortfolioStage() {
 
   // Udoban hold na #vs (1.0 visina ekrana) da korisnik u miru pročita poređenje bez ikakvog preskakanja
   const getHoldVs = () => Math.round(window.innerHeight * 1.0);
-  // Čim nestane linija sekcija Kako razmišljamo odmah kreće da se penje gore (bez tolikog čekanja) za oba (desktop i mobile)
+  // Čim linija i kartice izađu iz kadra, sekcija Kako razmišljamo odmah kreće da se penje gore bez čekanja
   const getHoldEnd = () => 0;
 
   const getScrollEnd = () => {
@@ -142,11 +142,8 @@ export function initDevicePortfolioStage() {
       updateCircuitProgress(revealedX);
       const circuitSvg = document.querySelector('.portfolio-circuit-svg');
       if (circuitSvg) {
-        if (cardProgress > 0.90) {
-          circuitSvg.style.opacity = String(Math.max(0, 1 - (cardProgress - 0.90) / 0.10));
-        } else {
-          circuitSvg.style.opacity = '1';
-        }
+        // Linija nigde ne nestaje na mestu — ostaje potpuno vidljiva i putuje sa radovima van kadra
+        circuitSvg.style.opacity = '1';
       }
     },
   });
