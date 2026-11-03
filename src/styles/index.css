@@ -971,7 +971,7 @@ body.is-device-modal-open .device-click-hint {
   gap: 0;
   align-items: center;
   height: 100%;
-  padding-left: clamp(90px, 10vw, 200px);
+  padding-left: clamp(280px, 24vw, 480px);
   padding-right: 380px;
   will-change: transform;
   z-index: 2;
@@ -1891,7 +1891,7 @@ body.nav-open-lock {
   .portfolio-cards-track {
     align-items: center;
     padding-top: 110px;
-    padding-left: clamp(24px, 6vw, 48px);
+    padding-left: clamp(180px, 45vw, 320px);
     padding-right: clamp(140px, 25vw, 240px);
     gap: 0;
   }

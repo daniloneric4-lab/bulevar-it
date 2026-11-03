@@ -167,7 +167,8 @@ export function drawCircuitLines(track) {
 
   // 1. Initial entrance with authentic diamond origin marker (like video frame 002)
   const first = circuitAnchors[0];
-  const originX = Math.max(20, first.left - 240);
+  const originLead = Math.min(260, Math.max(120, first.left * 0.65));
+  const originX = Math.max(24, first.left - originLead);
   const originY = first.centerY;
   circuitOrigin = { x: originX, y: originY };
 

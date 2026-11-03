@@ -1301,13 +1301,9 @@ export function initSistemIzaEkrana() {
           drawSectionTransition(x, transProg);
         } else {
           roleAnimActive = false;
-          if (show >= 0 && show < 5 && cards[show] && cards[show].c) {
-            x.drawImage(cards[show].c, 0, 0, CW, CH);
-          } else {
-            // Clean website display (Kuća pod Fruškom)
-            if (cards[0] && cards[0].c) {
-              x.drawImage(cards[0].c, 0, 0, CW, CH);
-            }
+          // Originalni sajt (Kuća pod Fruškom) uvek ostaje na ekranu laptopa i nikada ne pocrni kada drugi ekrani izlaze
+          if (cards[0] && cards[0].c) {
+            x.drawImage(cards[0].c, 0, 0, CW, CH);
           }
         }
         x.restore();
@@ -1390,9 +1386,9 @@ export function initSistemIzaEkrana() {
     t.magFilter = THREE.LinearFilter;
 
     const g = new THREE.Group();
-    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false }));
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true }));
     f.position.z = 0.003;
-    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false }));
+    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false, transparent: true }));
     bk.rotation.y = Math.PI;
     bk.position.z = -0.003;
 

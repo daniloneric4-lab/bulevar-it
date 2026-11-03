@@ -58,10 +58,11 @@ export function initDevicePortfolioStage() {
     if (lastCard && cardsTrack) {
       const lastCardEnd = lastCard.offsetLeft + lastCard.offsetWidth;
       const isMobile = window.innerWidth <= 768;
-      const exitMargin = isMobile ? Math.max(120, window.innerWidth * 0.5) : Math.max(160, window.innerWidth * 0.25);
-      return Math.max(window.innerWidth * 0.85, lastCardEnd + exitMargin - window.innerWidth);
+      // Čim nestane linija, sekcija Kako razmišljamo kreće da se penje bez praznog hoda
+      const exitMargin = isMobile ? 60 : 100;
+      return Math.max(window.innerWidth * 0.4, lastCardEnd + exitMargin - window.innerWidth);
     }
-    return Math.max(window.innerWidth * 0.85, cardsTrack.scrollWidth - window.innerWidth);
+    return Math.max(window.innerWidth * 0.4, cardsTrack.scrollWidth - window.innerWidth);
   };
 
   const getTotalTravel = () => {
@@ -70,11 +71,8 @@ export function initDevicePortfolioStage() {
 
   // Udoban hold na #vs (1.0 visina ekrana) da korisnik u miru pročita poređenje bez ikakvog preskakanja
   const getHoldVs = () => Math.round(window.innerHeight * 1.0);
-  // Prijatan hold na kraju radova tako da korisnik može u miru da vidi sve radove pre nego što se sekcija Kako razmišljamo elegantno podigne
-  const getHoldEnd = () => {
-    const isMobile = window.innerWidth <= 768;
-    return Math.round(window.innerHeight * (isMobile ? 0.35 : 0.25));
-  };
+  // Čim nestane linija sekcija Kako razmišljamo odmah kreće da se penje gore (bez tolikog čekanja) za oba (desktop i mobile)
+  const getHoldEnd = () => 0;
 
   const getScrollEnd = () => {
     return getHoldVs() + getTotalTravel() + getHoldEnd();
