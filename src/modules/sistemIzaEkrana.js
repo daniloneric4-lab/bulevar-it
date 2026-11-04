@@ -2083,8 +2083,8 @@ export function initSistemIzaEkrana() {
             x: sp.x + NRM.x * (fd * 0.35) + 0.26,
             y: sp.y + NRM.y * fd + 0.16,
             z: sp.z + NRM.z * fd + 0.12,
-            rx: -0.05,
-            ry: -rY * 0.9,
+            rx: sp.rx,
+            ry: 0,
             rz: 0,
             s: sp.s * 0.96
           };
