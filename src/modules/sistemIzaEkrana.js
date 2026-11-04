@@ -1741,6 +1741,9 @@ export function initSistemIzaEkrana() {
   // ═══════════════════════════════════════════════════════════
   // Section 09 Chips & CTA Interactivity
   // ═══════════════════════════════════════════════════════════
+  let chipNavTarget = -1;
+  let chipNavUntil = 0;
+
   ulogaChips.forEach((chip, i) => {
     chip.addEventListener('click', () => {
       if (!ulogaTrack) return;
@@ -1748,9 +1751,48 @@ export function initSistemIzaEkrana() {
       const scrollY = window.scrollY || window.pageYOffset;
       const trackTop = trackRect.top + scrollY;
       const tot = ulogaTrack.offsetHeight - window.innerHeight;
-      const targetScroll = trackTop + tot * ((i + 0.5) / 6);
-      if (window.lenis) window.lenis.scrollTo(targetScroll, { duration: 1.0 });
-      else window.scrollTo({ top: targetScroll, behavior: reduce ? 'auto' : 'smooth' });
+      const riseDist = window.innerHeight;
+      const totUlogaAnim = Math.max(1, tot - riseDist);
+      const targetScroll = trackTop + totUlogaAnim * ((i + 0.5) / 6);
+
+      chipNavTarget = i;
+      chipNavUntil = performance.now() + 750;
+
+      // Immediately activate chip UI
+      ulogaChips.forEach((bt, idx) => {
+        const isActive = idx === i;
+        bt.classList.toggle('is-active', isActive);
+        bt.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        bt.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      // Immediately transition screen and text without skipping intermediate roles
+      if (i !== curRole) {
+        roleFrom = curRole >= 0 ? curRole : -1;
+        roleAt = performance.now();
+        curRole = i;
+        lastScreenKey = '';
+        roleAnimActive = true;
+        L.rn.t = '';
+        L.rd.t = '';
+        L.rw.t = '';
+        const currentRoles = getRoles();
+        say('rn', currentRoles[i][0]);
+        say('rd', currentRoles[i][1], 140);
+        say('rw', currentRoles[i][2], 140 + currentRoles[i][1].length * 12);
+      }
+
+      if (window.lenis) {
+        window.lenis.scrollTo(targetScroll, {
+          duration: reduce ? 0 : 0.6,
+          onComplete: () => {
+            chipNavTarget = -1;
+          }
+        });
+      } else {
+        window.scrollTo({ top: targetScroll, behavior: reduce ? 'auto' : 'smooth' });
+        setTimeout(() => { chipNavTarget = -1; }, 600);
+      }
     });
   });
 
@@ -2125,7 +2167,15 @@ export function initSistemIzaEkrana() {
       const totUlogaAnim = Math.max(1, totUloga - riseDist);
       const P_roles = cl(-rUloga.top / totUlogaAnim);
       const roleProg = P_roles * 5.999;
-      const role = Math.min(5, Math.max(0, Math.floor(roleProg)));
+      const scrollRole = Math.min(5, Math.max(0, Math.floor(roleProg)));
+
+      // If chip navigation is active, preserve target role until scroll arrives
+      if (chipNavTarget >= 0) {
+        if (performance.now() > chipNavUntil || Math.abs(P_roles - ((chipNavTarget + 0.5) / 6)) < 0.04) {
+          chipNavTarget = -1;
+        }
+      }
+      const role = chipNavTarget >= 0 ? chipNavTarget : scrollRole;
 
       if (role !== curRole) {
         roleFrom = (curRole >= 0 && role >= 0) ? curRole : -1;
@@ -2162,25 +2212,24 @@ export function initSistemIzaEkrana() {
 
     // Framing & Camera Zoom transition
     if (narrow) {
-      // Laptop: okrenut bočno dok se vidi špil (-0.36), skoro frontalno dok se čita kartica (-0.08)
-      const targetRotX = 0.05 * (1 - rp);
-      const targetRotY = lerp(-0.36, -0.08, mobileOutMax) * (1 - rp) + mx * 0.03;
+      // Laptop: prirodan 3D nagib koji drži tastaturu kompaktnom, a ekran uspravnim i krupnim
+      const targetRotX = -0.14 * (1 - rp);
+      const targetRotY = lerp(-0.32, -0.18, mobileOutMax) * (1 - rp) + mx * 0.03;
       rY += (targetRotY - rY) * (reduce ? 1 : 0.09);
       rX += (targetRotX - rX) * (reduce ? 1 : 0.09);
       world.rotation.set(rX, rY, 0);
 
-      // Na sekciji 08 ceo laptop stoji lepo u vidnom polju (bez odsecanja levog ćoška)
-      // U sekciji 09 (Zašto imate sajt) laptop je podignut ka gornjem delu ekrana da ne pokriva tekst i čipove
+      // Laptop u sekciji 08 lepo stoji u vidnom polju; u sekciji 09 se podiže da oslobodi prostor za čipove
       const targetPosX = lerp(0.04, 0.0, mobileOutMax) * (1 - rp);
-      world.position.set(targetPosX, -0.28 + 1.42 * rp, 0);
+      world.position.set(targetPosX, -0.16 + 1.30 * rp, 0);
 
-      // Kamera: udaljenost iz širine canvasa tako da laptop + špil uvek u celosti staju u širinu ekrana
+      // Kamera: ugodna visina u ravni ekrana bez preteranog pogleda odozgo na tastaturu
       const vf = cam.fov * Math.PI / 180;
       const hf = 2 * Math.atan(Math.tan(vf / 2) * cam.aspect);
-      const fw = lerp(2.55, 2.05, mobileOutMax);
+      const fw = lerp(2.45, 2.05, mobileOutMax);
       const zDist = Math.max(fw / 2 / Math.tan(hf / 2), 1.95 / 2 / Math.tan(vf / 2));
-      cam.position.set(0, 1.18 - 0.22 * rp, zDist - 0.25 * rp);
-      cam.lookAt(0, 0.68 + 0.22 * rp, 0);
+      cam.position.set(0, 0.90 - 0.10 * rp, zDist - 0.25 * rp);
+      cam.lookAt(0, 0.58 + 0.16 * rp, 0);
     } else {
       // Desktop: tokom sekcije 08 laptop je okrenut bočno (-0.66 rad) da se vidi dubina kartica,
       // a pri prelasku u sekciju 09 (Zašto imate sajt) laptop se okreće PRAVO ka gledaocu sajta.
