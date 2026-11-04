@@ -297,6 +297,10 @@ function initContactForm() {
       return;
     }
 
+    // Google Tag Manager event
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'kontakt_poslat', stranica: location.pathname });
+
     const doneP = document.getElementById('doneP');
     if (doneP) doneP.textContent = t('kon.doneP');
 

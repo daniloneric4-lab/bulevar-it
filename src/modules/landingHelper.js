@@ -240,6 +240,10 @@ function setupQuestionnaireModal(currentParams) {
       }
 
       if (success) {
+        // Google Tag Manager event
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'kontakt_poslat', stranica: location.pathname });
+
         if (successBanner) {
           successBanner.style.display = 'block';
           successBanner.style.borderColor = 'rgba(52, 199, 89, 0.35)';
