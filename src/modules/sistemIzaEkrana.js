@@ -2214,7 +2214,7 @@ export function initSistemIzaEkrana() {
     if (narrow) {
       // Laptop: prirodan 3D nagib koji drži tastaturu kompaktnom, a ekran uspravnim i krupnim
       const targetRotX = -0.14 * (1 - rp);
-      const targetRotY = lerp(-0.32, -0.18, mobileOutMax) * (1 - rp) + mx * 0.03;
+      const targetRotY = lerp(-0.18 * (1 - mobileOutMax), 0, mobileOutMax) * (1 - rp) + mx * 0.03;
       rY += (targetRotY - rY) * (reduce ? 1 : 0.09);
       rX += (targetRotX - rX) * (reduce ? 1 : 0.09);
       world.rotation.set(rX, rY, 0);
@@ -2231,14 +2231,12 @@ export function initSistemIzaEkrana() {
       cam.position.set(0, 0.90 - 0.10 * rp, zDist - 0.25 * rp);
       cam.lookAt(0, 0.58 + 0.16 * rp, 0);
     } else {
-      // Desktop: tokom sekcije 08 laptop je okrenut bočno (-0.66 rad) da se vidi dubina kartica,
-      // a pri prelasku u sekciju 09 (Zašto imate sajt) laptop se okreće PRAVO ka gledaocu sajta.
+      // Desktop: laptop i ekrani su full frontalno okrenuti ka gledaocu sajta
       // Ugao ka kameri na X=0.65 pri poziciji laptopa X=2.0, Z=5.8: atan2(0.65 - 2.0, 5.8) = -0.2285 rad
-      const turnVal = sm(0.18, 0.28, P_sis) * (1 - sm(0.84, 0.92, P_sis));
-      const faceAngleY = -0.2285; // Čisto frontalno okrenut ka gledaocu (ekran stoji pravo)
+      const faceAngleY = -0.2285; // Čisto frontalno okrenut ka gledaocu (ekran stoji pravo ka korisniku)
       const faceAngleX = 0.06;    // Blagi prirodan nagib ka gore u visini pogleda korisnika
 
-      const tY = lerp(-0.66 * turnVal, faceAngleY, rp) + mx * 0.04;
+      const tY = faceAngleY + mx * 0.04;
       const tX = lerp(0, faceAngleX, rp) + my * 0.03;
       rY += (tY - rY) * (reduce ? 1 : 0.08);
       rX += (tX - rX) * (reduce ? 1 : 0.08);
