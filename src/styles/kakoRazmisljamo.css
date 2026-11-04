@@ -203,12 +203,7 @@
 }
 
 #kako-razmisljamo .kr-dots {
-  position: absolute;
-  left: var(--px);
-  bottom: 3vh;
-  display: flex;
-  gap: 6px;
-  z-index: 2;
+  display: none !important;
 }
 
 #kako-razmisljamo .kr-dots i {
