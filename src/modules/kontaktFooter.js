@@ -297,9 +297,19 @@ function initContactForm() {
       return;
     }
 
-    // Google Tag Manager event
+    const izabraniCilj = utmData.cilj
+      || (ideja === 'ne' && chosenProblems.length > 0 ? chosenProblems.join(', ') : '')
+      || (ideja === 'da' ? 'Imam ideju' : '')
+      || 'nije izabran';
+
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: 'kontakt_poslat', stranica: location.pathname });
+    window.dataLayer.push({
+      event: 'upit_poslat',
+      cilj: izabraniCilj || 'nije izabran'
+    });
+    if (window.fbq) {
+      fbq('track', 'Lead', { content_name: izabraniCilj || 'nije izabran' });
+    }
 
     const doneP = document.getElementById('doneP');
     if (doneP) doneP.textContent = t('kon.doneP');

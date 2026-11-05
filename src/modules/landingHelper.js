@@ -240,9 +240,16 @@ function setupQuestionnaireModal(currentParams) {
       }
 
       if (success) {
-        // Google Tag Manager event
+        const izabraniCilj = payload.cilj || utmData.cilj || 'nije izabran';
+
         window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: 'kontakt_poslat', stranica: location.pathname });
+        window.dataLayer.push({
+          event: 'upit_poslat',
+          cilj: izabraniCilj || 'nije izabran'
+        });
+        if (window.fbq) {
+          fbq('track', 'Lead', { content_name: izabraniCilj || 'nije izabran' });
+        }
 
         if (successBanner) {
           successBanner.style.display = 'block';
