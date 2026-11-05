@@ -1691,6 +1691,15 @@ body.nav-open-lock {
     gap: 10px;
   }
 
+  button.nav__mobile-contact-link {
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+  }
+
   .nav.is-open .nav__mobile-contact-link {
     display: inline-flex;
     align-items: center;

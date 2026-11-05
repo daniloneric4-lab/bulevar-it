@@ -219,6 +219,8 @@ export const TRANSLATIONS = {
     'kon.error': 'Nešto nije u redu. Pozovite nas na 066 5852 052 ili pišite na bulevarit@gmail.com.',
     'kon.again': 'Pošaljite još jednu',
     'kon.dirPhone': 'TELEFON',
+    'chat.k': 'CHAT',
+    'chat.cta': 'Pišite nam',
 
     // Footer
     'footer.tagline': 'DIGITALNI SISTEM KOJI OSTAJE U VAŠIM RUKAMA',
@@ -510,6 +512,8 @@ export const TRANSLATIONS = {
     'kon.error': 'Something went wrong. Call us at +381 66 5852 052 or email bulevarit@gmail.com.',
     'kon.again': 'Send another message',
     'kon.dirPhone': 'PHONE NUMBER',
+    'chat.k': 'CHAT',
+    'chat.cta': 'Chat with us',
 
     // Footer
     'footer.tagline': 'DIGITAL SYSTEM THAT REMAINS IN YOUR HANDS',

@@ -1,3 +1,27 @@
+// ─── Zoho SalesIQ Chat Trigger ───
+function initChatTrigger() {
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.js-open-chat, #chatOpenBtn');
+    if (!btn) return;
+    e.preventDefault();
+    if (window.$zoho && window.$zoho.salesiq && window.$zoho.salesiq.floatwindow) {
+      window.$zoho.salesiq.floatwindow.visible('show');
+    } else {
+      window.$zoho = window.$zoho || {};
+      window.$zoho.salesiq = window.$zoho.salesiq || {};
+      const prevReady = window.$zoho.salesiq.ready;
+      window.$zoho.salesiq.ready = function () {
+        if (typeof prevReady === 'function') {
+          try { prevReady(); } catch (_) {}
+        }
+        if (window.$zoho && window.$zoho.salesiq && window.$zoho.salesiq.floatwindow) {
+          window.$zoho.salesiq.floatwindow.visible('show');
+        }
+      };
+    }
+  });
+}
+
 /**
  * main.js — Entry point for Bulevar.IT website
  * 
@@ -137,6 +161,7 @@ async function init() {
 
   // 5. Contact form & Animated Logo Footer
   initKontaktFooter();
+  initChatTrigger();
   initScrollHint(lenis);
 
   // 6. Sort and refresh GSAP ScrollTrigger & Lenis to ensure all trigger ranges are strictly ordered
