@@ -1303,3 +1303,13 @@ input[type=range] {
     transition: none;
   }
 }
+
+/* Mobilni: manji razmak između teksta „Isto važi i za restorane…“ i „Koliko košta posrednik“ */
+@media (max-width: 860px) {
+  section.blk#exp {
+    padding-bottom: 20px;
+  }
+  section.blk#calc {
+    padding-top: 28px;
+  }
+}
