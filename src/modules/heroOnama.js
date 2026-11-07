@@ -314,11 +314,33 @@ export function initHeroOnama() {
     return { x: x2, y: y2, vis: q > 0, q: q };
   }
 
+  let lastHeroWidth = 0;
+  let lastHeroHeight = 0;
+  let lastHeroDpr = 1;
+
+  function getHeroStageSize() {
+    const isCssApplied = getComputedStyle(cv).position === 'absolute';
+    const r = (stage || cv).getBoundingClientRect();
+    const rawW = (isCssApplied && r.width > 0 && !(r.width === 300 && r.height === 150))
+      ? r.width
+      : window.innerWidth;
+    const rawH = (isCssApplied && r.height > 200)
+      ? r.height
+      : window.innerHeight;
+    return {
+      w: Math.max(1, Math.round(rawW || window.innerWidth)) | 0,
+      h: Math.max(1, Math.round(rawH || window.innerHeight)) | 0
+    };
+  }
+
   function build() {
-    const r = cv.getBoundingClientRect();
+    const sz = getHeroStageSize();
     dpr = Math.min(2, window.devicePixelRatio || 1);
-    W = Math.max(1, Math.round(r.width || window.innerWidth)) | 0;
-    H = Math.max(1, Math.round(r.height || window.innerHeight)) | 0;
+    W = sz.w;
+    H = sz.h;
+    lastHeroWidth = W;
+    lastHeroHeight = H;
+    lastHeroDpr = dpr;
     cv.width = Math.round(W * dpr);
     cv.height = Math.round(H * dpr);
     x.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -529,6 +551,11 @@ export function initHeroOnama() {
     const t = now / 1000;
     if (hint) hint.style.opacity = G < 0.01 ? '1' : '0';
 
+    const cw = cv.clientWidth;
+    const ch = cv.clientHeight;
+    if (cw > 0 && ch > 200 && (Math.abs(cw - W) > 2 || Math.abs(ch - H) > 100)) {
+      build();
+    }
     if (!logoReady && LM.complete && LM.naturalWidth > 0) build();
     videoScrub(G);
 
@@ -745,21 +772,14 @@ export function initHeroOnama() {
   videoScrub(0);
   requestAnimationFrame(frame);
 
-  let lastHeroWidth = typeof window !== 'undefined' ? Math.round(window.innerWidth) : 0;
-  let lastHeroHeight = typeof window !== 'undefined' ? Math.round(window.innerHeight) : 0;
-  let lastHeroDpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
   function onHeroResize() {
-    const curW = Math.round(window.innerWidth);
-    const curH = Math.round(window.innerHeight);
-    const curDpr = window.devicePixelRatio || 1;
-    const isMob = curW <= 768;
-    const widthChanged = curW !== lastHeroWidth;
+    const sz = getHeroStageSize();
+    const curDpr = Math.min(2, window.devicePixelRatio || 1);
+    const isMob = sz.w <= 768;
+    const widthChanged = Math.abs(sz.w - lastHeroWidth) > 1;
     const dprChanged = Math.abs(curDpr - lastHeroDpr) > 0.001;
-    const heightChanged = isMob ? Math.abs(curH - lastHeroHeight) > 100 : curH !== lastHeroHeight;
+    const heightChanged = isMob ? Math.abs(sz.h - lastHeroHeight) > 100 : Math.abs(sz.h - lastHeroHeight) > 1;
     if (!widthChanged && !heightChanged && !dprChanged) return;
-    lastHeroWidth = curW;
-    lastHeroHeight = curH;
-    lastHeroDpr = curDpr;
     if (widthChanged) pickVideo();
     build();
   }
@@ -767,6 +787,9 @@ export function initHeroOnama() {
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', onHeroResize, { passive: true });
   }
+  window.addEventListener('load', () => {
+    build();
+  }, { once: true });
   if (!LM.complete) {
     LM.addEventListener('load', () => build(), { once: true });
   }

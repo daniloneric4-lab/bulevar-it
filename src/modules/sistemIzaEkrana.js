@@ -1647,7 +1647,7 @@ export function initSistemIzaEkrana() {
   let narrow = false;
   function layout() {
     const r = masterStage.getBoundingClientRect();
-    const w = r.width || window.innerWidth;
+    const w = (r.width > 0 && !(r.width === 300 && r.height === 150)) ? r.width : window.innerWidth;
     const h = window.innerHeight;
     renderer.setSize(w, h, false);
     cam.aspect = w / h;
@@ -1655,11 +1655,20 @@ export function initSistemIzaEkrana() {
     cam.updateProjectionMatrix();
   }
   let lastSisWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  let lastSisHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
   window.addEventListener('resize', () => {
-    if (window.innerWidth === lastSisWidth) return;
+    const wSame = window.innerWidth === lastSisWidth;
+    const hSame = window.innerWidth <= 768 ? Math.abs(window.innerHeight - lastSisHeight) < 100 : window.innerHeight === lastSisHeight;
+    if (wSame && hSame) return;
     lastSisWidth = window.innerWidth;
+    lastSisHeight = window.innerHeight;
     layout();
   }, { passive: true });
+  window.addEventListener('load', () => {
+    lastSisWidth = window.innerWidth;
+    lastSisHeight = window.innerHeight;
+    layout();
+  }, { once: true });
 
   let mx = 0, my = 0;
   window.addEventListener('pointermove', (e) => {
