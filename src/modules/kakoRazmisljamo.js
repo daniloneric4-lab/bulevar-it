@@ -100,10 +100,12 @@ export function initKakoRazmisljamo() {
 
   function layout() {
     const r = wrap.getBoundingClientRect();
-    const mob = r.width < 860;
+    const isCssApplied = getComputedStyle(wrap).position === 'sticky';
+    const rw = (isCssApplied && r.width > 0) ? r.width : window.innerWidth;
+    const mob = rw < 860;
     const padL = parseFloat(getComputedStyle(wrap).paddingLeft) || 20;
-    const w = r.width - padL * 2;
-    const h = r.height || window.innerHeight;
+    const w = rw - padL * 2;
+    const h = (isCssApplied && r.height > 200) ? r.height : window.innerHeight;
 
     pos = [];
     W.forEach((o, i) => {
@@ -145,11 +147,20 @@ export function initKakoRazmisljamo() {
   }
 
   let lastKakoWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+  let lastKakoHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
   window.addEventListener('resize', () => {
-    if (window.innerWidth === lastKakoWidth) return;
+    const wSame = window.innerWidth === lastKakoWidth;
+    const hSame = window.innerWidth <= 768 ? Math.abs(window.innerHeight - lastKakoHeight) < 100 : window.innerHeight === lastKakoHeight;
+    if (wSame && hSame) return;
     lastKakoWidth = window.innerWidth;
+    lastKakoHeight = window.innerHeight;
     layout();
   }, { passive: true });
+  window.addEventListener('load', () => {
+    lastKakoWidth = window.innerWidth;
+    lastKakoHeight = window.innerHeight;
+    layout();
+  }, { once: true });
 
   // Decode text engine
   const GL = 'ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';

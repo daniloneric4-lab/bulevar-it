@@ -984,12 +984,13 @@ export function initOwnJourney() {
 
   function layout() {
     if (!stage || !cv) return;
+    const isCssApplied = getComputedStyle(stage).position === 'sticky';
     const r = stage.getBoundingClientRect();
-    stageW = r.width || window.innerWidth;
-    stageH = r.height || window.innerHeight;
-    renderer.setSize(r.width, r.height, false);
-    cam.aspect = r.width / r.height;
-    narrow = r.width <= 860;
+    stageW = (isCssApplied && r.width > 0 && !(r.width === 300 && r.height === 150)) ? r.width : window.innerWidth;
+    stageH = (isCssApplied && r.height > 200) ? r.height : window.innerHeight;
+    renderer.setSize(stageW, stageH, false);
+    cam.aspect = stageW / stageH;
+    narrow = stageW <= 860;
     cam.updateProjectionMatrix();
 
     const hh = Math.tan((cam.fov * Math.PI / 180) / 2) * cam.position.z;
@@ -999,9 +1000,9 @@ export function initOwnJourney() {
       const introIn = $('oj-introIn');
       const introBottom = introIn ? introIn.getBoundingClientRect().bottom - r.top + 8 : 160;
       const ib = Math.min(220, Math.max(150, introBottom));
-      const avail = Math.max(100, r.height - ib - 12);
+      const avail = Math.max(100, stageH - ib - 12);
       const cy = ib + avail / 2;
-      basePosY = -((cy / r.height) * 2 - 1) * hh;
+      basePosY = -((cy / stageH) * 2 - 1) * hh;
       phone.position.set(0, basePosY, 0.4);
       const scaleFactor = Math.min(18.5, (avail / 460) * 17.5);
       phone.scale.setScalar(scaleFactor);
@@ -1012,11 +1013,20 @@ export function initOwnJourney() {
     }
   }
 
+  let lastOjHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
   window.addEventListener('resize', () => {
-    if (window.innerWidth === lastOjWidth) return;
+    const wSame = window.innerWidth === lastOjWidth;
+    const hSame = window.innerWidth <= 768 ? Math.abs(window.innerHeight - lastOjHeight) < 100 : window.innerHeight === lastOjHeight;
+    if (wSame && hSame) return;
     lastOjWidth = window.innerWidth;
+    lastOjHeight = window.innerHeight;
     layout();
   }, { passive: true });
+  window.addEventListener('load', () => {
+    lastOjWidth = window.innerWidth;
+    lastOjHeight = window.innerHeight;
+    layout();
+  }, { once: true });
 
   let mx = 0, my = 0;
   window.addEventListener('pointermove', (e) => {

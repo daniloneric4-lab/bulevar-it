@@ -192,11 +192,28 @@ async function init() {
   );
 }
 
-// ─── DOM Ready ───
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+// ─── DOM Ready (wait for local CSS bundle if not yet parsed to prevent 300x150 canvas init) ───
+function startWhenStylesReady() {
+  const localSheet = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(
+    (l) => l.href && l.href.startsWith(window.location.origin) && !l.sheet
+  );
+  if (localSheet) {
+    let done = false;
+    const run = () => {
+      if (done) return;
+      done = true;
+      init().catch(console.error);
+    };
+    localSheet.addEventListener('load', run, { once: true });
+    localSheet.addEventListener('error', run, { once: true });
+    setTimeout(run, 250);
+  } else {
     init().catch(console.error);
-  });
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startWhenStylesReady);
 } else {
-  init().catch(console.error);
+  startWhenStylesReady();
 }

@@ -239,13 +239,35 @@ export function initIdeje() {
     return [c * S + S / 2, r * S + S / 2];
   }
 
+  let lastIdejeWidth = 0;
+  let lastIdejeHeight = 0;
+  let lastIdejeDpr = 1;
+
+  function getStageSize() {
+    const isCssApplied = getComputedStyle(cv).position === 'absolute';
+    const rc = stageEl.getBoundingClientRect();
+    const rawW = (isCssApplied && rc.width > 0 && !(rc.width === 300 && rc.height === 150))
+      ? rc.width
+      : window.innerWidth;
+    const rawH = (isCssApplied && rc.height > 200)
+      ? rc.height
+      : window.innerHeight;
+    return {
+      w: Math.max(1, Math.round(rawW || window.innerWidth)),
+      h: Math.max(1, Math.round(rawH || window.innerHeight))
+    };
+  }
+
   function build() {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const rc = cv.getBoundingClientRect();
-    W = rc.width || window.innerWidth;
-    H = rc.height || window.innerHeight;
-    cv.width = W * dpr;
-    cv.height = H * dpr;
+    const sz = getStageSize();
+    W = sz.w;
+    H = sz.h;
+    lastIdejeWidth = W;
+    lastIdejeHeight = H;
+    lastIdejeDpr = dpr;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const mob = W < 960;
@@ -668,6 +690,11 @@ export function initIdeje() {
     const inVisibleZone = rc.bottom > 0 && rc.top < window.innerHeight + 120;
 
     if (inVisibleZone) {
+      const cw = cv.clientWidth;
+      const ch = cv.clientHeight;
+      if (cw > 0 && ch > 200 && (Math.abs(cw - W) > 2 || Math.abs(ch - H) > 100)) {
+        build();
+      }
       const DATA = getData();
       const Q = Math.max(0, Math.min(1, tot > 0 ? -rc.top / tot : 0));
 
@@ -1069,14 +1096,24 @@ export function initIdeje() {
     requestAnimationFrame(frame);
   }
 
-  let lastIdejeWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
-  let lastIdejeHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
-  window.addEventListener('resize', () => {
-    if (window.innerWidth === lastIdejeWidth && (window.innerWidth <= 768 || window.innerHeight === lastIdejeHeight)) return;
-    lastIdejeHeight = window.innerHeight;
-    lastIdejeWidth = window.innerWidth;
+  function onIdejeResize() {
+    const sz = getStageSize();
+    const curDpr = Math.min(2, window.devicePixelRatio || 1);
+    const widthChanged = Math.abs(sz.w - lastIdejeWidth) > 1;
+    const dprChanged = Math.abs(curDpr - lastIdejeDpr) > 0.001;
+    const heightChanged = sz.w <= 768
+      ? Math.abs(sz.h - lastIdejeHeight) > 100
+      : Math.abs(sz.h - lastIdejeHeight) > 1;
+    if (!widthChanged && !heightChanged && !dprChanged) return;
     build();
-  }, { passive: true });
+  }
+  window.addEventListener('resize', onIdejeResize, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onIdejeResize, { passive: true });
+  }
+  window.addEventListener('load', () => {
+    build();
+  }, { once: true });
   build();
   requestAnimationFrame(frame);
 }
