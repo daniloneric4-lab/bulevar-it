@@ -124,18 +124,43 @@ export function initWorkGlassBox() {
   updateGlassBoxesText();
 
   // 4. Position & Reveal Loop in requestAnimationFrame
-  let rafId = null;
+  let rafId = 0;
+  let inView = false;
+  const stage = document.querySelector('#devices');
+
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(updateBoxes);
+    }
+  }
+
+  if (stage && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) {
+        startLoop();
+      } else {
+        boxes.forEach((box, i) => {
+          if (shown[i]) {
+            shown[i] = false;
+            box.classList.remove('on');
+            box.setAttribute('aria-hidden', 'true');
+            const moreBtn = box.querySelector('.more');
+            if (moreBtn) moreBtn.tabIndex = -1;
+          }
+        });
+      }
+    }, { rootMargin: '300px 0px' });
+    io.observe(stage);
+  } else {
+    inView = true;
+  }
 
   function updateBoxes() {
-    const clipRect = document.getElementById('circuitClipRect');
-    const currentLineX = clipRect ? parseFloat(clipRect.getAttribute('width') || '0') : 0;
-    const anchors = getCircuitAnchors();
-    const cards = portfolioTrack.querySelectorAll('.curtis-card');
-
+    rafId = 0;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    const stage = document.querySelector('#devices');
     const stageRect = stage ? stage.getBoundingClientRect() : null;
     const isStageVisible = stageRect ? (stageRect.bottom > 100 && stageRect.top < vh - 60) : true;
 
@@ -151,13 +176,32 @@ export function initWorkGlassBox() {
           if (moreBtn) moreBtn.tabIndex = -1;
         }
       });
-      rafId = requestAnimationFrame(updateBoxes);
+      if (inView) startLoop();
       return;
     }
+
+    const clipRect = document.getElementById('circuitClipRect');
+    const currentLineX = clipRect ? parseFloat(clipRect.getAttribute('width') || '0') : 0;
+    const anchors = getCircuitAnchors();
+    const cards = portfolioTrack.querySelectorAll('.curtis-card');
+
+    // Phase 1: Batch all DOM layout reads before any style writes
+    const reads = boxes.map((box, i) => {
+      const card = cards[i];
+      if (!card) return null;
+      const cardRect = card.getBoundingClientRect();
+      const caption = card.querySelector('.curtis-card__caption');
+      const capRect = caption ? caption.getBoundingClientRect() : cardRect;
+      const bw = box.offsetWidth || Math.min(480, vw - 32);
+      const boxH = box.offsetHeight || (isMobile ? 135 : 180);
+      return { cardRect, capRect, bw, boxH };
+    });
+
+    // Phase 2: Compute positions and write DOM styles without layout thrashing
     const boxStates = [];
     boxes.forEach((box, i) => {
-      const card = cards[i];
-      if (!card || !isStageVisible) {
+      const r = reads[i];
+      if (!r || !isStageVisible) {
         if (shown[i]) {
           shown[i] = false;
           box.classList.remove('on');
@@ -168,20 +212,13 @@ export function initWorkGlassBox() {
         return;
       }
 
-      const cardRect = card.getBoundingClientRect();
-      const caption = card.querySelector('.curtis-card__caption');
-      const capRect = caption ? caption.getBoundingClientRect() : cardRect;
+      const { cardRect, capRect, bw, boxH } = r;
 
       // Position: below the caption, constrained inside viewport
-      const isMobile = vw <= 768;
-      const bw = box.offsetWidth || Math.min(480, vw - 32);
       const left = isMobile
         ? Math.max(16, (vw - bw) / 2)
         : cardRect.left;
 
-      const boxH = box.offsetHeight || (isMobile ? 135 : 180);
-      const maxTop = vh - boxH - (isMobile ? 14 : 20);
-      const computedTop = Math.min(maxTop, capRect.bottom + (isMobile ? 8 : 12));
       const top = capRect.bottom + (isMobile ? 8 : 12);
 
       box.style.left = `${left.toFixed(1)}px`;
@@ -194,7 +231,7 @@ export function initWorkGlassBox() {
         ? (cardRect.right > vw * 0.20 && cardRect.left < vw * 0.80)
         : (cardRect.left >= 12 && (cardRect.left + bw) <= vw - 12);
 
-      const inView = inViewVert && inViewHoriz;
+      const cardInView = inViewVert && inViewHoriz;
 
       // Check if stretching circuit line has reached this card
       let hasReached = false;
@@ -205,7 +242,7 @@ export function initWorkGlassBox() {
         hasReached = cardRect.left < vw * 0.75;
       }
 
-      const isVisible = hasReached && inView;
+      const isVisible = hasReached && cardInView;
       boxStates[i] = {
         vis: isVisible,
         left,
@@ -216,13 +253,6 @@ export function initWorkGlassBox() {
         cardRight: cardRect.right,
         dist: Math.abs(cc - vw * 0.5)
       };
-      if (false && isVisible !== shown[i]) {
-        shown[i] = isVisible;
-        box.classList.toggle('on', isVisible);
-        box.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
-        const moreBtn = box.querySelector('.more');
-        if (moreBtn) moreBtn.tabIndex = isVisible ? 0 : -1;
-      }
     });
 
     if (boxStates[0] && boxStates[1]) {
@@ -246,10 +276,10 @@ export function initWorkGlassBox() {
         if (moreBtn) moreBtn.tabIndex = isVisible ? 0 : -1;
       }
     });
-    rafId = requestAnimationFrame(updateBoxes);
+    if (inView) startLoop();
   }
 
-  rafId = requestAnimationFrame(updateBoxes);
+  startLoop();
 
   // 5. Large Modal Handling
   let activeOpener = null;

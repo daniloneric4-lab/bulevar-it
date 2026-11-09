@@ -80,6 +80,8 @@ export function initKakoRazmisljamo() {
   let pos = [];
   let loopD = '';
   let loopLen = 1;
+  let stairLen = 1;
+  let trackH = track.offsetHeight || window.innerHeight * 8;
 
   function safeLen(el) {
     try {
@@ -99,13 +101,20 @@ export function initKakoRazmisljamo() {
   }
 
   function layout() {
+    trackH = track.offsetHeight || window.innerHeight * 8;
     const r = wrap.getBoundingClientRect();
-    const isCssApplied = getComputedStyle(wrap).position === 'sticky';
-    const rw = (isCssApplied && r.width > 0) ? r.width : window.innerWidth;
+    const isCssApplied = getComputedStyle(wrap).position === 'relative';
+    const rw = (isCssApplied && r.width > 0) ? r.width : Math.min(window.innerWidth, 1440);
     const mob = rw < 860;
     const padL = parseFloat(getComputedStyle(wrap).paddingLeft) || 20;
     const w = rw - padL * 2;
     const h = (isCssApplied && r.height > 200) ? r.height : window.innerHeight;
+
+    // Ensure on desktop/laptop that step 5 (PUŠTAMO) and step 6 (UČIMO) + question .q fit inside the right edge
+    const qReserve = Math.min(260, Math.max(195, rw * 0.18));
+    const word5Est = Math.min(370, Math.max(190, rw * 0.255));
+    const maxStepX5 = Math.max(40, (w - word5Est - qReserve) / 5);
+    const desktopStepX = Math.min(w * 0.095, maxStepX5);
 
     pos = [];
     W.forEach((o, i) => {
@@ -114,7 +123,7 @@ export function initKakoRazmisljamo() {
         x = padL + i * (w * 0.055);
         y = h * 0.22 + i * (h * 0.088);
       } else {
-        x = padL + i * (w * 0.115);
+        x = padL + i * desktopStepX;
         y = h * 0.86 - i * (h * 0.095) - 90;
       }
       o.el.style.left = x + 'px';
@@ -129,6 +138,7 @@ export function initKakoRazmisljamo() {
       d += (i ? 'L' : 'M') + px + ' ' + py + (i < 6 ? ' H' + (pos[i + 1][0] - 6) : '');
     });
     stair.setAttribute('d', d);
+    stairLen = safeLen(stair);
 
     // Loop from „Učimo“ back down to „Razumemo“
     if (pos[6] && pos[0]) {
@@ -242,14 +252,32 @@ export function initKakoRazmisljamo() {
   }
 
   let cur = -2;
+  let inView = false;
+  let rafId = 0;
+
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) startLoop();
+    }, { rootMargin: '300px 0px' });
+    io.observe(track);
+  } else {
+    inView = true;
+  }
 
   function frame(now) {
+    rafId = 0;
     const r = track.getBoundingClientRect();
-    const tot = track.offsetHeight - window.innerHeight;
+    const tot = (trackH || track.offsetHeight) - window.innerHeight;
 
     // Pause rendering when far offscreen
-    if (r.bottom < -100 || r.top > window.innerHeight + 100) {
-      requestAnimationFrame(frame);
+    if (!inView && (r.bottom < -150 || r.top > window.innerHeight + 150)) {
       return;
     }
 
@@ -313,7 +341,7 @@ export function initKakoRazmisljamo() {
     }
 
     // Staircase line growth
-    const sl = safeLen(stair);
+    const sl = stairLen;
     const grow = Math.max(0, Math.min(1, (steps + 0.2) / 7));
     stair.style.strokeDasharray = sl * grow + ' ' + sl;
 
@@ -338,7 +366,7 @@ export function initKakoRazmisljamo() {
     endEl.style.setProperty('--e', Math.max(0, Math.min(1, (steps - 7) / 0.6)).toFixed(3));
 
     text(now);
-    requestAnimationFrame(frame);
+    startLoop();
   }
 
   layout();
@@ -366,7 +394,8 @@ export function initKakoRazmisljamo() {
         }
       }
     });
+    startLoop();
   });
 
-  requestAnimationFrame(frame);
+  startLoop();
 }

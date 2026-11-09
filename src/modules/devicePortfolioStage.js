@@ -47,9 +47,13 @@ export function initDevicePortfolioStage() {
     header.style.display = 'none';
   }
 
+  const vsPaneEl = document.querySelector('#vs-pane');
+  const introHeaderEl = document.querySelector('#portfolio-intro-header');
+  let cachedVsWidth = vsPaneEl ? vsPaneEl.offsetWidth : window.innerWidth;
+  let cachedStageHeight = stage.offsetHeight;
+
   const getVsWidth = () => {
-    const vsPane = document.querySelector('#vs-pane');
-    return vsPane ? vsPane.offsetWidth : window.innerWidth;
+    return cachedVsWidth || (vsPaneEl ? vsPaneEl.offsetWidth : window.innerWidth);
   };
 
   const getCardsTravel = () => {
@@ -79,9 +83,11 @@ export function initDevicePortfolioStage() {
   };
 
   function updateStageHeight() {
+    cachedVsWidth = vsPaneEl ? vsPaneEl.offsetWidth : window.innerWidth;
     const totalDist = getScrollEnd();
     const climbOverlap = Math.round(window.innerHeight * 0.78);
-    stage.style.height = `${totalDist + window.innerHeight + climbOverlap}px`;
+    cachedStageHeight = totalDist + window.innerHeight + climbOverlap;
+    stage.style.height = `${cachedStageHeight}px`;
   }
 
   updateStageHeight();
@@ -103,7 +109,7 @@ export function initDevicePortfolioStage() {
       const holdVs = getHoldVs();
       const totalTravel = getTotalTravel();
       const vsW = getVsWidth();
-      const maxScrollPx = Math.max(1, stage.offsetHeight - window.innerHeight);
+      const maxScrollPx = Math.max(1, (cachedStageHeight || stage.offsetHeight) - window.innerHeight);
       const scrollPx = self.progress * maxScrollPx;
 
       let currentX = 0;
@@ -121,15 +127,14 @@ export function initDevicePortfolioStage() {
         cardProgress = Math.min(1.0, (moved - vsW) / cardsTravel);
       }
 
-      const introHeader = document.querySelector('#portfolio-intro-header');
-      if (introHeader) {
+      if (introHeaderEl) {
         if (cardProgress > 0.90) {
           const fadeOut = Math.max(0, 1 - (cardProgress - 0.90) / 0.10);
-          introHeader.style.opacity = String(fadeOut);
+          introHeaderEl.style.opacity = String(fadeOut);
         } else {
-          introHeader.style.opacity = '1';
+          introHeaderEl.style.opacity = '1';
         }
-        introHeader.style.transform = 'none';
+        introHeaderEl.style.transform = 'none';
       }
 
       animatePortfolioCards();

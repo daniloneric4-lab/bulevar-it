@@ -1353,8 +1353,8 @@ export function initSistemIzaEkrana() {
 
   const maxAniso = isMobile ? 1 : Math.min(4, renderer.capabilities.getMaxAnisotropy());
   stex.anisotropy = maxAniso;
-  stex.generateMipmaps = !isMobile;
-  stex.minFilter = isMobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter;
+  stex.generateMipmaps = false;
+  stex.minFilter = THREE.LinearFilter;
   stex.magFilter = THREE.LinearFilter;
 
   const backTex = new THREE.CanvasTexture(backCv);
@@ -1645,7 +1645,11 @@ export function initSistemIzaEkrana() {
   // Responsiveness & Framing
   // ═══════════════════════════════════════════════════════════
   let narrow = false;
+  let sisTrackH = sisTrack.offsetHeight || window.innerHeight * 7;
+  let ulogaTrackH = ulogaTrack ? ulogaTrack.offsetHeight : window.innerHeight * 7;
   function layout() {
+    sisTrackH = sisTrack.offsetHeight || window.innerHeight * 7;
+    ulogaTrackH = ulogaTrack ? ulogaTrack.offsetHeight : window.innerHeight * 7;
     const r = masterStage.getBoundingClientRect();
     const w = (r.width > 0 && !(r.width === 300 && r.height === 150)) ? r.width : window.innerWidth;
     const h = window.innerHeight;
@@ -1832,21 +1836,45 @@ export function initSistemIzaEkrana() {
   let mobileOutMax = 0;
   const S0 = 0.28;
   const S1 = 0.84;
+  const contactSectionCached = document.getElementById('contact');
+  let inView = false;
+  let rafId = 0;
+
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) {
+        startLoop();
+      } else if (cv.style.visibility !== 'hidden') {
+        cv.style.opacity = '0';
+        cv.style.visibility = 'hidden';
+      }
+    }, { rootMargin: '300px 0px' });
+    io.observe(masterStage);
+  } else {
+    inView = true;
+  }
 
   function frame(now) {
+    rafId = 0;
     const stageRect = masterStage.getBoundingClientRect();
     if (stageRect.top > window.innerHeight || stageRect.bottom <= 0) {
       if (cv.style.visibility !== 'hidden') {
         cv.style.opacity = '0';
         cv.style.visibility = 'hidden';
       }
-      requestAnimationFrame(frame);
+      if (inView) startLoop();
       return;
     }
     const rUloga = ulogaTrack ? ulogaTrack.getBoundingClientRect() : { bottom: 0, top: 0, offsetHeight: 0 };
 
-    const contactSection = document.getElementById('contact');
-    const rContact = contactSection ? contactSection.getBoundingClientRect() : null;
+    const rContact = contactSectionCached ? contactSectionCached.getBoundingClientRect() : null;
 
     // The laptop strictly belongs to Section 08 & 09 and must NEVER bleed into Section 10 (Kontakt) or Footer.
     // When Section 10 (Kontakt) covers Section 09 (rContact.top <= 0), or Section 09 has scrolled past, hide canvas completely.
@@ -1856,7 +1884,7 @@ export function initSistemIzaEkrana() {
     if (isPastSection09 || isBeforeSection08) {
       cv.style.opacity = '0';
       cv.style.visibility = 'hidden';
-      requestAnimationFrame(frame);
+      if (inView) startLoop();
       return;
     }
 
@@ -1874,10 +1902,10 @@ export function initSistemIzaEkrana() {
     }
 
     const rSis = sisTrack.getBoundingClientRect();
-    const totSis = sisTrack.offsetHeight - window.innerHeight;
+    const totSis = (sisTrackH || sisTrack.offsetHeight) - window.innerHeight;
     const P_sis = cl(-rSis.top / totSis);
 
-    const totUloga = ulogaTrack.offsetHeight - window.innerHeight;
+    const totUloga = (ulogaTrackH || ulogaTrack.offsetHeight) - window.innerHeight;
     const P_uloga = cl(-rUloga.top / totUloga);
 
     // Transition progress: when Section 09 sheet slides up over Section 08
@@ -2262,7 +2290,7 @@ export function initSistemIzaEkrana() {
 
     renderer.render(scene, cam);
     text(now);
-    requestAnimationFrame(frame);
+    startLoop();
   }
 
   buildRoles();
@@ -2290,7 +2318,8 @@ export function initSistemIzaEkrana() {
     }
     lastScreenKey = '';
     stex.needsUpdate = true;
+    startLoop();
   });
 
-  requestAnimationFrame(frame);
+  startLoop();
 }

@@ -242,6 +242,7 @@ export function initIdeje() {
   let lastIdejeWidth = 0;
   let lastIdejeHeight = 0;
   let lastIdejeDpr = 1;
+  let trackH = track.offsetHeight || window.innerHeight * 9;
 
   function getStageSize() {
     const isCssApplied = getComputedStyle(cv).position === 'absolute';
@@ -259,6 +260,7 @@ export function initIdeje() {
   }
 
   function build() {
+    trackH = track.offsetHeight || window.innerHeight * 9;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const sz = getStageSize();
     W = sz.w;
@@ -656,15 +658,32 @@ export function initIdeje() {
     setElHtml(el, out);
   }
 
-  let inView = true;
+  let inView = false;
+  let rafId = 0;
 
-  const io = new IntersectionObserver((entries) => {
-    inView = entries[0].isIntersecting;
-  }, { threshold: 0 });
-  io.observe(track);
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) {
+        startLoop();
+      } else if (document.body.classList.contains('theme--black')) {
+        document.body.classList.remove('theme--black');
+      }
+    }, { rootMargin: '300px 0px' });
+    io.observe(track);
+  } else {
+    inView = true;
+  }
 
   // Mouse repulsion tracker for stationary symbols
   window.addEventListener('mousemove', (e) => {
+    if (!inView) return;
     const rc = cv.getBoundingClientRect();
     if (e.clientY >= rc.top && e.clientY <= rc.bottom && e.clientX >= rc.left && e.clientX <= rc.right) {
       mousePos.x = e.clientX - rc.left;
@@ -681,19 +700,29 @@ export function initIdeje() {
 
   window.addEventListener('bulevar:langchange', () => {
     build();
+    startLoop();
   });
 
   function frame(now) {
-
+    rafId = 0;
     const rc = track.getBoundingClientRect();
-    const tot = track.offsetHeight - window.innerHeight;
+    const tot = (trackH || track.offsetHeight) - window.innerHeight;
     const inVisibleZone = rc.bottom > 0 && rc.top < window.innerHeight + 120;
 
+    if (!inVisibleZone && !inView) {
+      if (document.body.classList.contains('theme--black')) {
+        document.body.classList.remove('theme--black');
+      }
+      return;
+    }
+
     if (inVisibleZone) {
-      const cw = cv.clientWidth;
-      const ch = cv.clientHeight;
-      if (cw > 0 && ch > 200 && (Math.abs(cw - W) > 2 || Math.abs(ch - H) > 100)) {
-        build();
+      if (W <= 300 && H <= 150) {
+        const cw = cv.clientWidth;
+        const ch = cv.clientHeight;
+        if (cw > 0 && ch > 200 && (Math.abs(cw - W) > 2 || Math.abs(ch - H) > 100)) {
+          build();
+        }
       }
       const DATA = getData();
       const Q = Math.max(0, Math.min(1, tot > 0 ? -rc.top / tot : 0));
@@ -847,21 +876,43 @@ export function initIdeje() {
             p.c[2] += (OR[2] - p.c[2]) * 0.15;
           }
         } else {
-          // 1. Narandžasti mlaz iz O nama (P: 0.00 - 0.08)
-          t = sArc(k, p, now);
-          // 2. Prelaz u grad na gridu (P: 0.085 - 0.14)
-          t = mix(t, sCity(k, p, now, g), sm(0.085 + d * 0.03, 0.14 + d * 0.03, P));
-          // 2. Talas u liniju puta (P: 0.54 - 0.62) -> bottom orange line
-          t = mix(t, sLine(k, p), sm(0.54 + d * 0.03, 0.59 + d * 0.03, P));
-          // 3. Podizanje linije na vrhu (P: 0.62 - 0.74)
-          t = mix(t, sLineTop(k, p), sm(0.62, 0.74, P));
-          // 4. Razvlačenje nadole (P: 0.73 - 0.78)
-          t = mix(t, sSpread(k, p, now), sm(0.73, 0.78, P));
-          // 5. Grid Usluga (P: 0.76 - 0.80) - sve tačkice su na gridu u pozadini
-          t = mix(t, sGrid(k, p), sm(0.76 + p.f * 0.03, 0.79 + p.f * 0.03, P));
+          const hasSymbols = P >= 0.78 && P < 0.975 && symbol01Pts.length && symbol02Pts.length && symbol03Pts.length;
+          const wSym = hasSymbols ? sm(0.78 + (k % 30) / 30 * 0.02, 0.81, P) : 0;
+
+          if (wSym < 1) {
+            const wCity = sm(0.085 + d * 0.03, 0.14 + d * 0.03, P);
+            const wLine = P > 0.53 ? sm(0.54 + d * 0.03, 0.59 + d * 0.03, P) : 0;
+            const wLineTop = P > 0.61 ? sm(0.62, 0.74, P) : 0;
+            const wSpread = P > 0.72 ? sm(0.73, 0.78, P) : 0;
+            const wGrid = P > 0.75 ? sm(0.76 + p.f * 0.03, 0.79 + p.f * 0.03, P) : 0;
+
+            if (wGrid >= 1) {
+              t = sGrid(k, p);
+            } else {
+              if (wSpread >= 1) {
+                t = sSpread(k, p, now);
+              } else if (wLineTop >= 1) {
+                t = sLineTop(k, p);
+                if (wSpread > 0) t = mix(t, sSpread(k, p, now), wSpread);
+              } else if (wLine >= 1) {
+                t = sLine(k, p);
+                if (wLineTop > 0) t = mix(t, sLineTop(k, p), wLineTop);
+                if (wSpread > 0) t = mix(t, sSpread(k, p, now), wSpread);
+              } else if (wCity >= 1) {
+                t = sCity(k, p, now, g);
+                if (wLine > 0) t = mix(t, sLine(k, p), wLine);
+                if (wLineTop > 0) t = mix(t, sLineTop(k, p), wLineTop);
+                if (wSpread > 0) t = mix(t, sSpread(k, p, now), wSpread);
+              } else {
+                t = sArc(k, p, now);
+                if (wCity > 0) t = mix(t, sCity(k, p, now, g), wCity);
+              }
+              if (wGrid > 0) t = mix(t, sGrid(k, p), wGrid);
+            }
+          }
 
           // 7. Veliki centrirani Simbol u Uslugama (P: 0.78 - 0.97) — menja se isključivo skrolom
-          if (P >= 0.78 && P < 0.975 && symbol01Pts.length && symbol02Pts.length && symbol03Pts.length) {
+          if (hasSymbols && wSym > 0) {
             let symTarget;
             if (P < 0.84) {
               symTarget = symbol01Pts[k];
@@ -876,7 +927,7 @@ export function initIdeje() {
             } else {
               symTarget = symbol03Pts[k];
             }
-            t = mix(t, symTarget, sm(0.78 + (k % 30) / 30 * 0.02, 0.81, P));
+            t = wSym >= 1 ? symTarget : mix(t, symTarget, wSym);
           }
 
           const isLinePhase = (P >= 0.54 && P < 0.78);
@@ -1093,7 +1144,7 @@ export function initIdeje() {
       }
     }
 
-    requestAnimationFrame(frame);
+    startLoop();
   }
 
   function onIdejeResize() {
@@ -1106,6 +1157,7 @@ export function initIdeje() {
       : Math.abs(sz.h - lastIdejeHeight) > 1;
     if (!widthChanged && !heightChanged && !dprChanged) return;
     build();
+    startLoop();
   }
   window.addEventListener('resize', onIdejeResize, { passive: true });
   if (window.visualViewport) {
@@ -1113,7 +1165,8 @@ export function initIdeje() {
   }
   window.addEventListener('load', () => {
     build();
+    startLoop();
   }, { once: true });
   build();
-  requestAnimationFrame(frame);
+  startLoop();
 }
