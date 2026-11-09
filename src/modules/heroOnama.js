@@ -317,6 +317,7 @@ export function initHeroOnama() {
   let lastHeroWidth = 0;
   let lastHeroHeight = 0;
   let lastHeroDpr = 1;
+  let trackH = track.offsetHeight || window.innerHeight * 7;
 
   function getHeroStageSize() {
     const isCssApplied = getComputedStyle(cv).position === 'absolute';
@@ -334,6 +335,7 @@ export function initHeroOnama() {
   }
 
   function build() {
+    trackH = track.offsetHeight || window.innerHeight * 7;
     const sz = getHeroStageSize();
     dpr = Math.min(2, window.devicePixelRatio || 1);
     W = sz.w;
@@ -526,13 +528,44 @@ export function initHeroOnama() {
 
   pickVideo();
 
+  let inView = true;
+  let rafId = 0;
+
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) {
+        startLoop();
+      } else if (stage) {
+        const r = track.getBoundingClientRect();
+        if (r.bottom <= 0) {
+          stage.style.opacity = '0';
+          stage.style.pointerEvents = 'none';
+          stage.style.visibility = 'hidden';
+        }
+      }
+    }, { rootMargin: '300px 0px' });
+    io.observe(track);
+  }
+
   function frame(now) {
+    rafId = 0;
     const r = track.getBoundingClientRect();
-    const tot = track.offsetHeight - window.innerHeight;
+    const tot = (trackH || track.offsetHeight) - window.innerHeight;
     const G = cl(tot > 0 ? -r.top / tot : 0);
 
-    if (r.bottom < -200 || r.top > window.innerHeight + 200) {
-      requestAnimationFrame(frame);
+    if (!inView && (r.bottom < -200 || r.top > window.innerHeight + 200)) {
+      if (stage && r.bottom <= 0) {
+        stage.style.opacity = '0';
+        stage.style.pointerEvents = 'none';
+        stage.style.visibility = 'hidden';
+      }
       return;
     }
 
@@ -551,16 +584,18 @@ export function initHeroOnama() {
     const t = now / 1000;
     if (hint) hint.style.opacity = G < 0.01 ? '1' : '0';
 
-    const cw = cv.clientWidth;
-    const ch = cv.clientHeight;
-    if (cw > 0 && ch > 200 && (Math.abs(cw - W) > 2 || Math.abs(ch - H) > 100)) {
-      build();
+    if (W <= 300 && H <= 150) {
+      const cw = cv.clientWidth;
+      const ch = cv.clientHeight;
+      if (cw > 0 && ch > 200 && (Math.abs(cw - W) > 2 || Math.abs(ch - H) > 100)) {
+        build();
+      }
     }
     if (!logoReady && LM.complete && LM.naturalWidth > 0) build();
     videoScrub(G);
 
     if (!N) {
-      requestAnimationFrame(frame);
+      startLoop();
       return;
     }
 
@@ -594,7 +629,7 @@ export function initHeroOnama() {
         x.globalAlpha = 1;
       }
       text(now);
-      requestAnimationFrame(frame);
+      startLoop();
       return;
     }
 
@@ -763,14 +798,14 @@ export function initHeroOnama() {
     x.globalAlpha = 1;
 
     text(now);
-    requestAnimationFrame(frame);
+    startLoop();
   }
 
   // Start loop immediately without blocking on network fonts or images
   build();
   cur = -1;
   videoScrub(0);
-  requestAnimationFrame(frame);
+  startLoop();
 
   function onHeroResize() {
     const sz = getHeroStageSize();
@@ -782,6 +817,7 @@ export function initHeroOnama() {
     if (!widthChanged && !heightChanged && !dprChanged) return;
     if (widthChanged) pickVideo();
     build();
+    startLoop();
   }
   window.addEventListener('resize', onHeroResize, { passive: true });
   if (window.visualViewport) {
@@ -789,16 +825,14 @@ export function initHeroOnama() {
   }
   window.addEventListener('load', () => {
     build();
+    startLoop();
   }, { once: true });
   if (!LM.complete) {
-    LM.addEventListener('load', () => build(), { once: true });
+    LM.addEventListener('load', () => {
+      build();
+      startLoop();
+    }, { once: true });
   }
-  window.addEventListener('resize', () => {
-    if (true) return;
-    lastHeroWidth = window.innerWidth;
-    pickVideo();
-    build();
-  }, { passive: true });
 
   window.addEventListener('bulevar:langchange', () => {
     F[0].h = t('onama.f0.h', 'Studio iz Novog Sada.');

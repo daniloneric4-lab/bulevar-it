@@ -319,11 +319,17 @@ export function initNav() {
 
   window.__setActiveNavLink = setActiveLink;
 
+  let cachedNavMetrics = null;
+  const refreshNavMetrics = () => {
+    cachedNavMetrics = getSectionScrollMetrics();
+    return cachedNavMetrics;
+  };
+
   // Unified Scroll-Spy using the exact same section boundaries
   const updateActiveNavOnScroll = () => {
     if (performance.now() < programmaticScrollUntil) return;
     const scrollY = window.scrollY || window.pageYOffset || 0;
-    const { ranges } = getSectionScrollMetrics();
+    const { ranges } = cachedNavMetrics || refreshNavMetrics();
     let matchedId = null;
     for (let i = 0; i < ranges.length; i++) {
       const r = ranges[i];
@@ -336,7 +342,10 @@ export function initNav() {
   };
 
   window.addEventListener('scroll', updateActiveNavOnScroll, { passive: true });
-  ScrollTrigger.addEventListener('refresh', updateActiveNavOnScroll);
+  ScrollTrigger.addEventListener('refresh', () => {
+    refreshNavMetrics();
+    updateActiveNavOnScroll();
+  });
 
   // Unified programmatic scroll to section
   const scrollToSection = (rawId, immediate = false) => {
@@ -347,7 +356,7 @@ export function initNav() {
       window.ScrollTrigger.refresh();
     }
 
-    const { targets } = getSectionScrollMetrics();
+    const { targets } = refreshNavMetrics();
     let targetY = targets[cleanId];
 
     if (targetY === undefined) {
@@ -429,17 +438,20 @@ export function initNav() {
   window.addEventListener('resize', () => {
     if (window.innerWidth === lastNavBlobWidth) return;
     lastNavBlobWidth = window.innerWidth;
+    refreshNavMetrics();
     initBlob();
     updateActiveNavOnScroll();
   }, { passive: true });
 
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
+      refreshNavMetrics();
       initBlob();
       updateActiveNavOnScroll();
     });
   }
   setTimeout(() => {
+    refreshNavMetrics();
     initBlob();
     updateActiveNavOnScroll();
   }, 250);

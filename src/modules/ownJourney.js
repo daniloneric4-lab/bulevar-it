@@ -278,91 +278,81 @@ export function initOwnJourney() {
   };
 
   function paintCity(t) {
-    const cfar = svgCache.cfar;
-    cfar.forEach((r) => r.setAttribute('fill', ramp(CC.far, t)));
-    const cmid = svgCache.cmid;
-    cmid.forEach((r) => r.setAttribute('fill', ramp(CC.mid, t)));
-    const cground = $('cground');
-    if (cground) cground.setAttribute('fill', ramp(CC.gr, t));
-    const rb = svgCache.rb;
-    rb.forEach((r) => r.setAttribute('fill', ramp(CC.rb, t)));
-    const door = svgCache.door;
-    door.forEach((r) => r.setAttribute('fill', ramp(C.roof, t)));
+    const colFar = ramp(CC.far, t);
+    svgCache.cfar.forEach((r) => r.setAttribute('fill', colFar));
+    const colMid = ramp(CC.mid, t);
+    svgCache.cmid.forEach((r) => r.setAttribute('fill', colMid));
+    if (svgCache.cground) svgCache.cground.setAttribute('fill', ramp(CC.gr, t));
+    const colRb = ramp(CC.rb, t);
+    svgCache.rb.forEach((r) => r.setAttribute('fill', colRb));
+    const colDoor = ramp(C.roof, t);
+    svgCache.door.forEach((r) => r.setAttribute('fill', colDoor));
 
-    const wo = sm(0.5, 0.85, t);
-    const cw = svgCache.cw;
-    cw.forEach((r) => {
+    const wo = (0.08 + 0.8 * sm(0.5, 0.85, t)).toFixed(2);
+    svgCache.cw.forEach((r) => {
       r.setAttribute('fill', '#ffd27a');
-      r.setAttribute('opacity', (0.08 + 0.8 * wo).toFixed(2));
+      r.setAttribute('opacity', wo);
     });
-
-    const bulbs = svgCache.bulbs;
-    bulbs.forEach((r) => r.setAttribute('opacity', (0.2 + 0.8 * sm(0.55, 0.85, t)).toFixed(2)));
-
-    const courier = $('courier');
-    if (courier) {
-      const cx = -220 + 2040 * ((t * 1.8) % 1);
-      courier.setAttribute('transform', 'translate(' + cx + ' 800)');
-      const wh1 = $('wh1');
-      if (wh1) wh1.setAttribute('transform', 'translate(-40 -24) rotate(' + (cx * 1.6) + ')');
-      const wh2 = $('wh2');
-      if (wh2) wh2.setAttribute('transform', 'translate(40 -24) rotate(' + (cx * 1.6) + ')');
-    }
 
     const night = sm(0.55, 0.85, t);
-    const beam = $('beam');
-    if (beam) beam.setAttribute('opacity', (0.28 * night).toFixed(2));
-    const blight = $('blight');
-    if (blight) blight.setAttribute('opacity', (0.3 + 0.7 * night).toFixed(2));
+    const bulbOp = (0.2 + 0.8 * night).toFixed(2);
+    svgCache.bulbs.forEach((r) => r.setAttribute('opacity', bulbOp));
 
-    const cfarEl = $('cfar');
-    if (cfarEl) cfarEl.setAttribute('transform', 'translate(' + (-30 * t) + ' 0)');
-    const cmidEl = $('cmid');
-    if (cmidEl) cmidEl.setAttribute('transform', 'translate(' + (-60 * t) + ' 0)');
+    if (svgCache.courier) {
+      const cx = -220 + 2040 * ((t * 1.8) % 1);
+      const rot = cx * 1.6;
+      svgCache.courier.setAttribute('transform', 'translate(' + cx + ' 800)');
+      if (svgCache.wh1) svgCache.wh1.setAttribute('transform', 'translate(-40 -24) rotate(' + rot + ')');
+      if (svgCache.wh2) svgCache.wh2.setAttribute('transform', 'translate(40 -24) rotate(' + rot + ')');
+    }
+
+    if (svgCache.beam) svgCache.beam.setAttribute('opacity', (0.28 * night).toFixed(2));
+    if (svgCache.blight) svgCache.blight.setAttribute('opacity', (0.3 + 0.7 * night).toFixed(2));
+
+    if (svgCache.cfarEl) svgCache.cfarEl.setAttribute('transform', 'translate(' + (-30 * t) + ' 0)');
+    if (svgCache.cmidEl) svgCache.cmidEl.setAttribute('transform', 'translate(' + (-60 * t) + ' 0)');
   }
 
-  function paint(t) {
-    paintCity(t);
-    const s0 = $('s0');
-    if (s0) s0.setAttribute('stop-color', ramp(C.top, t));
-    const s1 = $('s1');
-    if (s1) s1.setAttribute('stop-color', ramp(C.bot, t));
-    const farP = $('farP');
-    if (farP) farP.setAttribute('fill', ramp(C.far, t));
-    const midP = $('midP');
-    if (midP) midP.setAttribute('fill', ramp(C.mid, t));
-    const nearP = $('nearP');
-    if (nearP) nearP.setAttribute('fill', ramp(C.near, t));
+  function paint(t, forceAll = false) {
+    const isFood = OJ.mode === 'food';
+    if (isFood || forceAll) {
+      paintCity(t);
+    }
+    if (svgCache.s0) svgCache.s0.setAttribute('stop-color', ramp(C.top, t));
+    if (svgCache.s1) svgCache.s1.setAttribute('stop-color', ramp(C.bot, t));
 
-    svgCache.rows.forEach((r) => r.setAttribute('stroke', ramp(C.row, t)));
-    svgCache.trees.forEach((r) => r.setAttribute('fill', ramp(C.near, Math.min(1, t + 0.12))));
+    if (!isFood || forceAll) {
+      if (svgCache.farP) svgCache.farP.setAttribute('fill', ramp(C.far, t));
+      if (svgCache.midP) svgCache.midP.setAttribute('fill', ramp(C.mid, t));
+      if (svgCache.nearP) svgCache.nearP.setAttribute('fill', ramp(C.near, t));
 
-    const hb = $('hb');
-    if (hb) hb.setAttribute('fill', ramp(C.house, t));
-    const hr = $('hr');
-    if (hr) hr.setAttribute('fill', ramp(C.roof, t));
+      const colRow = ramp(C.row, t);
+      svgCache.rows.forEach((r) => r.setAttribute('stroke', colRow));
+      const colTree = ramp(C.near, Math.min(1, t + 0.12));
+      svgCache.trees.forEach((r) => r.setAttribute('fill', colTree));
 
-    svgCache.wins.forEach((w) => {
-      w.setAttribute('fill', '#ffd27a');
-      w.setAttribute('opacity', (0.15 + 0.85 * sm(0.55, 0.85, t)).toFixed(2));
-    });
+      if (svgCache.hb) svgCache.hb.setAttribute('fill', ramp(C.house, t));
+      if (svgCache.hr) svgCache.hr.setAttribute('fill', ramp(C.roof, t));
+
+      const winOp = (0.15 + 0.85 * sm(0.55, 0.85, t)).toFixed(2);
+      svgCache.wins.forEach((w) => {
+        w.setAttribute('fill', '#ffd27a');
+        w.setAttribute('opacity', winOp);
+      });
+
+      if (svgCache.farG) svgCache.farG.setAttribute('transform', 'translate(' + (-40 * t) + ' 0)');
+      if (svgCache.midG) svgCache.midG.setAttribute('transform', 'translate(' + (-90 * t) + ' 0)');
+      if (svgCache.nearG) svgCache.nearG.setAttribute('transform', 'translate(' + (-180 * t) + ' 0)');
+    }
 
     const sxPos = 260 + 1080 * t;
     const syPos = 380 - 230 * Math.sin(Math.PI * Math.min(1, t * 1.05)) + (t > 0.8 ? (t - 0.8) * 900 : 0);
-    const sun = $('sun');
-    if (sun) {
-      sun.setAttribute('cx', sxPos);
-      sun.setAttribute('cy', syPos);
-      sun.setAttribute('fill', ramp(C.sun, t));
+    if (svgCache.sun) {
+      svgCache.sun.setAttribute('cx', sxPos);
+      svgCache.sun.setAttribute('cy', syPos);
+      svgCache.sun.setAttribute('fill', ramp(C.sun, t));
     }
     if (stars) stars.setAttribute('opacity', sm(0.72, 0.98, t).toFixed(2));
-
-    const farG = $('far');
-    if (farG) farG.setAttribute('transform', 'translate(' + (-40 * t) + ' 0)');
-    const midG = $('mid');
-    if (midG) midG.setAttribute('transform', 'translate(' + (-90 * t) + ' 0)');
-    const nearG = $('near');
-    if (nearG) nearG.setAttribute('transform', 'translate(' + (-180 * t) + ' 0)');
   }
 
   /* ---------- Text Decode Helpers ---------- */
@@ -981,9 +971,11 @@ export function initOwnJourney() {
   let narrow = false;
   let stageW = 1920, stageH = 1080;
   let basePosY = -0.08;
+  let trackH = track.offsetHeight || window.innerHeight * 6;
 
   function layout() {
     if (!stage || !cv) return;
+    trackH = track.offsetHeight || window.innerHeight * 6;
     const isCssApplied = getComputedStyle(stage).position === 'sticky';
     const r = stage.getBoundingClientRect();
     stageW = (isCssApplied && r.width > 0 && !(r.width === 300 && r.height === 150)) ? r.width : window.innerWidth;
@@ -1072,12 +1064,42 @@ export function initOwnJourney() {
 
   /* ---------- Main Animation Frame Loop ---------- */
   const portal = $('oj-portal');
+  const pSvgCached = portal ? portal.querySelector('svg') : null;
+  const h1ElCached = $('oj-h1');
+  const ipElCached = $('oj-ip');
+  const introInCached = $('oj-introIn');
+  const cnElCached = $('oj-cn');
+  const chElCached = $('oj-ch');
+  const cpElCached = $('oj-cp');
   let iStep = -1, cStep = -1, lastT = -1, ry = Math.PI - 0.3, rx = 0.05, lastP = 0;
+  let inView = false;
+  let rafId = 0;
+
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) startLoop();
+    }, { rootMargin: '300px 0px' });
+    io.observe(track);
+  } else {
+    inView = true;
+  }
 
   function frame(now) {
+    rafId = 0;
     const r = track.getBoundingClientRect();
-    const tot = track.offsetHeight - window.innerHeight;
+    const tot = (trackH || track.offsetHeight) - window.innerHeight;
     const inVisibleZone = r.bottom > 0 && r.top <= window.innerHeight;
+
+    if (!inVisibleZone && !inView) {
+      return;
+    }
 
     if (inVisibleZone) {
       const P = cl(-r.top / tot);
@@ -1091,8 +1113,8 @@ export function initOwnJourney() {
       if (r.top > 0) {
         if (iStep !== -1) {
           iStep = -1;
-          const h1El = $('oj-h1'); if (h1El) h1El.innerHTML = '';
-          const ipEl = $('oj-ip'); if (ipEl) ipEl.innerHTML = '';
+          if (h1ElCached) h1ElCached.innerHTML = '';
+          if (ipElCached) ipElCached.innerHTML = '';
         }
       } else {
         const ia = P < 0.08 ? 0 : P < 0.16 ? 1 : 2;
@@ -1104,10 +1126,8 @@ export function initOwnJourney() {
         const qH1 = cl(pStep / 0.52);
         const qDesc = cl((pStep - 0.30) / 0.65);
 
-        const h1El = $('oj-h1');
-        const ipEl = $('oj-ip');
-        renderScrollDecode(h1El, IN[ia][0], qH1, now);
-        renderScrollDecode(ipEl, IN[ia][1], qDesc, now);
+        renderScrollDecode(h1ElCached, IN[ia][0], qH1, now);
+        renderScrollDecode(ipElCached, IN[ia][1], qDesc, now);
       }
 
       // Act B: phone turns flat to face you, then screen opens into full screen portal
@@ -1134,15 +1154,12 @@ export function initOwnJourney() {
       const H = stageH;
       const sr = (P > 0.26 && e < 1) ? screenRect() : null;
 
-
-
       if (P <= 0.26) {
         if (portal) {
           portal.style.display = 'none';
           portal.style.opacity = '0';
         }
-        const introIn = $('oj-introIn');
-        if (introIn) introIn.style.opacity = '1';
+        if (introInCached) introInCached.style.opacity = '1';
         cv.style.opacity = '1';
       } else {
         if (portal) {
@@ -1155,9 +1172,8 @@ export function initOwnJourney() {
             (sr[0] * (1 - e)) + 'px round ' +
             (sr[4] * (1 - e)) + 'px)';
           portal.style.opacity = fade;
-          const pSvg = portal.querySelector('svg');
-          if (pSvg) {
-            pSvg.style.transform = e >= 1 ? 'none' : 'scale(' + (1.12 - 0.12 * e) + ')';
+          if (pSvgCached) {
+            pSvgCached.style.transform = e >= 1 ? 'none' : 'scale(' + (1.12 - 0.12 * e) + ')';
           }
         }
       }
@@ -1173,21 +1189,18 @@ export function initOwnJourney() {
       const ci = P < 0.40 ? -1 : Math.min(3, Math.floor(c * 4));
       cStep = ci;
       if (ci < 0) {
-        const cnEl = $('oj-cn'); if (cnEl) { cnEl.innerHTML = ''; cnEl.dataset.t2 = ''; }
-        const chEl = $('oj-ch'); if (chEl) { chEl.innerHTML = ''; chEl.dataset.t2 = ''; }
-        const cpEl = $('oj-cp'); if (cpEl) { cpEl.innerHTML = ''; cpEl.dataset.t2 = ''; }
+        if (cnElCached) { cnElCached.innerHTML = ''; cnElCached.dataset.t2 = ''; }
+        if (chElCached) { chElCached.innerHTML = ''; chElCached.dataset.t2 = ''; }
+        if (cpElCached) { cpElCached.innerHTML = ''; cpElCached.dataset.t2 = ''; }
       } else {
         const cLocal = (c * 4) - ci;
         const qCn = cl(cLocal / 0.35);
         const qCh = cl((cLocal - 0.15) / 0.50);
         const qCp = cl((cLocal - 0.35) / 0.60);
 
-        const cnEl = $('oj-cn');
-        const chEl = $('oj-ch');
-        const cpEl = $('oj-cp');
-        renderScrollDecode(cnEl, CHX[ci][0], qCn, now);
-        renderScrollDecode(chEl, CHX[ci][1], qCh, now);
-        renderScrollDecode(cpEl, CHX[ci][2], qCp, now);
+        renderScrollDecode(cnElCached, CHX[ci][0], qCn, now);
+        renderScrollDecode(chElCached, CHX[ci][1], qCh, now);
+        renderScrollDecode(cpElCached, CHX[ci][2], qCp, now);
       }
       if (book) book.classList.toggle('on', ci === 3);
       dots.forEach((d, i) => d.classList.toggle('on', i <= ci));
@@ -1196,9 +1209,7 @@ export function initOwnJourney() {
       updateDecodeText(now);
     }
 
-
-
-    requestAnimationFrame(frame);
+    startLoop();
   }
 
   function applyScene(m) {
@@ -1279,7 +1290,8 @@ export function initOwnJourney() {
     if (typeof scene !== 'undefined' && typeof cam !== 'undefined' && typeof renderer !== 'undefined') {
       renderer.render(scene, cam);
     }
-    paint(lastT >= 0 ? lastT : 0);
+    paint(lastT >= 0 ? lastT : 0, true);
+    startLoop();
   }
 
   OJ.fns.push(applyScene);
@@ -1289,8 +1301,8 @@ export function initOwnJourney() {
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(layout);
   }
-  paint(0);
-  requestAnimationFrame(frame);
+  paint(0, true);
+  startLoop();
 
   /* ---------- Commission Calculator ---------- */
   const pr = $('pr'), nt = $('nt'), pc = $('pc');

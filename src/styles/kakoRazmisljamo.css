@@ -138,7 +138,7 @@
   font-size: 13px;
   line-height: 1.5;
   color: var(--gold, #D9B25F);
-  width: 32ch;
+  width: clamp(22ch, 19vw, 30ch);
   min-height: 3em;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -147,7 +147,7 @@
 @media (min-width: 861px) {
   #kako-razmisljamo .kr-w .q {
     position: absolute;
-    left: calc(100% + 28px);
+    left: calc(100% + 22px);
     top: 22px;
   }
 }

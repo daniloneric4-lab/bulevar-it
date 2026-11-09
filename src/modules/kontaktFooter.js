@@ -527,12 +527,16 @@ function initFooterLogoAnimation() {
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let cur = 0;
+  let ftH = ft.offsetHeight || window.innerHeight * 2;
+  window.addEventListener('resize', () => {
+    ftH = ft.offsetHeight || window.innerHeight * 2;
+  }, { passive: true });
 
   function target() {
     if (reduce) return 1;
     const r = ft.getBoundingClientRect();
     if (r.top > window.innerHeight + 200) return 0;
-    const span = ft.offsetHeight - window.innerHeight;
+    const span = (ftH || ft.offsetHeight) - window.innerHeight;
     if (span <= 0 || r.bottom <= window.innerHeight + 35) return 1;
 
     // Kad god je korisnik na dnu ili pri dnu stranice, garantujemo potpuno (100%) učitavanje footera
@@ -549,18 +553,18 @@ function initFooterLogoAnimation() {
     arc.style.strokeDashoffset = arcLen * (1 - eInOut(seg(p, 0.02, 0.15)));
 
     const col = eInOut(seg(p, 0.25, 0.55));
+    const baseWinCol = mix(WIN_OFF, WIN_FINAL, col);
+    const wp = seg(p, 0.30, 0.65);
     B.forEach((b) => {
       const lt = seg(p, b.a, b.b);
       const e = backOut(lt, 1.1);
       b.g.setAttribute('transform', `translate(0 ${((1 - e) * (b.h + 60)).toFixed(2)})`);
       b.body.setAttribute('fill-opacity', col.toFixed(3));
       b.body.setAttribute('stroke-opacity', (1 - col).toFixed(3));
-      const wp = seg(p, 0.30, 0.65);
       b.win.forEach((w) => {
         const u = clamp((wp - w.t) / 0.2);
-        const base = mix(WIN_OFF, WIN_FINAL, col);
         const lit = u > 0 && u < 1 ? Math.sin(u * Math.PI) : 0;
-        w.n.setAttribute('fill', rgb(mix(base, WIN_LIT, lit * 0.9)));
+        w.n.setAttribute('fill', rgb(mix(baseWinCol, WIN_LIT, lit * 0.9)));
       });
       b.dust.forEach((d) => {
         const u = clamp((lt - d.d) / 0.55);
@@ -596,8 +600,34 @@ function initFooterLogoAnimation() {
   }
 
   let lastRenderedCur = -1;
+  let inView = false;
+  let rafId = 0;
+
+  function startLoop() {
+    if (!rafId) {
+      rafId = requestAnimationFrame(loop);
+    }
+  }
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      if (inView) {
+        ftH = ft.offsetHeight || window.innerHeight * 2;
+        startLoop();
+      }
+    }, { rootMargin: '300px 0px' });
+    io.observe(ft);
+  } else {
+    inView = true;
+  }
+
   render(0, 0);
   function loop(t) {
+    rafId = 0;
+    if (!inView && cur <= 0.0005) {
+      return;
+    }
     const tg = target();
     cur += (tg - cur) * 0.11;
     if (Math.abs(tg - cur) < 0.0005) cur = tg;
@@ -605,8 +635,10 @@ function initFooterLogoAnimation() {
       render(cur, t);
       lastRenderedCur = cur;
     }
-    requestAnimationFrame(loop);
+    if (inView || cur > 0.0005) {
+      startLoop();
+    }
   }
 
-  requestAnimationFrame(loop);
+  startLoop();
 }

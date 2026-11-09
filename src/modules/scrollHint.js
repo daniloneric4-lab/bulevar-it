@@ -182,12 +182,17 @@ export function initScrollHint(lenisInstance) {
     }, IDLE_MS);
   }
 
+  let lastActivityReset = 0;
+
   function onActivity() {
     hideHint();
     if (showCount >= MAX_SHOWS) {
       cleanupListeners();
       return;
     }
+    const now = performance.now();
+    if (timerId && now - lastActivityReset < 250) return;
+    lastActivityReset = now;
     scheduleTimer();
   }
 
