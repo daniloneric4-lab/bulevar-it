@@ -225,6 +225,7 @@ export const TRANSLATIONS = {
     // Footer
     'footer.tagline': 'DIGITALNI SISTEM KOJI OSTAJE U VAŠIM RUKAMA',
     'footer.rights': '© 2026 Bulevar.IT · Sva prava zadržana. Studio za digitalni rast i izradu sistema.',
+    'footer.cookies': 'Podešavanja kolačića',
 
     // Landing pages common & specific
     'lp.tagline': 'Studio za digitalni rast · Izrada sajtova i sistema',
@@ -518,6 +519,7 @@ export const TRANSLATIONS = {
     // Footer
     'footer.tagline': 'DIGITAL SYSTEM THAT REMAINS IN YOUR HANDS',
     'footer.rights': '© 2026 Bulevar.IT · All rights reserved. Digital growth and systems studio.',
+    'footer.cookies': 'Cookie settings',
 
     // Landing pages common & specific
     'lp.tagline': 'Digital Growth Studio · Websites & Systems',

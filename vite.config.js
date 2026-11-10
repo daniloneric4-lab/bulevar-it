@@ -13,6 +13,7 @@ export default defineConfig({
         lpZastoSajt: './lp/zasto-sajt/index.html',
         lpNeTrazimo: './lp/ne-trazimo/index.html',
         lpStaAko: './lp/sta-ako/index.html',
+        politikaPrivatnosti: './politika-privatnosti/index.html',
       },
     },
   },

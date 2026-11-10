@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
+  <script src="/cookie-consent.js"></script>
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -22,6 +24,7 @@
   t.src=v;s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('consent', 'revoke');
   fbq('init', '1881419226178334');
   fbq('track', 'PageView');
   </script>
@@ -184,7 +187,7 @@
   </div>
 
   <footer class="lp-footer">
-    <p><span data-i18n="footer.rights">© 2026 Bulevar.IT · Sva prava zadržana. Studio za digitalni rast i izradu sistema.</span> · <a href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu" class="lp-footer-ig">Instagram</a></p>
+    <p><span data-i18n="footer.rights">© 2026 Bulevar.IT · Sva prava zadržana. Studio za digitalni rast i izradu sistema.</span> · <a href="https://www.instagram.com/bulevar.it/" target="_blank" rel="noopener noreferrer" aria-label="Bulevar.IT na Instagramu" class="lp-footer-ig">Instagram</a> · <a href="#" onclick="bulevarCookies.open();return false" class="lp-footer-ig" data-i18n="footer.cookies">Podešavanja kolačića</a></p>
   </footer>
 
   <script type="module" src="/src/modules/lpNeTrazimo.js"></script>
