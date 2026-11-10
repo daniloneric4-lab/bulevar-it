@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <script src="/cookie-consent.js"></script>
+
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -23,6 +25,7 @@
   t.src=v;s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('consent', 'revoke');
   fbq('init', '1881419226178334');
   fbq('track', 'PageView');
   </script>
@@ -931,22 +934,6 @@
             stroke-linecap="round" stroke-linejoin="round">
             <path d="M4.5 11.5l7-7M5.5 4.5h6v6" />
           </svg></a>
-        <button type="button" class="dl dl--chat js-open-chat" id="chatOpenBtn" aria-label="Otvorite chat">
-          <span class="ic">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-              stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-          </span>
-          <span class="tx">
-            <span class="k mono" data-i18n="chat.k">CHAT</span>
-            <span class="v" data-i18n="chat.cta">Pišite nam</span>
-          </span>
-          <svg class="go" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4.5 11.5l7-7M5.5 4.5h6v6" />
-          </svg>
-        </button>
         <a class="dl" href="mailto:bulevarit@gmail.com"><span class="ic"><svg viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -1071,12 +1058,7 @@
 
       <div class="meta mono" id="meta">
         <span data-i18n="footer.rights">© 2026 Bulevar.IT · Novi Sad</span>
-
-
-
-
-
-
+        <a href="#" onclick="bulevarCookies.open();return false" data-i18n="footer.cookies">Podešavanja kolačića</a>
       </div>
     </div>
   </footer>
@@ -1084,15 +1066,6 @@
   <!-- Main JS entry point -->
   <script type="module" src="/src/main.js"></script>
 
-  <!-- Zoho SalesIQ -->
-  <script>
-window.$zoho = window.$zoho || {};
-$zoho.salesiq = $zoho.salesiq || {};
-$zoho.salesiq.ready = function () {
-  $zoho.salesiq.floatbutton.visible("hide");
-};
-</script>
-  <script id="zsiqscript" src="https://salesiq.zohopublic.eu/widget?wc=siqbfa675be049ae7cba365f0552d13b0f5cb60d1d8c0449ee37f66815ab2f82454" defer></script>
   <script>
     (function() {
       function isZohoNode(el) {

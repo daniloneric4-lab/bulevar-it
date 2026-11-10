@@ -250,6 +250,12 @@ function setupQuestionnaireModal(currentParams) {
         if (window.fbq) {
           fbq('track', 'Lead', { content_name: izabraniCilj || 'nije izabran' });
         }
+        if (window.$zoho && $zoho.salesiq && $zoho.salesiq.visitor) {
+          if (payload.ime) $zoho.salesiq.visitor.name(payload.ime);
+          if (payload.email) $zoho.salesiq.visitor.email(payload.email);
+          if (payload.telefon) $zoho.salesiq.visitor.contactnumber(payload.telefon);
+          $zoho.salesiq.visitor.info({ 'Cilj': izabraniCilj || 'nije izabran' });
+        }
 
         if (successBanner) {
           successBanner.style.display = 'block';

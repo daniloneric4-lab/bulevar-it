@@ -186,10 +186,15 @@ button.dl {
 }
 
 .dl .go {
-  width: 18px;
-  height: 18px;
-  color: var(--mut);
-  transition: transform .5s var(--spring), color .3s;
+  box-sizing: content-box;
+  width: 16px;
+  height: 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--gold, #D9B25F);
+  color: #0B1020;
+  flex-shrink: 0;
+  transition: transform .5s var(--spring), background .3s, color .3s;
   align-self: center;
 }
 
@@ -199,7 +204,8 @@ button.dl {
 }
 
 .dl:hover .go {
-  color: var(--gold);
+  background: #f0cf85;
+  color: #0B1020;
   transform: translate(3px, -3px);
 }
 
