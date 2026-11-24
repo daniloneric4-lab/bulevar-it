@@ -18,7 +18,13 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { getLang } from './i18n.js';
+import { getLang, t as i18nT } from './i18n.js';
+import {
+  renderScrollDecode,
+  registerScrollDecode,
+  refreshAllScrollDecodes,
+  escHtml
+} from './scrollDecode.js';
 
 export function initOwnJourney() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -68,8 +74,14 @@ export function initOwnJourney() {
   const stage = $('oj-stage');
   const vsSection = $('vs');
 
-  function swVis() {
+  function swVis(horizTrackX) {
     if (!ojsw || !track || !vsSection) return;
+    if (typeof horizTrackX === 'number' && horizTrackX < 0) {
+      // Fast path from horizontal portfolio ScrollTrigger without forcing synchronous reflow
+      const notInPortfolio = (window.innerWidth + horizTrackX) > window.innerWidth * 0.4;
+      ojsw.classList.toggle('show', notInPortfolio);
+      return;
+    }
     const a = track.getBoundingClientRect();
     const b = vsSection.getBoundingClientRect();
     // Prikazuje se isključivo tokom sekcije Own your customer journey (telefon + poređenje #vs)
@@ -79,7 +91,7 @@ export function initOwnJourney() {
     ojsw.classList.toggle('show', inVert && notInPortfolio);
   }
   let lastOjWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
-  window.addEventListener('scroll', swVis, { passive: true });
+  window.addEventListener('scroll', () => swVis(), { passive: true });
   window.addEventListener('resize', () => {
     if (window.innerWidth === lastOjWidth) return;
     lastOjWidth = window.innerWidth;
@@ -355,94 +367,10 @@ export function initOwnJourney() {
     if (stars) stars.setAttribute('opacity', sm(0.72, 0.98, t).toFixed(2));
   }
 
-  /* ---------- Text Decode Helpers ---------- */
-  /* ---------- Text Decode Helpers (iOS Liquid Glass Engine) ---------- */
-  const GL = 'ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';
+  /* ---------- Text Helpers ---------- */
   function esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    return escHtml(s);
   }
-  function stripHtml(s) {
-    return String(s || '').replace(/<[^>]*>/g, '');
-  }
-
-  function decode(el, t, ms, delay, html) {
-    if (!el || !t) return;
-    if (reduce) {
-      el.innerHTML = (html !== undefined && html !== null) ? html : esc(t);
-      return;
-    }
-    const st = performance.now() + (delay || 0);
-    const n = t.length;
-    el.dataset.t2 = t;
-    el.innerHTML = '<span class="rest">' + esc(t) + '</span>';
-    (function step(now) {
-      if (el.dataset.t2 !== t) return;
-      const q = cl((now - st) / (n * (ms || 28)));
-      const d = Math.floor(q * n);
-      const nz = (q <= 0 || q >= 1) ? 0 : Math.min(4, n - d);
-      let z = '';
-      for (let j = 0; j < nz; j++) {
-        const ch = t[d + j];
-        z += ch === ' ' ? ' ' : GL[(Math.random() * GL.length) | 0];
-      }
-      el.innerHTML = (q >= 1 && html !== undefined && html !== null)
-        ? html
-        : esc(t.slice(0, d)) + '<span class="noise">' + esc(z) + '</span><span class="rest">' + esc(t.slice(d + nz)) + '</span>';
-      if (q < 1) requestAnimationFrame(step);
-    })(performance.now());
-  }
-
-  function decodeIn(root, base) {
-    if (!root) return;
-    const items = root.querySelectorAll('[data-dec]');
-    items.forEach((item, i) => {
-      const text = item.dataset.dec || item.textContent;
-      const ms = item.dataset.ms ? +item.dataset.ms : 28;
-      const html = item.dataset.html || null;
-      decode(item, text, ms, (base || 0) + i * 140, html);
-    });
-  }
-
-  function say(id, t, d, finalHtml, ms) {
-    const el = typeof id === 'string' ? $(id) : id;
-    if (!el || !t) return;
-    decode(el, t, ms || 26, d || 0, finalHtml);
-  }
-
-  function renderScrollDecode(el, text, q, now) {
-    if (!el || !text) return;
-    if (reduce || q >= 1) {
-      if (el._renderedText !== text || el._renderedQ !== 1) {
-        el.innerHTML = esc(text);
-        el._renderedText = text;
-        el._renderedQ = 1;
-      }
-      return;
-    }
-    if (q <= 0) {
-      if (el._renderedQ !== 0) {
-        el.innerHTML = '<span class="rest">' + esc(text) + '</span>';
-        el._renderedQ = 0;
-      }
-      return;
-    }
-    const n = text.length;
-    const d = Math.floor(q * n);
-    const nz = Math.min(3, n - d);
-    let z = '';
-    for (let j = 0; j < nz; j++) {
-      const ch = text[d + j];
-      z += ch === ' ' ? ' ' : GL[(Math.floor(d + j + (now || 0) / 80) % GL.length)];
-    }
-    const h = esc(text.slice(0, d)) + '<span class="noise">' + esc(z) + '</span><span class="rest">' + esc(text.slice(d + nz)) + '</span>';
-    if (el.innerHTML !== h) {
-      el.innerHTML = h;
-      el._renderedText = text;
-      el._renderedQ = q;
-    }
-  }
-
-  function updateDecodeText() {}
 
   const INTRO_F_SR = [
     ['U aplikaciji ste jedan od stotinu istih lokala.', 'Ista slika, isto dugme, ista slova. Gost lista, poredi vreme dostave i cenu, i ide dalje.'],
@@ -536,11 +464,11 @@ export function initOwnJourney() {
 
   const renderer = new THREE.WebGLRenderer({
     canvas: cv,
-    antialias: true,
+    antialias: window.innerWidth > 768,
     alpha: true,
     powerPreference: 'high-performance'
   });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  renderer.setPixelRatio(Math.min(window.innerWidth <= 768 ? 1.5 : 2, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
@@ -593,49 +521,70 @@ export function initOwnJourney() {
 
   let phoneScreenMesh = null;
   let isPhoneLoaded = false;
+  let phoneLoadStarted = false;
 
   const loader = new GLTFLoader();
-  loader.load(
-    '/models/apple_iphone_15_pro_max_black.glb',
-    (gltf) => {
-      const model = gltf.scene;
-      model.traverse((child) => {
-        if (child.isMesh) {
-          if (child.name === 'xXDHkMplTIDAXLN' || (child.material && child.material.name === 'pIJKfZsazmcpEiU')) {
-            phoneScreenMesh = child;
-            child.material = new THREE.MeshBasicMaterial({
-              map: stex,
-              toneMapped: false,
-              polygonOffset: true,
-              polygonOffsetFactor: -1,
-              polygonOffsetUnits: -1,
-              depthWrite: true,
-            });
-            child.scale.set(1.0, 1.0, 1.0);
-          } else if (
-            child.name === 'wLfSXtbwRlBrwof' ||
-            child.name === 'WJwwVjsahIXbJpU' ||
-            child.name === 'cibcwsZWGgGfpme' ||
-            child.name === 'YfrJNXgMvGOAfzz' ||
-            child.material?.name === 'oZRkkORNzkufnGD' ||
-            child.material?.name === 'yhcAXNGcJWCqtIS' ||
-            child.material?.name === 'ZQfGMLaFcpPaLMU' ||
-            child.material?.name === 'bCgzXjHOanGdTFV'
-          ) {
-            child.material = phoneTitaniumMaterial;
+  function ensurePhoneModelLoaded() {
+    if (phoneLoadStarted) return;
+    phoneLoadStarted = true;
+    loader.load(
+      '/models/apple_iphone_15_pro_max_black.glb',
+      (gltf) => {
+        const model = gltf.scene;
+        model.traverse((child) => {
+          if (child.isMesh) {
+            if (child.name === 'xXDHkMplTIDAXLN' || (child.material && child.material.name === 'pIJKfZsazmcpEiU')) {
+              phoneScreenMesh = child;
+              child.material = new THREE.MeshBasicMaterial({
+                map: stex,
+                toneMapped: false,
+                polygonOffset: true,
+                polygonOffsetFactor: -1,
+                polygonOffsetUnits: -1,
+                depthWrite: true,
+              });
+              child.scale.set(1.0, 1.0, 1.0);
+            } else if (
+              child.name === 'wLfSXtbwRlBrwof' ||
+              child.name === 'WJwwVjsahIXbJpU' ||
+              child.name === 'cibcwsZWGgGfpme' ||
+              child.name === 'YfrJNXgMvGOAfzz' ||
+              child.material?.name === 'oZRkkORNzkufnGD' ||
+              child.material?.name === 'yhcAXNGcJWCqtIS' ||
+              child.material?.name === 'ZQfGMLaFcpPaLMU' ||
+              child.material?.name === 'bCgzXjHOanGdTFV'
+            ) {
+              child.material = phoneTitaniumMaterial;
+            }
           }
-        }
-      });
-      model.rotation.set(0, 0, 0);
-      model.scale.set(1.0, 1.0, 1.0);
-      phone.add(model);
-      isPhoneLoaded = true;
-      layout();
-      drawFeed(0);
-    },
-    undefined,
-    (err) => console.error('[ownJourney] Error loading phone GLB:', err)
-  );
+        });
+        model.rotation.set(0, 0, 0);
+        model.scale.set(1.0, 1.0, 1.0);
+        phone.add(model);
+        isPhoneLoaded = true;
+        layout();
+        drawFeed(lastP >= 0 ? lastP : 0, true);
+        startLoop();
+      },
+      undefined,
+      (err) => console.error('[ownJourney] Error loading phone GLB:', err)
+    );
+  }
+
+  if ('IntersectionObserver' in window) {
+    const preloadIo = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        ensurePhoneModelLoaded();
+        preloadIo.disconnect();
+      }
+    }, { rootMargin: '220% 0px' });
+    preloadIo.observe(track);
+  } else {
+    ensurePhoneModelLoaded();
+  }
+  window.addEventListener('load', () => {
+    setTimeout(ensurePhoneModelLoaded, 2000);
+  }, { once: true });
 
   function rrc(x, X, Y, w, h, r) {
     x.beginPath();
@@ -1113,8 +1062,8 @@ export function initOwnJourney() {
       if (r.top > 0) {
         if (iStep !== -1) {
           iStep = -1;
-          if (h1ElCached) h1ElCached.innerHTML = '';
-          if (ipElCached) ipElCached.innerHTML = '';
+          renderScrollDecode(h1ElCached, '', 0);
+          renderScrollDecode(ipElCached, '', 0);
         }
       } else {
         const ia = P < 0.08 ? 0 : P < 0.16 ? 1 : 2;
@@ -1126,8 +1075,8 @@ export function initOwnJourney() {
         const qH1 = cl(pStep / 0.52);
         const qDesc = cl((pStep - 0.30) / 0.65);
 
-        renderScrollDecode(h1ElCached, IN[ia][0], qH1, now);
-        renderScrollDecode(ipElCached, IN[ia][1], qDesc, now);
+        renderScrollDecode(h1ElCached, IN[ia][0], qH1, null, 3);
+        renderScrollDecode(ipElCached, IN[ia][1], qDesc, null, 3);
       }
 
       // Act B: phone turns flat to face you, then screen opens into full screen portal
@@ -1189,24 +1138,23 @@ export function initOwnJourney() {
       const ci = P < 0.40 ? -1 : Math.min(3, Math.floor(c * 4));
       cStep = ci;
       if (ci < 0) {
-        if (cnElCached) { cnElCached.innerHTML = ''; cnElCached.dataset.t2 = ''; }
-        if (chElCached) { chElCached.innerHTML = ''; chElCached.dataset.t2 = ''; }
-        if (cpElCached) { cpElCached.innerHTML = ''; cpElCached.dataset.t2 = ''; }
+        renderScrollDecode(cnElCached, '', 0);
+        renderScrollDecode(chElCached, '', 0);
+        renderScrollDecode(cpElCached, '', 0);
       } else {
         const cLocal = (c * 4) - ci;
         const qCn = cl(cLocal / 0.35);
         const qCh = cl((cLocal - 0.15) / 0.50);
         const qCp = cl((cLocal - 0.35) / 0.60);
 
-        renderScrollDecode(cnElCached, CHX[ci][0], qCn, now);
-        renderScrollDecode(chElCached, CHX[ci][1], qCh, now);
-        renderScrollDecode(cpElCached, CHX[ci][2], qCp, now);
+        renderScrollDecode(cnElCached, CHX[ci][0], qCn, null, 3);
+        renderScrollDecode(chElCached, CHX[ci][1], qCh, null, 3);
+        renderScrollDecode(cpElCached, CHX[ci][2], qCp, null, 3);
       }
       if (book) book.classList.toggle('on', ci === 3);
       dots.forEach((d, i) => d.classList.toggle('on', i <= ci));
 
       if (r.top >= 0) { iStep = -1; cStep = -1; }
-      updateDecodeText(now);
     }
 
     startLoop();
@@ -1263,12 +1211,12 @@ export function initOwnJourney() {
 
     // Reset rendered cache so next frame or immediate call re-renders
     const h1El = $('oj-h1'), ipEl = $('oj-ip');
-    if (h1El) h1El._renderedText = null;
-    if (ipEl) ipEl._renderedText = null;
+    if (h1El) h1El._sdKey = '';
+    if (ipEl) ipEl._sdKey = '';
     const cnEl = $('oj-cn'), chEl = $('oj-ch'), cpEl = $('oj-cp');
-    if (cnEl) cnEl._renderedText = null;
-    if (chEl) chEl._renderedText = null;
-    if (cpEl) cpEl._renderedText = null;
+    if (cnEl) cnEl._sdKey = '';
+    if (chEl) chEl._sdKey = '';
+    if (cpEl) cpEl._sdKey = '';
 
     const IN = getIntro(m);
     const CHX = getChapters(m);
@@ -1276,14 +1224,14 @@ export function initOwnJourney() {
     // If currently on phone feed intro stage, update text immediately
     if (lastP >= 0 && lastP <= 0.26) {
       const ia = lastP < 0.08 ? 0 : lastP < 0.16 ? 1 : 2;
-      if (h1El && IN[ia]) h1El.innerHTML = esc(IN[ia][0]);
-      if (ipEl && IN[ia]) ipEl.innerHTML = esc(IN[ia][1]);
+      if (h1El && IN[ia]) renderScrollDecode(h1El, IN[ia][0], 1);
+      if (ipEl && IN[ia]) renderScrollDecode(ipEl, IN[ia][1], 1);
     } else if (lastP >= 0.40) {
       const c = cl((lastP - 0.40) / 0.60);
       const ci = Math.min(3, Math.floor(c * 4));
-      if (cnEl && CHX[ci]) cnEl.innerHTML = esc(CHX[ci][0]);
-      if (chEl && CHX[ci]) chEl.innerHTML = esc(CHX[ci][1]);
-      if (cpEl && CHX[ci]) cpEl.innerHTML = esc(CHX[ci][2]);
+      if (cnEl && CHX[ci]) renderScrollDecode(cnEl, CHX[ci][0], 1);
+      if (chEl && CHX[ci]) renderScrollDecode(chEl, CHX[ci][1], 1);
+      if (cpEl && CHX[ci]) renderScrollDecode(cpEl, CHX[ci][2], 1);
     }
 
     drawFeed(lastP >= 0 ? lastP : 0, true);
@@ -1526,49 +1474,98 @@ export function initOwnJourney() {
     return n === 1 ? 'dodatak' : n < 5 ? 'dodatka' : 'dodataka';
   }
 
-  let expHasAnimated = false;
-  function decodeExpText() {
+  function registerExpScrollDecodes() {
     if (!M) return;
-    const expEl = $('exp');
-    if (expEl) expEl.classList.add('in-view');
+    const xH = $('x-h'), xLead = $('x-lead'), xMsg = $('x-msg'), xOther = $('x-other');
+    if (xH) registerScrollDecode(xH, { rich: true, initialHtml: M.h, startRatio: 0.92, endRatio: 0.56 });
+    if (xLead) registerScrollDecode(xLead, { text: M.lead, startRatio: 0.92, endRatio: 0.52, offset: 0.08 });
+    if (xMsg) registerScrollDecode(xMsg, { rich: true, initialHtml: M.msg, startRatio: 0.92, endRatio: 0.56 });
+    if (xOther && M.other) registerScrollDecode(xOther, { rich: true, initialHtml: M.other, startRatio: 0.94, endRatio: 0.60 });
 
-    say('x-h', stripHtml(M.h), 40, M.h, 24);
-    say('x-lead', M.lead, 140, null, 10);
-    say('x-msg', stripHtml(M.msg), 300, M.msg, 16);
-    if (M.other) say('x-other', stripHtml(M.other), 450, M.other, 10);
+    const panelLeft = document.querySelector('#exp .panel:not(.plan)');
+    if (panelLeft) {
+      if ($('x-bn')) registerScrollDecode($('x-bn'), { text: M.bn, triggerEl: panelLeft, startRatio: 0.92, endRatio: 0.48, offset: 0 });
+      if ($('x-bs')) registerScrollDecode($('x-bs'), { text: M.bs, triggerEl: panelLeft, startRatio: 0.92, endRatio: 0.48, offset: 0.06 });
+      if ($('x-q')) registerScrollDecode($('x-q'), { text: M.q, triggerEl: panelLeft, startRatio: 0.92, endRatio: 0.48, offset: 0.12 });
+      M.adds.forEach((a, i) => {
+        const addEl = $('x-add-b-' + i);
+        if (addEl) registerScrollDecode(addEl, { text: a[0], triggerEl: panelLeft, startRatio: 0.92, endRatio: 0.45, offset: 0.16 + i * 0.04 });
+      });
+    }
+
+    const panelPlan = document.querySelector('#exp .panel.plan');
+    if (panelPlan) {
+      if ($('x-ph')) registerScrollDecode($('x-ph'), { text: M.ph, triggerEl: panelPlan, startRatio: 0.92, endRatio: 0.48, offset: 0 });
+      if ($('x-vl')) registerScrollDecode($('x-vl'), { text: M.vl, triggerEl: panelPlan, startRatio: 0.92, endRatio: 0.48, offset: 0.08 });
+      if ($('x-l1')) registerScrollDecode($('x-l1'), { text: M.l1, triggerEl: panelPlan, startRatio: 0.92, endRatio: 0.48, offset: 0.14 });
+      if ($('x-l2')) registerScrollDecode($('x-l2'), { text: M.l2, triggerEl: panelPlan, startRatio: 0.92, endRatio: 0.48, offset: 0.18 });
+      if ($('x-note')) registerScrollDecode($('x-note'), { text: M.note, triggerEl: panelPlan, startRatio: 0.92, endRatio: 0.46, offset: 0.22 });
+    }
+
+    const xBen = $('x-ben');
+    if (xBen) {
+      xBen.querySelectorAll('.drop').forEach((card) => {
+        card.querySelectorAll('[data-dec]').forEach((item, idx) => {
+          registerScrollDecode(item, {
+            text: item.dataset.dec || item.textContent || '',
+            triggerEl: card,
+            startRatio: 0.94,
+            endRatio: 0.56,
+            offset: idx * 0.10
+          });
+        });
+      });
+    }
   }
 
-  function decodeBlockText(el, baseDelay) {
-    if (!el || !M) return;
-    const isLeftPanel = el.classList.contains('panel') && !el.classList.contains('plan');
-    const isPlanPanel = el.classList.contains('plan');
-    const isBenCard = el.closest('#x-ben') || el.parentElement?.id === 'x-ben';
-
-    if (isLeftPanel) {
-      decode($('x-bn'), M.bn, 20, baseDelay);
-      decode($('x-bs'), M.bs, 14, baseDelay + 120);
-      decode($('x-q'), M.q, 20, baseDelay + 240);
-      M.adds.forEach((a, i) => {
-        decode($('x-add-b-' + i), a[0], 18, baseDelay + 360 + i * 80);
+  function registerCalcAndVsScrollDecodes() {
+    const calcH2 = document.querySelector('#calc h2');
+    if (calcH2) {
+      calcH2.querySelectorAll('span[data-m]').forEach((sp) => {
+        registerScrollDecode(sp, { rich: true, triggerEl: calcH2, startRatio: 0.92, endRatio: 0.55 });
       });
-    } else if (isPlanPanel) {
-      decode($('x-ph'), M.ph, 22, baseDelay);
-      decode($('x-vl'), M.vl, 16, baseDelay + 120);
-      decode($('x-l1'), M.l1, 14, baseDelay + 240);
-      decode($('x-l2'), M.l2, 14, baseDelay + 360);
-      decode($('x-note'), M.note, 10, baseDelay + 480);
-    } else {
-      decodeIn(el, baseDelay);
     }
+    const calcRes = document.querySelector('#calc .res');
+    if (calcRes) {
+      calcRes.querySelectorAll('[data-dec]').forEach((item) => {
+        registerScrollDecode(item, {
+          triggerEl: calcRes,
+          startRatio: 0.92,
+          endRatio: 0.55,
+          getText: (elNode) => {
+            const key = elNode.getAttribute('data-i18n');
+            return key ? i18nT(key) : (elNode.dataset.dec || elNode.textContent || '');
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll('#vs .wrap').forEach((wrap) => {
+      const h2 = wrap.querySelector('h2');
+      if (h2) {
+        registerScrollDecode(h2, { rich: true, startRatio: 0.92, endRatio: 0.52 });
+      }
+      wrap.querySelectorAll('.col').forEach((col) => {
+        col.querySelectorAll('[data-dec]').forEach((item, idx) => {
+          registerScrollDecode(item, {
+            triggerEl: col,
+            startRatio: 0.94,
+            endRatio: 0.50,
+            offset: idx * 0.06,
+            getText: (elNode) => {
+              const key = elNode.getAttribute('data-i18n');
+              return key ? i18nT(key) : (elNode.dataset.dec || elNode.textContent || '');
+            }
+          });
+        });
+      });
+    });
   }
 
   function initDropAnimations() {
     const drops = document.querySelectorAll('#put-kupca .drop, #vs .drop');
     if (!('IntersectionObserver' in window)) {
-      drops.forEach((el) => {
-        el.classList.add('in');
-        decodeBlockText(el, 0);
-      });
+      drops.forEach((el) => el.classList.add('in'));
       return;
     }
 
@@ -1578,10 +1575,8 @@ export function initOwnJourney() {
         const el = e.target;
         dropIo.unobserve(el);
         el.classList.add('in');
-        const delay = reduce ? 0 : 500 + parseFloat(el.style.animationDelay || 0) * 1000;
-        decodeBlockText(el, delay);
       });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.12 });
 
     drops.forEach((el) => {
       if (!el.classList.contains('in')) {
@@ -1655,28 +1650,15 @@ export function initOwnJourney() {
     }
 
     renderExp();
+    registerExpScrollDecodes();
 
-    const expEl = $('exp');
-    const isExpVisible = expEl && (expHasAnimated || expEl.classList.contains('in-view'));
-    if (isExpVisible) {
-      decodeExpText();
-      const panelLeft = document.querySelector('#exp .panel:not(.plan)');
-      const panelPlan = document.querySelector('#exp .panel.plan');
-      if (panelLeft) decodeBlockText(panelLeft, 0);
-      if (panelPlan) decodeBlockText(panelPlan, 0);
-      if (xBen) decodeIn(xBen, 0);
-    }
-
-    // Refresh decode on active #vs comparison wrap if present
+    // Ensure active #vs comparison drops are ready
     const activeVsWrap = document.querySelector('#vs .wrap[data-m="' + mode + '"]');
     if (activeVsWrap) {
-      const vsDrops = activeVsWrap.querySelectorAll('.drop');
-      vsDrops.forEach((d) => {
-        d.classList.add('in');
-        decodeIn(d, 0);
-      });
+      activeVsWrap.querySelectorAll('.drop').forEach((d) => d.classList.add('in'));
     }
 
+    refreshAllScrollDecodes(false);
     setTimeout(initDropAnimations, 80);
   }
 
@@ -1726,36 +1708,10 @@ export function initOwnJourney() {
 
   OJ.fns.push(buildExp);
   buildExp(OJ.mode);
+  registerCalcAndVsScrollDecodes();
 
   const expElement = $('exp');
-  function triggerExpReveal() {
-    if (expHasAnimated) return;
-    expHasAnimated = true;
-    decodeExpText();
-  }
-
-  if (expElement && 'IntersectionObserver' in window) {
-    const expIo = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          triggerExpReveal();
-          expIo.unobserve(expElement);
-        }
-      });
-    }, { threshold: 0.05 });
-    expIo.observe(expElement);
-  }
-
-  if (expElement && window.ScrollTrigger) {
-    window.ScrollTrigger.create({
-      trigger: '#exp',
-      start: 'top 85%',
-      once: true,
-      onEnter: triggerExpReveal
-    });
-  } else if (expElement && !('IntersectionObserver' in window)) {
-    triggerExpReveal();
-  }
+  if (expElement) expElement.classList.add('in-view');
 
   setTimeout(initDropAnimations, 200);
 
@@ -1763,15 +1719,16 @@ export function initOwnJourney() {
     applyScene(OJ.mode);
     calcMode(OJ.mode);
     buildExp(OJ.mode);
-    decodeExpText();
+    registerCalcAndVsScrollDecodes();
+    refreshAllScrollDecodes(true);
     drawFeed(lastP >= 0 ? lastP : 0, true);
 
     const h1El = $('oj-h1'), ipEl = $('oj-ip');
-    if (h1El) h1El._renderedText = null;
-    if (ipEl) ipEl._renderedText = null;
+    if (h1El) h1El._sdKey = '';
+    if (ipEl) ipEl._sdKey = '';
     const cnEl = $('oj-cn'), chEl = $('oj-ch'), cpEl = $('oj-cp');
-    if (cnEl) cnEl._renderedText = null;
-    if (chEl) chEl._renderedText = null;
-    if (cpEl) cpEl._renderedText = null;
+    if (cnEl) cnEl._sdKey = '';
+    if (chEl) chEl._sdKey = '';
+    if (cpEl) cpEl._sdKey = '';
   });
 }

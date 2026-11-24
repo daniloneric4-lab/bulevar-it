@@ -122,6 +122,10 @@ let circuitSegments = [];
 let circuitAnchors = [];
 let circuitOrigin = { x: 0, y: 0 };
 let circuitEnd = { x: 0, y: 0 };
+let cachedCardMetrics = [];
+let cachedClipRect = null;
+let cachedLeadTip = null;
+let cachedJunctionMarkers = [];
 
 export function getCircuitAnchors() {
   return circuitAnchors;
@@ -155,16 +159,27 @@ export function drawCircuitLines(track) {
   svg.style.height = `${height}px`;
 
   const svgRect = svg.getBoundingClientRect();
+  const motionTrack = document.getElementById('unified-motion-track');
+  const mtLeft = motionTrack ? motionTrack.getBoundingClientRect().left : 0;
 
   circuitAnchors = [];
+  cachedCardMetrics = [];
   cards.forEach((card, idx) => {
     const frame = card.querySelector('.curtis-card__frame') || card;
     const fRect = frame.getBoundingClientRect();
+    const cRect = card.getBoundingClientRect();
     circuitAnchors.push({
       idx,
       left: fRect.left - svgRect.left,
       right: fRect.right - svgRect.left,
       centerY: fRect.top - svgRect.top + fRect.height * 0.5,
+    });
+    cachedCardMetrics.push({
+      el: card,
+      left: cRect.left - mtLeft,
+      right: cRect.right - mtLeft,
+      center: (cRect.left - mtLeft) + cRect.width * 0.5,
+      lastOpacity: -1
     });
   });
 
@@ -308,14 +323,22 @@ export function drawCircuitLines(track) {
       <circle cx="0" cy="0" r="7" fill="none" stroke="#F0D9A0" stroke-width="1.2" opacity="0.8" />
     </g>
   `;
+
+  cachedClipRect = document.getElementById('circuitClipRect');
+  cachedLeadTip = document.getElementById('circuit-lead-tip');
+  cachedJunctionMarkers = Array.from(svg.querySelectorAll('.circuit-junction-marker')).map((m) => ({
+    el: m,
+    x: parseFloat(m.dataset.x || '0'),
+    passed: false
+  }));
 }
 
 /**
  * Progressively draws and stretches the circuit line between projects as user scrolls
  */
 export function updateCircuitProgress(revealedX) {
-  const clipRect = document.getElementById('circuitClipRect');
-  const leadTip = document.getElementById('circuit-lead-tip');
+  const clipRect = cachedClipRect || document.getElementById('circuitClipRect');
+  const leadTip = cachedLeadTip || document.getElementById('circuit-lead-tip');
   if (!clipRect || !circuitSegments.length) return;
 
   const boundedX = Math.max(0, revealedX);
@@ -362,55 +385,42 @@ export function updateCircuitProgress(revealedX) {
     }
   }
 
-  // Activate junction markers when the stretching line passes them
-  const markers = document.querySelectorAll('.circuit-junction-marker');
-  markers.forEach((m) => {
-    const mx = parseFloat(m.dataset.x || '0');
-    if (boundedX >= mx) {
-      m.classList.add('is-passed');
-    } else {
-      m.classList.remove('is-passed');
+  // Activate junction markers when the stretching line passes them (zero DOM queries)
+  for (let i = 0; i < cachedJunctionMarkers.length; i++) {
+    const m = cachedJunctionMarkers[i];
+    const shouldPass = boundedX >= m.x;
+    if (shouldPass !== m.passed) {
+      m.passed = shouldPass;
+      m.el.classList.toggle('is-passed', shouldPass);
     }
-  });
+  }
 }
 
 /**
  * Computes the exact line reveal coordinate X based on scroll progress
- * Uniform linear velocity perfectly synchronized with scroll:
- * - Each card gap draws across an identical scroll span at 100% constant speed
- * - Before projects enter: line stops at Petra's left (NO line to Brookie!)
- * - Zero dead zones and zero speed variations between wide/narrow projects
+ * Pure arithmetic using cached offsets + currentX (zero getBoundingClientRect reflows!)
  */
-export function computeRevealedX(horizProg, portfolioTravel = 0) {
+export function computeRevealedX(horizProg, portfolioTravel = 0, currentX = null) {
   if (!circuitAnchors || circuitAnchors.length < 2) return 0;
-  const cards = document.querySelectorAll('.curtis-card');
-  if (!cards || cards.length < 2) return circuitAnchors[0].left;
+  if (!cachedCardMetrics || cachedCardMetrics.length < 2) return circuitAnchors[0].left;
 
   const vw = window.innerWidth;
   const span = Math.min(360, Math.max(240, vw * 0.22));
   const X_start = vw * 0.76;
-  const X_end = X_start - span;
+  const xShift = typeof currentX === 'number' ? currentX : 0;
 
   // Check each gap in sequence
   for (let i = 0; i < circuitAnchors.length - 1; i++) {
-    const c1 = cards[i];
-    if (!c1) continue;
+    const cm = cachedCardMetrics[i];
+    if (!cm) continue;
 
-    const r1 = c1.getBoundingClientRect();
-    const rightEdge = r1.right;
+    const rightEdge = cm.right + xShift;
 
-    // Card i hasn't reached drawing start yet: all subsequent gaps are also not started
     if (rightEdge > X_start) {
-      if (i === 0) {
-        return circuitAnchors[0].left;
-      }
-      return circuitAnchors[i].left;
+      return i === 0 ? circuitAnchors[0].left : circuitAnchors[i].left;
     }
 
-    // Progress within this gap: strictly linear with respect to scroll
     const t = Math.max(0, Math.min(1.0, (X_start - rightEdge) / span));
-
-    // If this gap is actively stretching (t < 1.0), return the current tip position
     if (t < 1.0) {
       const a1 = circuitAnchors[i];
       const a2 = circuitAnchors[i + 1];
@@ -418,16 +428,14 @@ export function computeRevealedX(horizProg, portfolioTravel = 0) {
     }
   }
 
-  // All 8 gaps are complete — handle lead-out past the final project
   const lastIdx = circuitAnchors.length - 1;
-  const lastCard = cards[lastIdx];
-  if (lastCard) {
-    const rLast = lastCard.getBoundingClientRect();
-    if (rLast.right <= X_start) {
-      const leadOutProg = Math.max(0, Math.min(1.0, (X_start - rLast.right) / span));
+  const lastCm = cachedCardMetrics[lastIdx];
+  if (lastCm) {
+    const lastRight = lastCm.right + xShift;
+    if (lastRight <= X_start) {
+      const leadOutProg = Math.max(0, Math.min(1.0, (X_start - lastRight) / span));
       const aLast = circuitAnchors[lastIdx];
-      const extraDist = 90;
-      return aLast.right + leadOutProg * extraDist;
+      return aLast.right + leadOutProg * 90;
     }
   }
 
@@ -435,33 +443,32 @@ export function computeRevealedX(horizProg, portfolioTravel = 0) {
 }
 
 /**
- * Card entrance animation on scroll
+ * Card entrance animation on scroll (zero getBoundingClientRect reflows!)
  */
-export function animatePortfolioCards() {
-  const cards = document.querySelectorAll('.curtis-card');
-  if (!cards.length) return;
+export function animatePortfolioCards(currentX = 0) {
+  if (!cachedCardMetrics.length) return;
 
   const viewportW = window.innerWidth;
+  const enterStart = viewportW + 60;
+  const enterEnd = viewportW * 0.75;
+  const invSpan = 1 / Math.max(1, enterStart - enterEnd);
 
-  cards.forEach((card) => {
-    const rect = card.getBoundingClientRect();
-    const cardCenter = rect.left + rect.width / 2;
-    const baseY = parseFloat(card.dataset.baseY || '0');
-
-    const enterStart = viewportW + 60;
-    const enterEnd = viewportW * 0.75;
+  for (let i = 0; i < cachedCardMetrics.length; i++) {
+    const m = cachedCardMetrics[i];
+    const cardCenter = m.center + currentX;
 
     let p = 1.0;
     if (cardCenter > enterStart) {
       p = 0.0;
     } else if (cardCenter > enterEnd) {
-      p = (enterStart - cardCenter) / (enterStart - enterEnd);
+      p = (enterStart - cardCenter) * invSpan;
     }
 
     const easedP = p * p * (3 - 2 * p);
-    const scale = 0.96 + 0.04 * easedP;
     const opacity = 0.7 + 0.3 * easedP;
-
-    card.style.opacity = opacity;
-  });
+    if (Math.abs(opacity - m.lastOpacity) > 0.004) {
+      m.lastOpacity = opacity;
+      m.el.style.opacity = opacity.toFixed(3);
+    }
+  }
 }

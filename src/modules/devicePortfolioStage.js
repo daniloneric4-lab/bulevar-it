@@ -9,6 +9,8 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { renderHorizontalPortfolio, animatePortfolioCards, drawCircuitLines, updateCircuitProgress, computeRevealedX, getCircuitAnchors } from './horizontalPortfolio.js';
+import { renderScrollDecode } from './scrollDecode.js';
+import { t } from './i18n.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,6 +51,15 @@ export function initDevicePortfolioStage() {
 
   const vsPaneEl = document.querySelector('#vs-pane');
   const introHeaderEl = document.querySelector('#portfolio-intro-header');
+  const portTitleSpan = introHeaderEl ? introHeaderEl.querySelector('[data-i18n="port.h"]') : null;
+  const portSubEl = introHeaderEl ? introHeaderEl.querySelector('[data-i18n="port.p"]') : null;
+  const circuitSvg = document.querySelector('.portfolio-circuit-svg');
+  if (portTitleSpan) portTitleSpan.removeAttribute('data-i18n');
+  if (portSubEl) portSubEl.removeAttribute('data-i18n');
+  window.addEventListener('bulevar:langchange', () => {
+    if (portTitleSpan) portTitleSpan._sdKey = '';
+    if (portSubEl) portSubEl._sdKey = '';
+  });
   let cachedVsWidth = vsPaneEl ? vsPaneEl.offsetWidth : window.innerWidth;
   let cachedStageHeight = stage.offsetHeight;
 
@@ -119,7 +130,7 @@ export function initDevicePortfolioStage() {
         currentX = -moved;
       }
       gsap.set(motionTrack, { x: currentX });
-      window.__updateOjswVis?.();
+      window.__updateOjswVis?.(currentX);
 
       let cardProgress = 0;
       const cardsTravel = totalTravel - vsW;
@@ -135,14 +146,19 @@ export function initDevicePortfolioStage() {
           introHeaderEl.style.opacity = '1';
         }
         introHeaderEl.style.transform = 'none';
+
+        // Scroll-synchronized decode as portfolio pane slides horizontally into view
+        const qTitle = Math.max(0, Math.min(1, (moved - vsW * 0.22) / Math.max(1, vsW * 0.48)));
+        const qSub = Math.max(0, Math.min(1, (moved - vsW * 0.36) / Math.max(1, vsW * 0.52)));
+        renderScrollDecode(portTitleSpan, t('port.h', 'Naši radovi'), qTitle);
+        renderScrollDecode(portSubEl, t('port.p', 'Izdvojeni radovi i digitalne platforme sa merljivim rezultatima'), qSub);
       }
 
-      animatePortfolioCards();
+      animatePortfolioCards(currentX);
 
-      const revealedX = computeRevealedX(cardProgress, cardsTravel);
+      const revealedX = computeRevealedX(cardProgress, cardsTravel, currentX);
       updateCircuitProgress(revealedX);
-      const circuitSvg = document.querySelector('.portfolio-circuit-svg');
-      if (circuitSvg) {
+      if (circuitSvg && circuitSvg.style.opacity !== '1') {
         circuitSvg.style.opacity = '1';
       }
     },

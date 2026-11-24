@@ -15,6 +15,12 @@ export default defineConfig({
         lpStaAko: './lp/sta-ako/index.html',
         politikaPrivatnosti: './politika-privatnosti/index.html',
       },
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) return 'vendor-three';
+          if (id.includes('node_modules/gsap') || id.includes('node_modules/lenis')) return 'vendor-motion';
+        },
+      },
     },
   },
   server: {

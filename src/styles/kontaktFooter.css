@@ -867,6 +867,29 @@ button.dl {
     box-shadow: none !important;
   }
 
+  .kf-wrap .fx i {
+    animation: none;
+    filter: blur(36px);
+    -webkit-filter: blur(36px);
+  }
+
+  .lg {
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    background: linear-gradient(145deg, rgba(25, 33, 56, 0.88), rgba(18, 25, 44, 0.84));
+  }
+
+  .pill,
+  .dl .ic {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .pill.on {
+    background: rgba(217, 178, 95, 0.18);
+  }
+
   .kf::before {
     content: '';
     position: absolute;

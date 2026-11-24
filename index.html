@@ -56,12 +56,19 @@
   <meta name="twitter:description"
     content="Sajtovi, aplikacije i automatizacije koji rade za vaš biznis." />
 
-  <!-- Fonts -->
+  <!-- Fonts (non-render-blocking preload for faster mobile FCP/LCP) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
+    rel="preload"
+    as="style"
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap"
-    rel="stylesheet" />
+    onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500;600&family=Montserrat:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap"
+      rel="stylesheet" />
+  </noscript>
 
   <!-- Styles -->
   <link rel="stylesheet" href="/src/styles/index.css" />
@@ -149,13 +156,6 @@
               </svg>
               <span>066 5852 052</span>
             </a>
-            <button type="button" class="nav__mobile-contact-link js-open-chat" aria-label="Otvorite chat">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <span data-i18n="chat.cta">Pišite nam</span>
-            </button>
             <a href="mailto:bulevarit@gmail.com" class="nav__mobile-contact-link">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -176,11 +176,8 @@
   <section id="hero" class="track track--hero-onama">
     <span id="o-nama" class="onama-anchor" aria-hidden="true"></span>
     <div class="stage stage--hero-onama" id="hero-stage">
-      <video class="hv" id="hero-video-player" muted playsinline webkit-playsinline preload="auto" aria-hidden="true"
-        disablepictureinpicture disableremoteplayback>
-        <source src="/hero-9x16.mp4" type="video/mp4" media="(max-aspect-ratio: 4/5)">
-        <source src="/hero-16x9.mp4" type="video/mp4">
-      </video>
+      <video class="hv" id="hero-video-player" muted playsinline webkit-playsinline preload="none" aria-hidden="true"
+        disablepictureinpicture disableremoteplayback></video>
       <canvas id="hero-onama-cv" aria-hidden="true"></canvas>
       <div class="hero-onama-cap pad" id="hero-onama-cap" style="opacity: 0;">
         <div class="wrap">

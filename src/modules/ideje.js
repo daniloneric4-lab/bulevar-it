@@ -12,6 +12,12 @@
 
 
 import { t, getLang } from './i18n.js';
+import {
+  renderScrollDecode,
+  renderScrollScrambleOut,
+  renderScrollMorph,
+  renderRichScrollDecode
+} from './scrollDecode.js';
 
 export function initIdeje() {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -261,8 +267,8 @@ export function initIdeje() {
 
   function build() {
     trackH = track.offsetHeight || window.innerHeight * 9;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
     const sz = getStageSize();
+    const dpr = Math.min(sz.w <= 768 ? 1.5 : 2, window.devicePixelRatio || 1);
     W = sz.w;
     H = sz.h;
     lastIdejeWidth = W;
@@ -531,131 +537,32 @@ export function initIdeje() {
 
   // Usluge 3 Blocks DOM bindings
   const uslugeEl = document.getElementById('usluge');
+  const uhH3El = document.querySelector('#usluge .uh h3');
   const serviceCards = document.querySelectorAll('#services-blocks-row .glass-block');
+  const serviceCardDecEls = Array.from(serviceCards).map((c) => Array.from(c.querySelectorAll('[data-dec]')));
   // Active pillar & symbols change strictly on scroll (no hover or click switching)
-  const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
   let gDisp = 0.20;
   let servicesBlocksAnimated = false;
 
-  function decodeBlockText(el, baseDelay = 0) {
-    if (!el) return;
-    const items = el.querySelectorAll('[data-dec]');
-    items.forEach((item, i) => {
-      const text = item.dataset.dec || item.textContent;
-      const ms = 16;
-      const delay = (baseDelay || 0) + i * 85;
-      let start = null;
-      const len = text.length;
-      const dur = len * ms + 180;
-
-      function step(ts) {
-        if (!start) start = ts;
-        const elapsed = ts - start - delay;
-        if (elapsed < 0) {
-          requestAnimationFrame(step);
-          return;
-        }
-        const prog = Math.min(1, elapsed / dur);
-        renderSingleDecode(item, text, prog, ts);
-        if (prog < 1) {
-          requestAnimationFrame(step);
-        } else {
-          setElHtml(item, esc(text));
-        }
-      }
-      requestAnimationFrame(step);
-    });
+  function clearDecEl(el) {
+    renderScrollDecode(el, '', 0);
   }
 
-  function esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function setDoneDecEl(el, textStr) {
+    renderScrollDecode(el, textStr, 1);
   }
 
-  function setElHtml(el, h) {
-    if (el && el._lastH !== h) {
-      el.innerHTML = h;
-      el._lastH = h;
-    }
+  function renderSingleDecode(el, text, prog) {
+    renderScrollDecode(el, text, prog, null, 3);
   }
 
-  function scrambleChar(seed, now) {
-    const idx = Math.abs(Math.floor(Math.sin(seed * 41.31 + (now / 60) | 0) * 1000)) % GL.length;
-    return GL[idx];
+  function renderSingleScrambleOut(el, text, prog) {
+    renderScrollScrambleOut(el, text, prog, 4);
   }
 
-  function renderSingleDecode(el, text, prog, now) {
-    if (!el) return;
-    if (reduce || prog >= 1) {
-      setElHtml(el, esc(text));
-      return;
-    }
-    if (prog <= 0) {
-      setElHtml(el, '<span class="rest">' + esc(text) + '</span>');
-      return;
-    }
-    const n = text.length;
-    const d = Math.floor(prog * n);
-    const nz = Math.min(3, n - d);
-    let noise = '';
-    for (let j = 0; j < nz; j++) {
-      const ch = text[d + j];
-      noise += ch === ' ' ? ' ' : scrambleChar(d + j, now);
-    }
-    setElHtml(el, esc(text.slice(0, d)) + '<span class="noise">' + esc(noise) + '</span><span class="rest">' + esc(text.slice(d + nz)) + '</span>');
-  }
-
-  function renderSingleScrambleOut(el, text, prog, now) {
-    if (!el) return;
-    if (reduce || prog >= 1) {
-      setElHtml(el, '');
-      return;
-    }
-    if (prog <= 0) {
-      setElHtml(el, esc(text));
-      return;
-    }
-    const n = text.length;
-    const d = Math.floor(prog * n);
-    const keep = Math.max(0, n - d);
-    const nz = Math.min(4, keep);
-    let noise = '';
-    for (let j = 0; j < nz; j++) {
-      const ch = text[keep - nz + j];
-      noise += ch === ' ' ? ' ' : scrambleChar(keep - nz + j, now);
-    }
-    setElHtml(el, esc(text.slice(0, keep - nz)) + '<span class="noise">' + esc(noise) + '</span>');
-  }
-
-  function renderMorph(el, oldStr, newStr, prog, now) {
-    if (!el) return;
-    if (reduce || prog >= 1) {
-      setElHtml(el, esc(newStr));
-      return;
-    }
-    if (prog <= 0) {
-      setElHtml(el, esc(oldStr));
-      return;
-    }
-    const maxLen = Math.max(oldStr.length, newStr.length);
-    const cursor = Math.floor(prog * maxLen);
-    const nz = 3;
-    let out = '';
-    for (let i = 0; i < maxLen; i++) {
-      if (i < cursor) {
-        if (i < newStr.length) out += esc(newStr[i]);
-      } else if (i >= cursor && i < cursor + nz) {
-        const targetCh = (i < newStr.length) ? newStr[i] : (i < oldStr.length ? oldStr[i] : 'X');
-        if (targetCh === ' ') {
-          out += ' ';
-        } else {
-          out += '<span class="noise">' + esc(scrambleChar(i + cursor * 7, now)) + '</span>';
-        }
-      } else {
-        if (i < oldStr.length) out += esc(oldStr[i]);
-      }
-    }
-    setElHtml(el, out);
+  function renderMorph(el, oldStr, newStr, prog) {
+    renderScrollMorph(el, oldStr, newStr, prog, 3);
   }
 
   let inView = false;
@@ -699,6 +606,13 @@ export function initIdeje() {
   }, { passive: true });
 
   window.addEventListener('bulevar:langchange', () => {
+    if (uhH3El) {
+      delete uhH3El._sdOrigHtml;
+      delete uhH3El._sdRich;
+    }
+    serviceCardDecEls.forEach((items) => {
+      items.forEach((el) => { el._sdKey = ''; });
+    });
     build();
     startLoop();
   });
@@ -747,7 +661,7 @@ export function initIdeje() {
 
       if (P < 0.22) {
         st = 0;
-        vDec = Math.min(1, Math.max(0, (P - 0.085) / 0.04));
+        vDec = Math.min(1, Math.max(0, (P - 0.080) / 0.026));
         v = P < 0.18 ? 0 : Math.min(1, (P - 0.18) / 0.04);
       } else {
         const caseProg = Math.min(3.999, Math.max(0, (P - 0.22) / (0.54 - 0.22) * 4.0));
@@ -825,6 +739,7 @@ export function initIdeje() {
       }
 
       // ─── PARTICLE STATE BLENDING ───
+      let lastR = -1, lastG = -1, lastB = -1;
       for (let k = 0; k < N; k++) {
         const p = parts[k];
         const d = p.j;
@@ -943,7 +858,11 @@ export function initIdeje() {
 
         if (p.a < 0.02) continue;
         ctx.globalAlpha = Math.min(1, p.a);
-        ctx.fillStyle = 'rgb(' + (p.c[0] | 0) + ',' + (p.c[1] | 0) + ',' + (p.c[2] | 0) + ')';
+        const cr = p.c[0] | 0, cg = p.c[1] | 0, cb = p.c[2] | 0;
+        if (cr !== lastR || cg !== lastG || cb !== lastB) {
+          lastR = cr; lastG = cg; lastB = cb;
+          ctx.fillStyle = 'rgb(' + cr + ',' + cg + ',' + cb + ')';
+        }
         ctx.beginPath();
         ctx.arc(p.x, p.y, Math.max(0.5, p.r), 0, 6.283);
         ctx.fill();
@@ -956,10 +875,10 @@ export function initIdeje() {
         coreEl.style.display = 'none';
       }
       if (coreTEl) {
-        setElHtml(coreTEl, '');
+        clearDecEl(coreTEl);
       }
 
-      const ioVal = sm(0.085, 0.14, P) * (1 - sm(0.52, 0.55, P));
+      const ioVal = sm(0.080, 0.125, P) * (1 - sm(0.52, 0.55, P));
       if (ideEl) {
         ideEl.style.setProperty('--o', ioVal.toFixed(3));
         ideEl.classList.toggle('on', ioVal > 0.5);
@@ -969,12 +888,12 @@ export function initIdeje() {
       if (ioVal <= 0.05) {
         // Outside Ideje section or before Screenshot 2
         if (h2El) h2El.classList.remove('gone');
-        setElHtml(h1aEl, '');
-        setElHtml(h1bEl, '');
-        setElHtml(lvEl, '');
-        setElHtml(whoEl, '');
-        setElHtml(probEl, '');
-        setElHtml(ideaEl, '');
+        clearDecEl(h1aEl);
+        clearDecEl(h1bEl);
+        clearDecEl(lvEl);
+        clearDecEl(whoEl);
+        clearDecEl(probEl);
+        clearDecEl(ideaEl);
         if (ideEl) ideEl.style.setProperty('--cs', '0');
       } else if (st === 0) {
         // Step 0: Headline "Ideje nemaju veličinu firme." (Screenshot 2)
@@ -983,74 +902,71 @@ export function initIdeje() {
           h2El.style.setProperty('--h2-o', '1');
         }
         if (ideEl) ideEl.style.setProperty('--cs', '0');
-        setElHtml(lvEl, '');
-        setElHtml(whoEl, '');
-        setElHtml(probEl, '');
-        setElHtml(ideaEl, '');
+        clearDecEl(lvEl);
+        clearDecEl(whoEl);
+        clearDecEl(probEl);
+        clearDecEl(ideaEl);
 
         const h1aText = t('ideje.h1a', 'Ideje nemaju');
         const h1bText = t('ideje.h1b', 'veličinu firme.');
 
         if (P < 0.18) {
-          if (vDec < 1) {
-            renderSingleDecode(h1aEl, h1aText, vDec, now);
-            renderSingleDecode(h1bEl, h1bText, vDec, now);
-          } else {
-            setElHtml(h1aEl, h1aText);
-            setElHtml(h1bEl, h1bText);
-          }
+          const qH1a = Math.min(1, Math.max(0, (P - 0.080) / 0.022));
+          const qH1b = Math.min(1, Math.max(0, (P - 0.086) / 0.020));
+          renderSingleDecode(h1aEl, h1aText, qH1a);
+          renderSingleDecode(h1bEl, h1bText, qH1b);
         } else {
           const pOut = Math.min(1, Math.max(0, (P - 0.18) / 0.04));
-          renderSingleScrambleOut(h1bEl, h1bText, pOut, now);
-          renderSingleScrambleOut(h1aEl, h1aText, Math.max(0, (pOut - 0.15) * 1.2), now);
+          renderSingleScrambleOut(h1bEl, h1bText, pOut);
+          renderSingleScrambleOut(h1aEl, h1aText, Math.max(0, (pOut - 0.15) * 1.2));
         }
       } else if (st === 1) {
         // Step 1: Case 0 ("1 lokal · Frizerski salon u kraju")
         if (h2El) h2El.classList.add('gone');
         if (ideEl) ideEl.style.setProperty('--cs', '1');
-        setElHtml(h1aEl, '');
-        setElHtml(h1bEl, '');
+        clearDecEl(h1aEl);
+        clearDecEl(h1bEl);
 
-        if (v < 0.22) {
-          const pCase = Math.min(1, v / 0.22);
-          renderSingleDecode(lvEl, DATA[0][0], pCase, now);
-          renderSingleDecode(whoEl, DATA[0][1], pCase, now);
-          renderSingleDecode(probEl, DATA[0][2], pCase, now);
-          renderSingleDecode(ideaEl, DATA[0][3], pCase, now);
+        if (v < 0.28) {
+          const pCase = Math.min(1, v / 0.28);
+          renderSingleDecode(lvEl, DATA[0][0], Math.min(1, pCase / 0.55));
+          renderSingleDecode(whoEl, DATA[0][1], Math.min(1, Math.max(0, (pCase - 0.10) / 0.55)));
+          renderSingleDecode(probEl, DATA[0][2], Math.min(1, Math.max(0, (pCase - 0.22) / 0.60)));
+          renderSingleDecode(ideaEl, DATA[0][3], Math.min(1, Math.max(0, (pCase - 0.35) / 0.65)));
         } else {
-          setElHtml(lvEl, esc(DATA[0][0]));
-          setElHtml(whoEl, esc(DATA[0][1]));
-          setElHtml(probEl, esc(DATA[0][2]));
-          setElHtml(ideaEl, esc(DATA[0][3]));
+          setDoneDecEl(lvEl, DATA[0][0]);
+          setDoneDecEl(whoEl, DATA[0][1]);
+          setDoneDecEl(probEl, DATA[0][2]);
+          setDoneDecEl(ideaEl, DATA[0][3]);
         }
       } else {
         // Steps 2, 3, 4: Cases 1, 2, 3
         if (h2El) h2El.classList.add('gone');
         if (ideEl) ideEl.style.setProperty('--cs', '1');
-        setElHtml(h1aEl, '');
-        setElHtml(h1bEl, '');
+        clearDecEl(h1aEl);
+        clearDecEl(h1bEl);
 
         const caseIdx = Math.max(0, Math.min(DATA.length - 1, (st || 1) - 1));
         const oldData = DATA[Math.max(0, caseIdx - 1)] || DATA[0];
         const newData = DATA[caseIdx] || DATA[0];
 
-        if (v < 0.22) {
-          const morphProg = Math.min(1, v / 0.22);
-          renderMorph(lvEl, oldData[0], newData[0], morphProg, now);
-          renderMorph(whoEl, oldData[1], newData[1], morphProg, now);
-          renderMorph(probEl, oldData[2], newData[2], morphProg, now);
-          renderMorph(ideaEl, oldData[3], newData[3], morphProg, now);
+        if (v < 0.28) {
+          const morphProg = Math.min(1, v / 0.28);
+          renderMorph(lvEl, oldData[0], newData[0], morphProg);
+          renderMorph(whoEl, oldData[1], newData[1], morphProg);
+          renderMorph(probEl, oldData[2], newData[2], morphProg);
+          renderMorph(ideaEl, oldData[3], newData[3], morphProg);
         } else if (st === 4 && v >= 0.85) {
           const pCaseOut = (v - 0.85) / 0.15;
-          renderSingleScrambleOut(ideaEl, newData[3], pCaseOut, now);
-          renderSingleScrambleOut(probEl, newData[2], pCaseOut, now);
-          renderSingleScrambleOut(whoEl, newData[1], pCaseOut, now);
-          renderSingleScrambleOut(lvEl, newData[0], pCaseOut, now);
+          renderSingleScrambleOut(ideaEl, newData[3], pCaseOut);
+          renderSingleScrambleOut(probEl, newData[2], pCaseOut);
+          renderSingleScrambleOut(whoEl, newData[1], pCaseOut);
+          renderSingleScrambleOut(lvEl, newData[0], pCaseOut);
         } else {
-          setElHtml(lvEl, esc(newData[0]));
-          setElHtml(whoEl, esc(newData[1]));
-          setElHtml(probEl, esc(newData[2]));
-          setElHtml(ideaEl, esc(newData[3]));
+          setDoneDecEl(lvEl, newData[0]);
+          setDoneDecEl(whoEl, newData[1]);
+          setDoneDecEl(probEl, newData[2]);
+          setDoneDecEl(ideaEl, newData[3]);
         }
       }
 
@@ -1069,13 +985,13 @@ export function initIdeje() {
           // Decode faza dok se kule spljoštavaju u liniju na dnu
           const pDec = Math.max(0, Math.min(1, (P - 0.535) / 0.05));
           if (manEl) manEl.style.setProperty('--mf-o', Math.min(1, pDec * 2.0).toFixed(3));
-          renderSingleDecode(manAEl, MAN_LINE_1, Math.min(1, pDec * 1.5), now);
-          renderSingleDecode(manBEl, MAN_LINE_2, Math.max(0, (pDec - 0.25) * 1.33), now);
+          renderSingleDecode(manAEl, MAN_LINE_1, Math.min(1, pDec * 1.5));
+          renderSingleDecode(manBEl, MAN_LINE_2, Math.max(0, (pDec - 0.25) * 1.33));
           if (manWrapEl) manWrapEl.style.clipPath = 'none';
         } else {
           // Tekst je 100% čist, statičan i čitljiv
-          setElHtml(manAEl, esc(MAN_LINE_1));
-          setElHtml(manBEl, esc(MAN_LINE_2));
+          setDoneDecEl(manAEl, MAN_LINE_1);
+          setDoneDecEl(manBEl, MAN_LINE_2);
 
           if (manWrapEl) {
             const rect = manWrapEl.getBoundingClientRect();
@@ -1110,36 +1026,39 @@ export function initIdeje() {
           manWrapEl.style.maskImage = 'none';
           manWrapEl.style.webkitMaskImage = 'none';
         }
-        setElHtml(manAEl, '');
-        setElHtml(manBEl, '');
+        clearDecEl(manAEl);
+        clearDecEl(manBEl);
       }
 
-      // ─── USLUGE VIDLJIVOST I POJAVLJIVANJE BLOKOVA (P >= 0.81) ───
+      // ─── USLUGE VIDLJIVOST I SKROL-SINHRONIZOVANO DEŠIFROVANJE BLOKOVA (P >= 0.805) ───
       const cardFadeIn = sm(0.81, 0.835, P);
       const cardFadeOut = sm(0.965, 0.98, P);
       const uo = cardFadeIn * (1.0 - cardFadeOut);
-      const us = document.getElementById('usluge');
-      if (us) {
-        us.style.setProperty('--u', uo.toFixed(3));
-        us.classList.toggle('on', uo > 0.4);
+      if (uslugeEl) {
+        uslugeEl.style.setProperty('--u', uo.toFixed(3));
+        uslugeEl.classList.toggle('on', uo > 0.4);
       }
 
-      // AirDrop pojavljivanje i dešifrovanje teksta na 3 bloka čim se tačkice pretvore u simbol (P >= 0.81)
-      if (P >= 0.81 && P < 0.97) {
+      if (P >= 0.805 && P < 0.975) {
         if (!servicesBlocksAnimated && serviceCards.length) {
           servicesBlocksAnimated = true;
-          serviceCards.forEach((card, idx) => {
-            card.classList.add('in');
-            const delay = reduce ? 0 : 360 + idx * 110;
-            decodeBlockText(card, delay);
-          });
+          serviceCards.forEach((card) => card.classList.add('in'));
         }
+        if (uhH3El) {
+          renderRichScrollDecode(uhH3El, Math.min(1, Math.max(0, (P - 0.808) / 0.026)));
+        }
+        serviceCardDecEls.forEach((items, idx) => {
+          const baseStart = 0.812 + idx * 0.010;
+          items.forEach((item, itemIdx) => {
+            const txt = item.dataset.dec || item.textContent || '';
+            const q = Math.min(1, Math.max(0, (P - (baseStart + itemIdx * 0.006)) / (itemIdx === 0 ? 0.022 : 0.032)));
+            renderScrollDecode(item, txt, q, null, 3);
+          });
+        });
       } else if (P < 0.77) {
         if (servicesBlocksAnimated) {
           servicesBlocksAnimated = false;
-          serviceCards.forEach((card) => {
-            card.classList.remove('in');
-          });
+          serviceCards.forEach((card) => card.classList.remove('in'));
         }
       }
     }
@@ -1149,7 +1068,7 @@ export function initIdeje() {
 
   function onIdejeResize() {
     const sz = getStageSize();
-    const curDpr = Math.min(2, window.devicePixelRatio || 1);
+    const curDpr = Math.min(sz.w <= 768 ? 1.5 : 2, window.devicePixelRatio || 1);
     const widthChanged = Math.abs(sz.w - lastIdejeWidth) > 1;
     const dprChanged = Math.abs(curDpr - lastIdejeDpr) > 0.001;
     const heightChanged = sz.w <= 768

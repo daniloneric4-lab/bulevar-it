@@ -27,6 +27,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { getLang, t } from './i18n.js';
+import { renderScrollDecode } from './scrollDecode.js';
 
 export function initSistemIzaEkrana() {
   const masterStage = document.getElementById('laptop-master-stage');
@@ -129,13 +130,13 @@ export function initSistemIzaEkrana() {
   // ═══════════════════════════════════════════════════════════
   const renderer = new THREE.WebGLRenderer({
     canvas: cv,
-    antialias: true,
+    antialias: typeof window === 'undefined' || window.innerWidth > 900,
     alpha: true,
     powerPreference: 'high-performance'
   });
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 900;
   const canvasScale = isMobile ? 1 : 2;
-  renderer.setPixelRatio(isMobile ? Math.min(1.5, window.devicePixelRatio || 1) : Math.min(2.5, window.devicePixelRatio || 1));
+  renderer.setPixelRatio(isMobile ? Math.min(1.5, window.devicePixelRatio || 1) : Math.min(2, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
@@ -1313,14 +1314,24 @@ export function initSistemIzaEkrana() {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // Card Deck: 5 double-sided cards
+  // Card Deck: 5 double-sided cards (lazily drawn off-critical-path)
   // ═══════════════════════════════════════════════════════════
   const KW = 1.04;
   const KH = KW * SHp / SWp;
 
-  const backCv = mkCanvas();
-  const bx = ctx2(backCv);
-  (function (x) {
+  const maxAniso = isMobile ? 1 : Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  stex.anisotropy = maxAniso;
+  stex.generateMipmaps = false;
+  stex.minFilter = THREE.LinearFilter;
+  stex.magFilter = THREE.LinearFilter;
+
+  let backCv = null;
+  let backTex = null;
+
+  function ensureBackTex() {
+    if (backTex) return backTex;
+    backCv = mkCanvas();
+    const x = ctx2(backCv);
     x.fillStyle = '#0B1020';
     x.fillRect(0, 0, CW, CH);
     rr(x, 18, 18, CW - 36, CH - 36, 24);
@@ -1349,20 +1360,15 @@ export function initSistemIzaEkrana() {
     x.fillStyle = '#D9B25F';
     x.fillText('.IT', CW / 2 + 136, CH / 2 + 24);
     x.textAlign = 'left';
-  })(bx);
 
-  const maxAniso = isMobile ? 1 : Math.min(4, renderer.capabilities.getMaxAnisotropy());
-  stex.anisotropy = maxAniso;
-  stex.generateMipmaps = false;
-  stex.minFilter = THREE.LinearFilter;
-  stex.magFilter = THREE.LinearFilter;
-
-  const backTex = new THREE.CanvasTexture(backCv);
-  backTex.colorSpace = THREE.SRGBColorSpace;
-  backTex.anisotropy = maxAniso;
-  backTex.generateMipmaps = !isMobile;
-  backTex.minFilter = isMobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter;
-  backTex.magFilter = THREE.LinearFilter;
+    backTex = new THREE.CanvasTexture(backCv);
+    backTex.colorSpace = THREE.SRGBColorSpace;
+    backTex.anisotropy = maxAniso;
+    backTex.generateMipmaps = !isMobile;
+    backTex.minFilter = isMobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter;
+    backTex.magFilter = THREE.LinearFilter;
+    return backTex;
+  }
 
   const deckG = new THREE.Group();
   world.add(deckG);
@@ -1374,21 +1380,13 @@ export function initSistemIzaEkrana() {
   mobLines.frustumCulled = false;
   deckG.add(mobLines);
 
+  const sharedCardGeo = new THREE.PlaneGeometry(KW, KH);
   const cards = [];
   DRAW.forEach((fn) => {
-    const c = mkCanvas();
-    fn(ctx2(c));
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = maxAniso;
-    t.generateMipmaps = !isMobile;
-    t.minFilter = isMobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter;
-    t.magFilter = THREE.LinearFilter;
-
     const g = new THREE.Group();
-    const f = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, transparent: true }));
+    const f = new THREE.Mesh(sharedCardGeo, new THREE.MeshBasicMaterial({ color: 0x0f1628, toneMapped: false, transparent: true }));
     f.position.z = 0.003;
-    const bk = new THREE.Mesh(new THREE.PlaneGeometry(KW, KH), new THREE.MeshBasicMaterial({ map: backTex, toneMapped: false, transparent: true }));
+    const bk = new THREE.Mesh(sharedCardGeo, new THREE.MeshBasicMaterial({ color: 0x0b1020, toneMapped: false, transparent: true }));
     bk.rotation.y = Math.PI;
     bk.position.z = -0.003;
 
@@ -1396,21 +1394,48 @@ export function initSistemIzaEkrana() {
     g.add(bk);
     g.visible = false;
     deckG.add(g);
-    cards.push({ g, tex: t, fn, c, f, bk });
+    cards.push({ g, tex: null, fn, c: null, f, bk });
   });
 
-  function redrawCards() {
-    cards.forEach((k) => {
+  function ensureCardDrawn(k) {
+    if (!k) return;
+    if (!k.c) {
+      k.c = mkCanvas();
       k.fn(ctx2(k.c));
-      k.tex.needsUpdate = true;
-    });
+      const tex = new THREE.CanvasTexture(k.c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = maxAniso;
+      tex.generateMipmaps = !isMobile;
+      tex.minFilter = isMobile ? THREE.LinearFilter : THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      k.tex = tex;
+      k.f.material.map = tex;
+      k.f.material.color.setHex(0xffffff);
+      k.f.material.needsUpdate = true;
+
+      const bt = ensureBackTex();
+      k.bk.material.map = bt;
+      k.bk.material.color.setHex(0xffffff);
+      k.bk.material.needsUpdate = true;
+    } else {
+      k.fn(ctx2(k.c));
+      if (k.tex) k.tex.needsUpdate = true;
+    }
+  }
+
+  let assetsReady = false;
+  let laptopLoadStarted = false;
+
+  function redrawCards() {
+    if (!assetsReady) return;
+    cards.forEach((k) => ensureCardDrawn(k));
     buildRoles();
     fontsOK = 1;
     lastScreenKey = '';
   }
 
   // ═══════════════════════════════════════════════════════════
-  // 3D Model Laptop Loading & Screen Quad Creation
+  // 3D Model Laptop Loading & Screen Quad Creation (deferred)
   // ═══════════════════════════════════════════════════════════
   let lidPivotRef = null;
   let screenMeshRef = null;
@@ -1426,150 +1451,194 @@ export function initSistemIzaEkrana() {
   ];
 
   const loader = new GLTFLoader();
-  loader.load(
-    '/models/laptop.glb',
-    (gltf) => {
-      const model = gltf.scene;
+  function ensureLaptopModelLoaded() {
+    if (laptopLoadStarted) return;
+    laptopLoadStarted = true;
+    loader.load(
+      '/models/laptop.glb',
+      (gltf) => {
+        const model = gltf.scene;
 
-      let origMesh = null;
-      model.traverse((child) => {
-        if (child.isMesh && (child.name === 'Laptop_Laptop1_0' || !origMesh)) {
-          origMesh = child;
+        let origMesh = null;
+        model.traverse((child) => {
+          if (child.isMesh && (child.name === 'Laptop_Laptop1_0' || !origMesh)) {
+            origMesh = child;
+          }
+        });
+
+        if (!origMesh) {
+          console.warn('[sistemIzaEkrana] laptop mesh not found in laptop.glb');
+          return;
         }
-      });
 
-      if (!origMesh) {
-        console.warn('[sistemIzaEkrana] laptop mesh not found in laptop.glb');
-        return;
-      }
-
-      if (origMesh.material) {
-        origMesh.material.side = THREE.DoubleSide;
-        if (origMesh.material.map) {
-          origMesh.material.map.colorSpace = THREE.SRGBColorSpace;
-          origMesh.material.map.generateMipmaps = true;
-          origMesh.material.map.minFilter = THREE.LinearMipmapLinearFilter;
-          origMesh.material.map.magFilter = THREE.LinearFilter;
-          origMesh.material.map.anisotropy = maxAniso;
+        if (origMesh.material) {
+          origMesh.material.side = THREE.DoubleSide;
+          if (origMesh.material.map) {
+            origMesh.material.map.colorSpace = THREE.SRGBColorSpace;
+            origMesh.material.map.generateMipmaps = true;
+            origMesh.material.map.minFilter = THREE.LinearMipmapLinearFilter;
+            origMesh.material.map.magFilter = THREE.LinearFilter;
+            origMesh.material.map.anisotropy = maxAniso;
+          }
         }
+
+        // Split geometry into base and lid at Y = 1.2 in mesh local space
+        const origGeo = origMesh.geometry;
+        const posAttr = origGeo.attributes.position;
+        const indexAttr = origGeo.index;
+
+        const baseIndices = [];
+        const lidIndices = [];
+        const splitY = 1.2;
+
+        for (let i = 0; i < indexAttr.count; i += 3) {
+          const i0 = indexAttr.getX(i);
+          const i1 = indexAttr.getX(i + 1);
+          const i2 = indexAttr.getX(i + 2);
+
+          const y0 = posAttr.getY(i0);
+          const y1 = posAttr.getY(i1);
+          const y2 = posAttr.getY(i2);
+          const avgY = (y0 + y1 + y2) / 3;
+
+          if (avgY > splitY) {
+            lidIndices.push(i0, i1, i2);
+          } else {
+            baseIndices.push(i0, i1, i2);
+          }
+        }
+
+        const baseGeo = new THREE.BufferGeometry();
+        baseGeo.setAttribute('position', origGeo.attributes.position);
+        baseGeo.setAttribute('normal', origGeo.attributes.normal);
+        baseGeo.setAttribute('uv', origGeo.attributes.uv);
+        if (origGeo.attributes.tangent) baseGeo.setAttribute('tangent', origGeo.attributes.tangent);
+        baseGeo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(baseIndices), 1));
+
+        const lidGeo = new THREE.BufferGeometry();
+        lidGeo.setAttribute('position', origGeo.attributes.position);
+        lidGeo.setAttribute('normal', origGeo.attributes.normal);
+        lidGeo.setAttribute('uv', origGeo.attributes.uv);
+        if (origGeo.attributes.tangent) lidGeo.setAttribute('tangent', origGeo.attributes.tangent);
+        lidGeo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(lidIndices), 1));
+
+        const baseMesh = new THREE.Mesh(baseGeo, origMesh.material);
+        baseMesh.name = 'LaptopBase';
+        baseMesh.castShadow = true;
+        baseMesh.receiveShadow = true;
+
+        const lidMesh = new THREE.Mesh(lidGeo, origMesh.material);
+        lidMesh.name = 'LaptopLid';
+        lidMesh.castShadow = true;
+        lidMesh.receiveShadow = true;
+
+        const hinge = new THREE.Vector3(0, 1.0, 0);
+        const lidPivot = new THREE.Group();
+        lidPivot.name = 'LaptopLidPivot';
+        lidPivot.position.copy(hinge);
+
+        lidMesh.position.sub(hinge);
+        lidPivot.add(lidMesh);
+
+        // Screen Quad directly on bezel
+        const screenPositions = new Float32Array([
+          -17.176, 22.089 + nY, 6.977 + nZ, // v0: Top-Right
+           17.176, 22.089 + nY, 6.977 + nZ, // v1: Top-Left
+           17.176,  3.761 + nY, 0.856 + nZ, // v2: Bottom-Left
+          -17.176,  3.761 + nY, 0.856 + nZ, // v3: Bottom-Right
+        ]);
+
+        const screenUVs = new Float32Array([
+          1, 1, // v0
+          0, 1, // v1
+          0, 0, // v2
+          1, 0, // v3
+        ]);
+
+        const screenIndices = new Uint16Array([
+          0, 3, 1,
+          1, 3, 2,
+          0, 1, 3,
+          1, 2, 3,
+        ]);
+
+        const screenGeo = new THREE.BufferGeometry();
+        screenGeo.setAttribute('position', new THREE.BufferAttribute(screenPositions, 3));
+        screenGeo.setAttribute('uv', new THREE.BufferAttribute(screenUVs, 2));
+        screenGeo.setIndex(new THREE.BufferAttribute(screenIndices, 1));
+        screenGeo.computeVertexNormals();
+
+        const screenMat = new THREE.MeshBasicMaterial({
+          map: stex,
+          toneMapped: false,
+          side: THREE.DoubleSide
+        });
+
+        const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+        screenMesh.name = 'LaptopScreen';
+        lidPivot.add(screenMesh);
+
+        const parent = origMesh.parent;
+        parent.remove(origMesh);
+        parent.add(baseMesh);
+        parent.add(lidPivot);
+
+        // Center and orient model perfectly matching prototype dimensions
+        model.rotation.set(0.28, Math.PI, 0);
+        model.scale.set(2.75, 2.75, 2.75);
+        model.position.set(0, -0.05, -0.01);
+
+        lap.add(model);
+        lidPivotRef = lidPivot;
+        screenMeshRef = screenMesh;
+
+        // Initial lid closed pose
+        lidPivotRef.rotation.x = -1.894;
+        lastScreenKey = '';
+        startLoop();
+      },
+      undefined,
+      (err) => console.error('[sistemIzaEkrana] Error loading /models/laptop.glb:', err)
+    );
+  }
+
+  function ensureAllLaptopAssets(immediate = false) {
+    ensureLaptopModelLoaded();
+    if (assetsReady) return;
+    if (immediate) {
+      assetsReady = true;
+      ensureBackTex();
+      cards.forEach((k) => ensureCardDrawn(k));
+      buildRoles();
+      fontsOK = 1;
+      lastScreenKey = '';
+      return;
+    }
+    // Stagger canvas rasterization across idle slices to prevent frame drops
+    const tasks = [
+      () => ensureBackTex(),
+      ...cards.map((k) => () => ensureCardDrawn(k)),
+      () => {
+        if (!roleCv.length) buildRoles();
+        assetsReady = true;
+        fontsOK = 1;
+        lastScreenKey = '';
       }
-
-      // Split geometry into base and lid at Y = 1.2 in mesh local space
-      const origGeo = origMesh.geometry;
-      const posAttr = origGeo.attributes.position;
-      const indexAttr = origGeo.index;
-
-      const baseIndices = [];
-      const lidIndices = [];
-      const splitY = 1.2;
-
-      for (let i = 0; i < indexAttr.count; i += 3) {
-        const i0 = indexAttr.getX(i);
-        const i1 = indexAttr.getX(i + 1);
-        const i2 = indexAttr.getX(i + 2);
-
-        const y0 = posAttr.getY(i0);
-        const y1 = posAttr.getY(i1);
-        const y2 = posAttr.getY(i2);
-        const avgY = (y0 + y1 + y2) / 3;
-
-        if (avgY > splitY) {
-          lidIndices.push(i0, i1, i2);
+    ];
+    let idx = 0;
+    const nextSlice = () => {
+      if (assetsReady || idx >= tasks.length) return;
+      tasks[idx++]();
+      if (idx < tasks.length) {
+        if (typeof window.requestIdleCallback === 'function') {
+          window.requestIdleCallback(nextSlice, { timeout: 250 });
         } else {
-          baseIndices.push(i0, i1, i2);
+          setTimeout(nextSlice, 24);
         }
       }
-
-      const baseGeo = new THREE.BufferGeometry();
-      baseGeo.setAttribute('position', origGeo.attributes.position);
-      baseGeo.setAttribute('normal', origGeo.attributes.normal);
-      baseGeo.setAttribute('uv', origGeo.attributes.uv);
-      if (origGeo.attributes.tangent) baseGeo.setAttribute('tangent', origGeo.attributes.tangent);
-      baseGeo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(baseIndices), 1));
-
-      const lidGeo = new THREE.BufferGeometry();
-      lidGeo.setAttribute('position', origGeo.attributes.position);
-      lidGeo.setAttribute('normal', origGeo.attributes.normal);
-      lidGeo.setAttribute('uv', origGeo.attributes.uv);
-      if (origGeo.attributes.tangent) lidGeo.setAttribute('tangent', origGeo.attributes.tangent);
-      lidGeo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(lidIndices), 1));
-
-      const baseMesh = new THREE.Mesh(baseGeo, origMesh.material);
-      baseMesh.name = 'LaptopBase';
-      baseMesh.castShadow = true;
-      baseMesh.receiveShadow = true;
-
-      const lidMesh = new THREE.Mesh(lidGeo, origMesh.material);
-      lidMesh.name = 'LaptopLid';
-      lidMesh.castShadow = true;
-      lidMesh.receiveShadow = true;
-
-      const hinge = new THREE.Vector3(0, 1.0, 0);
-      const lidPivot = new THREE.Group();
-      lidPivot.name = 'LaptopLidPivot';
-      lidPivot.position.copy(hinge);
-
-      lidMesh.position.sub(hinge);
-      lidPivot.add(lidMesh);
-
-      // Screen Quad directly on bezel
-      const screenPositions = new Float32Array([
-        -17.176, 22.089 + nY, 6.977 + nZ, // v0: Top-Right
-         17.176, 22.089 + nY, 6.977 + nZ, // v1: Top-Left
-         17.176,  3.761 + nY, 0.856 + nZ, // v2: Bottom-Left
-        -17.176,  3.761 + nY, 0.856 + nZ, // v3: Bottom-Right
-      ]);
-
-      const screenUVs = new Float32Array([
-        1, 1, // v0
-        0, 1, // v1
-        0, 0, // v2
-        1, 0, // v3
-      ]);
-
-      const screenIndices = new Uint16Array([
-        0, 3, 1,
-        1, 3, 2,
-        0, 1, 3,
-        1, 2, 3,
-      ]);
-
-      const screenGeo = new THREE.BufferGeometry();
-      screenGeo.setAttribute('position', new THREE.BufferAttribute(screenPositions, 3));
-      screenGeo.setAttribute('uv', new THREE.BufferAttribute(screenUVs, 2));
-      screenGeo.setIndex(new THREE.BufferAttribute(screenIndices, 1));
-      screenGeo.computeVertexNormals();
-
-      const screenMat = new THREE.MeshBasicMaterial({
-        map: stex,
-        toneMapped: false,
-        side: THREE.DoubleSide
-      });
-
-      const screenMesh = new THREE.Mesh(screenGeo, screenMat);
-      screenMesh.name = 'LaptopScreen';
-      lidPivot.add(screenMesh);
-
-      const parent = origMesh.parent;
-      parent.remove(origMesh);
-      parent.add(baseMesh);
-      parent.add(lidPivot);
-
-      // Center and orient model perfectly matching prototype dimensions
-      model.rotation.set(0.28, Math.PI, 0);
-      model.scale.set(2.75, 2.75, 2.75);
-      model.position.set(0, -0.05, -0.01);
-
-      lap.add(model);
-      lidPivotRef = lidPivot;
-      screenMeshRef = screenMesh;
-
-      // Initial lid closed pose
-      lidPivotRef.rotation.x = -1.894;
-    },
-    undefined,
-    (err) => console.error('[sistemIzaEkrana] Error loading /models/laptop.glb:', err)
-  );
+    };
+    nextSlice();
+  }
 
   // ═══════════════════════════════════════════════════════════
   // Card Positions, Normal & Rails
@@ -1681,57 +1750,20 @@ export function initSistemIzaEkrana() {
   }, { passive: true });
 
   // ═══════════════════════════════════════════════════════════
-  // Text Engine & Decoding Effect
+  // Scroll-Synchronized Text Elements
   // ═══════════════════════════════════════════════════════════
-  const GL = 'ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';
-  const L = {};
-  [['tg', 32], ['h1', 44], ['h2', 44], ['p', 26], ['rn', 36], ['rd', 22], ['rw', 18]].forEach((a) => {
-    L[a[0]] = {
-      el: $('s-' + a[0]),
-      ms: a[1],
-      t: '',
-      h: '',
-      st: 0
-    };
-  });
-
-  function esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  }
-
-  function say(id, t, d) {
-    if (!L[id] || L[id].t === t) return;
-    L[id].t = t;
-    L[id].st = performance.now() + (d || 0);
-  }
-
-  function text(now) {
-    for (const k in L) {
-      const l = L[k];
-      if (!l.el) continue;
-      if (!l.t) {
-        if (l.h !== '') {
-          l.el.innerHTML = '';
-          l.h = '';
-        }
-        continue;
-      }
-      const n = l.t.length;
-      const q = reduce ? 1 : cl((now - l.st) / (n * l.ms));
-      const d = Math.floor(q * n);
-      const nz = (q <= 0 || q >= 1) ? 0 : Math.min(4, n - d);
-      let z = '';
-      for (let j = 0; j < nz; j++) {
-        const ch = l.t[d + j];
-        z += ch === ' ' ? ' ' : GL[(Math.random() * GL.length) | 0];
-      }
-      const h = esc(l.t.slice(0, d)) + '<span class="noise">' + esc(z) + '</span><span class="rest">' + esc(l.t.slice(d + nz)) + '</span>';
-      if (h !== l.h) {
-        l.el.innerHTML = h;
-        l.h = h;
-      }
-    }
-  }
+  const sTgEl = $('s-tg');
+  const sH1El = $('s-h1');
+  const sH2El = $('s-h2');
+  const sPEl = $('s-p');
+  const sRnEl = $('s-rn');
+  const sRdEl = $('s-rd');
+  const sRwEl = $('s-rw');
+  const ulogaHEl = ulogaIn ? ulogaIn.querySelector('.uloga-h') : null;
+  const ulogaSubEl = ulogaIn ? ulogaIn.querySelector('.uloga-sub') : null;
+  if (sTgEl) sTgEl.removeAttribute('data-i18n');
+  if (ulogaHEl) ulogaHEl.removeAttribute('data-i18n');
+  if (ulogaSubEl) ulogaSubEl.removeAttribute('data-i18n');
 
   function getSteps() {
     const isEn = getLang() === 'en';
@@ -1781,18 +1813,17 @@ export function initSistemIzaEkrana() {
 
       // Immediately transition screen and text without skipping intermediate roles
       if (i !== curRole) {
+        ensureAllLaptopAssets(true);
         roleFrom = curRole >= 0 ? curRole : -1;
         roleAt = performance.now();
         curRole = i;
         lastScreenKey = '';
         roleAnimActive = true;
-        L.rn.t = '';
-        L.rd.t = '';
-        L.rw.t = '';
         const currentRoles = getRoles();
-        say('rn', currentRoles[i][0]);
-        say('rd', currentRoles[i][1], 140);
-        say('rw', currentRoles[i][2], 140 + currentRoles[i][1].length * 12);
+        const rData = currentRoles[i] || currentRoles[0];
+        renderScrollDecode(sRnEl, rData[0], 1);
+        renderScrollDecode(sRdEl, rData[1], 1);
+        renderScrollDecode(sRwEl, rData[2], 1);
       }
 
       if (window.lenis) {
@@ -1847,9 +1878,18 @@ export function initSistemIzaEkrana() {
   }
 
   if ('IntersectionObserver' in window) {
+    const preloadIo = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        ensureAllLaptopAssets(false);
+        preloadIo.disconnect();
+      }
+    }, { rootMargin: '250% 0px' });
+    preloadIo.observe(masterStage);
+
     const io = new IntersectionObserver((entries) => {
       inView = entries[0].isIntersecting;
       if (inView) {
+        ensureAllLaptopAssets(true);
         startLoop();
       } else if (cv.style.visibility !== 'hidden') {
         cv.style.opacity = '0';
@@ -1859,7 +1899,12 @@ export function initSistemIzaEkrana() {
     io.observe(masterStage);
   } else {
     inView = true;
+    ensureAllLaptopAssets(true);
   }
+
+  window.addEventListener('load', () => {
+    setTimeout(() => ensureAllLaptopAssets(false), 2600);
+  }, { once: true });
 
   function frame(now) {
     rafId = 0;
@@ -1940,19 +1985,50 @@ export function initSistemIzaEkrana() {
 
       if (step !== cur) {
         cur = step;
-        const currentSteps = getSteps();
-        const st = currentSteps[step] || currentSteps[0];
-        say('tg', st[0]);
-        const hArr = Array.isArray(st[1]) ? st[1] : [st[1], ''];
-        say('h1', hArr[0], 140);
-        say('h2', hArr[1], 140 + (hArr[0] ? hArr[0].length * 44 * 0.6 : 0));
-        const totalHLen = (hArr[0] || '').length + (hArr[1] || '').length;
-        say('p', st[2], 160 + totalHLen * 44 * 0.6);
         if (sisLy) {
           Array.from(sisLy.children).forEach((li, i) => {
             li.classList.toggle('on', i === act);
             li.classList.toggle('done', (act >= 0 && i < act) || act === -2);
           });
+        }
+      }
+
+      // Scroll-synchronized decode for Section 08 text
+      const enterSis = cl(1 - rSis.top / window.innerHeight);
+      const currentSteps = getSteps();
+      const st = currentSteps[step] || currentSteps[0];
+      const hArr = Array.isArray(st[1]) ? st[1] : [st[1], ''];
+      let qTg = 1, qH1 = 1, qH2 = 1, qP = 1;
+      if (step === 0) {
+        qTg = rSis.top <= 0 ? 1 : cl((enterSis - 0.12) / 0.25);
+        qH1 = rSis.top <= 0 ? 1 : cl((enterSis - 0.22) / 0.30);
+        qH2 = rSis.top <= 0 ? 1 : cl((enterSis - 0.42) / 0.28);
+        qP = rSis.top <= 0 ? 1 : cl((enterSis - 0.56) / 0.34);
+      } else if (step >= 1 && step <= 5) {
+        const localS = cl(s - k);
+        qTg = cl(localS / 0.18);
+        qH1 = cl((localS - 0.05) / 0.32);
+        qH2 = 1;
+        qP = cl((localS - 0.20) / 0.38);
+      } else {
+        const outLocal = cl((P_sis - S1) / 0.09);
+        qTg = cl(outLocal / 0.22);
+        qH1 = cl((outLocal - 0.06) / 0.36);
+        qH2 = cl((outLocal - 0.28) / 0.36);
+        qP = cl((outLocal - 0.50) / 0.45);
+      }
+      renderScrollDecode(sTgEl, st[0], qTg);
+      renderScrollDecode(sH1El, hArr[0], qH1);
+      renderScrollDecode(sH2El, hArr[1], qH2);
+      renderScrollDecode(sPEl, st[2], qP);
+
+      // Pre-decode Role 0 card while Section 09 sheet rises into view
+      if (sheetRise > 0.5) {
+        const roles0 = getRoles()[0];
+        if (roles0) {
+          renderScrollDecode(sRnEl, roles0[0], cl((sheetRise - 0.65) / 0.16));
+          renderScrollDecode(sRdEl, roles0[1], cl((sheetRise - 0.72) / 0.18));
+          renderScrollDecode(sRwEl, roles0[2], cl((sheetRise - 0.80) / 0.18));
         }
       }
 
@@ -2227,24 +2303,44 @@ export function initSistemIzaEkrana() {
           bt.setAttribute('aria-pressed', isActive ? 'true' : 'false');
           bt.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
+      }
 
-        L.rn.t = '';
-        L.rd.t = '';
-        L.rw.t = '';
-        const currentRoles = getRoles();
-        say('rn', currentRoles[role][0]);
-        say('rd', currentRoles[role][1], 200);
-        say('rw', currentRoles[role][2], 200 + currentRoles[role][1].length * 14);
+      const currentRoles = getRoles();
+      const rData = currentRoles[role] || currentRoles[0];
+      if (chipNavTarget >= 0 || role === 0) {
+        renderScrollDecode(sRnEl, rData[0], 1);
+        renderScrollDecode(sRdEl, rData[1], 1);
+        renderScrollDecode(sRwEl, rData[2], 1);
+      } else {
+        const roleLocal = cl(roleProg - scrollRole);
+        renderScrollDecode(sRnEl, rData[0], cl(roleLocal / 0.18));
+        renderScrollDecode(sRdEl, rData[1], cl((roleLocal - 0.08) / 0.24));
+        renderScrollDecode(sRwEl, rData[2], cl((roleLocal - 0.20) / 0.26));
       }
 
       drawScreen(1, 5);
     }
 
-    // Section 09 content floats in when sheet is halfway up
+    // Section 09 content floats in + scroll-synchronized header decode
     if (ulogaIn) {
       const uIn = sm(0.5, 1.0, sheetRise);
       ulogaIn.style.opacity = uIn.toFixed(3);
       ulogaIn.style.transform = 'translateY(' + ((1 - uIn) * 60).toFixed(1) + 'px)';
+      if (sheetRise > 0.45) {
+        renderScrollDecode(
+          ulogaHEl,
+          t('uloga.h', 'Zašto imate sajt?'),
+          inRoleMode ? 1 : cl((sheetRise - 0.48) / 0.28)
+        );
+        renderScrollDecode(
+          ulogaSubEl,
+          t('uloga.lead', 'Ako je jedini odgovor „da ljudi vide ko smo“, možda od sajta tražimo premalo.'),
+          inRoleMode ? 1 : cl((sheetRise - 0.62) / 0.32)
+        );
+      } else {
+        renderScrollDecode(ulogaHEl, '', 0);
+        renderScrollDecode(ulogaSubEl, '', 0);
+      }
     }
 
     // Framing & Camera Zoom transition
@@ -2289,33 +2385,25 @@ export function initSistemIzaEkrana() {
     lap.position.y = reduce ? 0 : Math.sin(now / 1700) * 0.012;
 
     renderer.render(scene, cam);
-    text(now);
     startLoop();
   }
 
-  buildRoles();
   layout();
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
-      redrawCards();
+      if (assetsReady) redrawCards();
       layout();
     });
   }
 
   window.addEventListener('bulevar:langchange', () => {
     updateSisLy();
-    redrawCards();
-    buildRoles();
-    if (curRole >= 0) {
-      const currentRoles = getRoles();
-      const r = curRole < currentRoles.length ? curRole : 0;
-      L.rn.t = '';
-      L.rd.t = '';
-      L.rw.t = '';
-      say('rn', currentRoles[r][0]);
-      say('rd', currentRoles[r][1], 100);
-      say('rw', currentRoles[r][2], 100 + currentRoles[r][1].length * 12);
+    if (assetsReady) {
+      redrawCards();
     }
+    [sTgEl, sH1El, sH2El, sPEl, sRnEl, sRdEl, sRwEl, ulogaHEl, ulogaSubEl].forEach((elNode) => {
+      if (elNode) elNode._sdKey = '';
+    });
     lastScreenKey = '';
     stex.needsUpdate = true;
     startLoop();

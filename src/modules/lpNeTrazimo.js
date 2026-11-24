@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { initLandingPage } from './landingHelper.js';
 import { createLandingLaptop } from './landingLaptop.js';
 import { getLang } from './i18n.js';
+import { renderScrollDecode } from './scrollDecode.js';
 
 export function initLpNeTrazimo() {
   initLandingPage({
@@ -753,8 +754,8 @@ export function initLpNeTrazimo() {
     railB.forEach((b, j) => b.classList.toggle('on', j === i));
 
     if (elT) {
+      elT._sdKey = '';
       if (reduce) elT.textContent = s.t;
-      else decodeEl(elT, first ? 600 : 700, s.t);
     }
 
     const swapEls = [elK, elAW, elD].filter(Boolean);
@@ -802,6 +803,13 @@ export function initLpNeTrazimo() {
       const t = i === 6 ? Math.min(1, (P - 6)) : P - i;
 
       setStep(i);
+      const stepObj = getSteps()[i];
+      if (elT && stepObj) {
+        const qTitle = i === 0
+          ? cl((enter - 0.35) / 0.55 + t / 0.32)
+          : cl(t / 0.35);
+        renderScrollDecode(elT, stepObj.t, qTitle);
+      }
 
       railB.forEach((b, j) => {
         const fillBar = b.querySelector('b');
