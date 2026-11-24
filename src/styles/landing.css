@@ -65,6 +65,20 @@ a {
   transition: color 0.2s ease, opacity 0.2s ease;
 }
 
+/* Global Scroll-Synchronized Cipher Decode Spans */
+.noise {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  color: var(--orange, #E8963A) !important;
+  -webkit-text-fill-color: #E8963A;
+  font-weight: inherit;
+}
+
+.rest {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  user-select: none;
+}
+
 /* ─── Header ─── */
 .lp-header {
   position: sticky;

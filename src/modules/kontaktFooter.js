@@ -4,6 +4,7 @@
  */
 
 import { t, getLang } from './i18n.js';
+import { registerScrollDecode } from './scrollDecode.js';
 
 export function initKontaktFooter() {
   initContactForm();
@@ -53,6 +54,23 @@ function initContactForm() {
     })(t0);
   }
 
+  // Scroll-synchronized decode for Kontakt heading (.kf-head .dec)
+  const headEl = document.querySelector('.kf-head');
+  if (headEl) {
+    headEl.querySelectorAll('.dec').forEach((el, i) => {
+      registerScrollDecode(el, {
+        triggerEl: headEl,
+        startRatio: 0.92,
+        endRatio: 0.48,
+        offset: i * 0.18,
+        getText: (node) => {
+          const key = node.getAttribute('data-i18n');
+          return key ? t(key) : (node.dataset.t || node.textContent || '');
+        }
+      });
+    });
+  }
+
   // Entrance observer for fade-up / airdrop
   const io = new IntersectionObserver(
     (entries) => {
@@ -60,11 +78,6 @@ function initContactForm() {
         if (!e.isIntersecting) return;
         e.target.classList.add('in');
         io.unobserve(e.target);
-        if (e.target.classList.contains('kf-head')) {
-          e.target.querySelectorAll('.dec').forEach((el, i) => {
-            setTimeout(() => decodeEl(el, 1400 + i * 300), 300 + i * 350);
-          });
-        }
       });
     },
     { threshold: 0.02, rootMargin: '120px 0px' }
@@ -82,18 +95,6 @@ function initContactForm() {
           el.classList.add('in');
         }
       }, 3500);
-    }
-  });
-
-  window.addEventListener('bulevar:langchange', () => {
-    const head = document.querySelector('.kf-head');
-    if (head) {
-      head.querySelectorAll('.dec').forEach((el, i) => {
-        const key = el.getAttribute('data-i18n');
-        const text = key ? t(key) : (el.dataset.t || el.textContent);
-        el.dataset.t = text;
-        decodeEl(el, 800 + i * 200);
-      });
     }
   });
 
@@ -492,14 +493,18 @@ function initFooterLogoAnimation() {
   buildSub();
   window.addEventListener('bulevar:langchange', () => {
     buildSub();
-    decodeSub(cur, true);
+    decodeSub(seg(cur, 0.70, 0.84));
   });
 
-  let lastGl = 0;
+  function glyphForFooter(idx, bucket) {
+    const h = Math.imul(idx + 13, 2654435761) ^ Math.imul(bucket + 5, 2246822519);
+    return GL[(h >>> 0) % GL.length];
+  }
 
-  function decodeLogo(prog, refresh) {
+  function decodeLogo(prog) {
     const n = L.length;
     const k = prog >= 1 ? n : Math.floor(prog * (n + 4)) - 4;
+    const bucket = Math.floor(prog * (n * 4 + 10));
     L.forEach((p, i) => {
       const on = i < k;
       p.style.opacity = on ? 1 : 0;
@@ -507,14 +512,15 @@ function initFooterLogoAnimation() {
       const isG = !on && i < k + 4 && prog > 0;
       if (g) {
         g.setAttribute('opacity', isG ? 1 : 0);
-        if (isG && refresh) g.textContent = GL[Math.floor(Math.random() * GL.length)];
+        if (isG) g.textContent = glyphForFooter(i, bucket);
       }
     });
   }
 
-  function decodeSub(prog, refresh) {
+  function decodeSub(prog) {
     const n = S.length;
     const k = prog >= 1 ? n : Math.floor(prog * (n + 5)) - 5;
+    const bucket = Math.floor(prog * (n * 3 + 10));
     S.forEach((s, i) => {
       if (i < k) {
         if (s.className !== 'f') {
@@ -523,7 +529,7 @@ function initFooterLogoAnimation() {
         }
       } else if (i < k + 5 && prog > 0) {
         s.className = 'r';
-        if (refresh) s.textContent = s.dataset.c === ' ' ? ' ' : GL[Math.floor(Math.random() * GL.length)];
+        s.textContent = s.dataset.c === '\u00A0' ? '\u00A0' : glyphForFooter(i, bucket);
       } else if (s.className !== 'h') {
         s.className = 'h';
         s.textContent = s.dataset.c;
@@ -547,7 +553,8 @@ function initFooterLogoAnimation() {
 
     // Kad god je korisnik na dnu ili pri dnu stranice, garantujemo potpuno (100%) učitavanje footera
     const scrollY = window.lenis ? window.lenis.scroll : (window.scrollY || document.documentElement.scrollTop || 0);
-    const maxScroll = 0;
+    const docH = Math.max(document.body.scrollHeight || 0, document.documentElement.scrollHeight || 0);
+    const maxScroll = Math.max(0, docH - window.innerHeight);
     if (maxScroll > 0 && scrollY >= maxScroll - 35) {
       return 1;
     }
@@ -593,10 +600,8 @@ function initFooterLogoAnimation() {
     logo.style.transform = `translateY(${(1 - g) * 5}vh) scale(${(0.66 + 0.34 * g).toFixed(4)})`;
     if (glow) glow.style.opacity = (col * (1 - seg(p, 0.72, 0.92))).toFixed(3);
 
-    const refresh = t - lastGl > 55;
-    if (refresh) lastGl = t;
-    decodeLogo(seg(p, 0.56, 0.76), refresh);
-    decodeSub(seg(p, 0.70, 0.84), refresh);
+    decodeLogo(seg(p, 0.56, 0.76));
+    decodeSub(seg(p, 0.70, 0.84));
 
     const m = eOut(seg(p, 0.78, 0.88));
     if (meta) {
@@ -614,6 +619,10 @@ function initFooterLogoAnimation() {
       rafId = requestAnimationFrame(loop);
     }
   }
+
+  window.addEventListener('scroll', () => {
+    if (inView) startLoop();
+  }, { passive: true });
 
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
@@ -637,11 +646,11 @@ function initFooterLogoAnimation() {
     const tg = target();
     cur += (tg - cur) * 0.11;
     if (Math.abs(tg - cur) < 0.0005) cur = tg;
-    if (cur !== lastRenderedCur || (cur > 0.50 && cur < 0.86)) {
+    if (cur !== lastRenderedCur) {
       render(cur, t);
       lastRenderedCur = cur;
     }
-    if (inView || cur > 0.0005) {
+    if (Math.abs(tg - cur) >= 0.0005) {
       startLoop();
     }
   }

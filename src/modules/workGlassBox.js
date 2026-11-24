@@ -12,6 +12,7 @@
 import { RADOVI_DATA } from '../data/radovi.js';
 import { getCircuitAnchors } from './horizontalPortfolio.js';
 import { getLang, t } from './i18n.js';
+import { renderScrollDecode } from './scrollDecode.js';
 
 export function initWorkGlassBox() {
   const portfolioTrack = document.getElementById('portfolio-cards-track');
@@ -115,8 +116,12 @@ export function initWorkGlassBox() {
       const rEl = box.querySelector('.gbox-r');
       const moreLabel = box.querySelector('.more-label');
 
-      if (pEl) pEl.textContent = data.small.problem;
-      if (rEl) rEl.textContent = data.small.solution;
+      box._pEl = pEl;
+      box._rEl = rEl;
+      box._probText = data.small.problem;
+      box._solText = data.small.solution;
+      if (pEl) { pEl._sdKey = ''; renderScrollDecode(pEl, data.small.problem, shown[idx] ? 1 : 0); }
+      if (rEl) { rEl._sdKey = ''; renderScrollDecode(rEl, data.small.solution, shown[idx] ? 1 : 0); }
       if (moreLabel) moreLabel.textContent = t('port.more', 'Pročitaj više');
     });
   }
@@ -133,6 +138,10 @@ export function initWorkGlassBox() {
       rafId = requestAnimationFrame(updateBoxes);
     }
   }
+
+  window.addEventListener('scroll', () => {
+    if (inView) startLoop();
+  }, { passive: true });
 
   if (stage && 'IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
@@ -275,8 +284,17 @@ export function initWorkGlassBox() {
         const moreBtn = box.querySelector('.more');
         if (moreBtn) moreBtn.tabIndex = isVisible ? 0 : -1;
       }
+      if (isVisible && box._pEl && box._rEl) {
+        const bw = st.right - st.left;
+        const startLeft = isMobile ? vw * 0.78 : Math.min(vw - bw - 14, vw * 0.68);
+        const endLeft = isMobile ? vw * 0.36 : Math.max(36, startLeft - Math.min(260, vw * 0.22));
+        const rawQ = Math.max(0, Math.min(1, (startLeft - st.cardLeft) / Math.max(60, startLeft - endLeft)));
+        const qP = Math.min(1, rawQ / 0.58);
+        const qR = Math.min(1, Math.max(0, (rawQ - 0.25) / 0.75));
+        renderScrollDecode(box._pEl, box._probText, qP, null, 3);
+        renderScrollDecode(box._rEl, box._solText, qR, null, 3);
+      }
     });
-    if (inView) startLoop();
   }
 
   startLoop();

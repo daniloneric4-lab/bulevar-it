@@ -6,6 +6,7 @@
  */
 
 import { initI18n, t, getLang } from './i18n.js';
+import { registerScrollDecode } from './scrollDecode.js';
 
 export function initLandingPage({ defaultAnchor = 'uloga', defaultCilj = '', defaultIzvor = 'lp' } = {}) {
   // 0. Initialize language switcher for landing pages
@@ -392,26 +393,16 @@ export function initLandingTextAnimations() {
     decodeElement(subtitle, { duration: 1350, delay: 720 });
   }
 
-  // 2. Scroll-triggered headlines (Outro H2, Section H3, or any [data-decode])
-  const scrollDecodes = document.querySelectorAll('.lp-outro h2, [data-decode], .lp-main > div > h3, .builder-controls > h3');
-  if ('IntersectionObserver' in window && scrollDecodes.length) {
-    const textObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        const el = entry.target;
-        textObserver.unobserve(el);
-        setTimeout(() => {
-          decodeElement(el, { duration: 950, delay: 60 });
-        }, 100);
+  // 2. Scroll-synchronized headlines (Outro H2, Section H3, cards, or any [data-decode])
+  const scrollDecodes = document.querySelectorAll('.lp-outro h2, [data-decode], .lp-main > div > h3, .builder-controls > h3, .lp-step-title, .lp-goal-title');
+  scrollDecodes.forEach((el) => {
+    if (el !== badge && el !== title && el !== subtitle) {
+      registerScrollDecode(el, {
+        startRatio: 0.92,
+        endRatio: 0.55
       });
-    }, { threshold: 0.15 });
-
-    scrollDecodes.forEach((el) => {
-      if (el !== badge && el !== title && el !== subtitle) {
-        textObserver.observe(el);
-      }
-    });
-  }
+    }
+  });
 }
 
 /**

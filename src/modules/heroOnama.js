@@ -14,6 +14,7 @@
  */
 
 import { t } from './i18n.js';
+import { renderScrollDecode } from './scrollDecode.js';
 
 export function initHeroOnama() {
   const track = document.getElementById('hero');
@@ -337,7 +338,7 @@ export function initHeroOnama() {
   function build() {
     trackH = track.offsetHeight || window.innerHeight * 7;
     const sz = getHeroStageSize();
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(sz.w <= 768 ? 1.5 : 2, window.devicePixelRatio || 1);
     W = sz.w;
     H = sz.h;
     lastHeroWidth = W;
@@ -389,37 +390,34 @@ export function initHeroOnama() {
     }
   }
 
-  const GL = 'ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';
-  const L = { h: { el: th, ms: 34, t: '', st: 0, h: '' }, p: { el: tp, ms: 13, t: '', st: 0, h: '' } };
-
-  function esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  }
-
-  function say(k, textStr, delay) {
-    L[k].t = textStr;
-    L[k].st = performance.now() + (delay || 0);
-  }
-
-  function text(now) {
-    for (const k in L) {
-      const l = L[k];
-      if (!l.t || !l.el) continue;
-      const n = l.t.length;
-      const q = reduce ? 1 : cl((now - l.st) / (n * l.ms));
-      const dd = Math.floor(q * n);
-      const nz = (q <= 0 || q >= 1) ? 0 : Math.min(4, n - dd);
-      let z = '';
-      for (let j = 0; j < nz; j++) {
-        const ch = l.t[dd + j];
-        z += ch === ' ' ? ' ' : GL[(Math.random() * GL.length) | 0];
-      }
-      const h = esc(l.t.slice(0, dd)) + '<span class="noise">' + esc(z) + '</span><span class="rest">' + esc(l.t.slice(dd + nz)) + '</span>';
-      if (h !== l.h) {
-        l.el.innerHTML = h;
-        l.h = h;
-      }
+  function syncOnamaText(G, Pp, idx, exitProg) {
+    if (G < LA || exitProg >= 0.45) {
+      renderScrollDecode(th, '', 0);
+      renderScrollDecode(tp, '', 0);
+      return;
     }
+    let qH = 1;
+    let qP = 1;
+    const fIdx = G < O0 ? 0 : idx;
+    if (G < O0) {
+      qH = cl((G - 0.175) / 0.065);
+      qP = cl((G - 0.205) / 0.065);
+    } else if (fIdx === 0) {
+      qH = 1;
+      qP = 1;
+    } else if (fIdx === 1) {
+      qH = cl((Pp - 0.21) / 0.08);
+      qP = cl((Pp - 0.25) / 0.10);
+    } else if (fIdx === 2) {
+      qH = cl((Pp - 0.49) / 0.08);
+      qP = cl((Pp - 0.53) / 0.10);
+    } else {
+      qH = cl((Pp - 0.77) / 0.08);
+      qP = cl((Pp - 0.81) / 0.10);
+    }
+    const fig = F[fIdx] || F[0];
+    renderScrollDecode(th, fig.h, qH);
+    renderScrollDecode(tp, fig.p, qP);
   }
 
   let mx = -999, my = -999;
@@ -454,7 +452,7 @@ export function initHeroOnama() {
     return { a: 3, b: 3, t: 0 };
   }
 
-  /* Video Scrubbing (Desktop 16:9 vs Mobile 9:16) via in-memory Blob for instant seek */
+  /* Video Scrubbing (Desktop 16:9 vs Mobile 9:16) — single stream without duplicate fetch */
   let vReady = false, vT = 0, targetTime = 0.001;
 
   function pickVideo() {
@@ -463,36 +461,25 @@ export function initHeroOnama() {
     if (HV.dataset.pickedSrc === wantSrc) return;
     HV.dataset.pickedSrc = wantSrc;
     vReady = false;
-
-    fetch(wantSrc)
-      .then((r) => {
-        if (!r.ok) throw new Error('Blob fetch failed');
-        return r.blob();
-      })
-      .then((blob) => {
-        if (HV.dataset.pickedSrc !== wantSrc) return;
-        if (HV._blobUrl) URL.revokeObjectURL(HV._blobUrl);
-        HV._blobUrl = URL.createObjectURL(blob);
-        HV.src = HV._blobUrl;
-        HV.load();
-      })
-      .catch(() => {
-        HV.src = wantSrc;
-        HV.load();
-      });
+    HV.preload = 'auto';
+    HV.src = wantSrc;
+    HV.load();
   }
 
   function onVideoReady() {
     vReady = true;
     if (HV.duration) {
       const tt = Math.max(0.001, Math.min(HV.duration - 0.04, vT * HV.duration));
-      HV.currentTime = tt;
+      if (!HV.seeking && Math.abs(HV.currentTime - tt) > 0.01) {
+        HV.currentTime = tt;
+      }
     }
   }
 
+  HV.addEventListener('loadedmetadata', onVideoReady);
   HV.addEventListener('loadeddata', onVideoReady);
   HV.addEventListener('canplay', onVideoReady);
-  if (HV.readyState >= 2) {
+  if (HV.readyState >= 1) {
     onVideoReady();
   }
 
@@ -536,6 +523,8 @@ export function initHeroOnama() {
       rafId = requestAnimationFrame(frame);
     }
   }
+
+  window.addEventListener('scroll', startLoop, { passive: true });
 
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
@@ -605,15 +594,19 @@ export function initHeroOnama() {
       if (G < LA) {
         // Hero laptop is still opening/magnifying; no dots, no captions
         if (cap) cap.style.opacity = '0';
+        cur = -1;
+        syncOnamaText(G, 0, 0, 0);
+        if (Math.abs(cl(G / V1) - vT) > 0.0005 || HV.seeking) {
+          startLoop();
+        }
+        return;
       } else {
         // Laptop screen fully magnified; dots burst out from center
         const e0 = reduce ? 1 : cl((G - LA) / (O0 - 0.02 - LA));
         if (cap) cap.style.opacity = sm(LA + 0.02, O0 - 0.02, G).toFixed(3);
-        if (cur !== 0 && e0 > 0.6) {
+        if (cur !== 0) {
           cur = 0;
           if (ci) ci.textContent = '01';
-          say('h', F[0].h, 80);
-          say('p', F[0].p, 80 + F[0].h.length * 20);
         }
         for (let i = 0; i < N; i++) {
           const b = SH[0][i];
@@ -628,7 +621,7 @@ export function initHeroOnama() {
         }
         x.globalAlpha = 1;
       }
-      text(now);
+      syncOnamaText(G, 0, 0, 0);
       startLoop();
       return;
     }
@@ -642,9 +635,6 @@ export function initHeroOnama() {
     if (idx !== cur && exitProg === 0) {
       cur = idx;
       if (ci) ci.textContent = '0' + (idx + 1);
-      L.h.t = L.p.t = '';
-      say('h', F[idx].h, 80);
-      say('p', F[idx].p, 80 + F[idx].h.length * 34 * 0.6);
     }
 
     const moving = (s.t > 0 && s.t < 1) || exitProg > 0;
@@ -797,7 +787,7 @@ export function initHeroOnama() {
     }
     x.globalAlpha = 1;
 
-    text(now);
+    syncOnamaText(G, Pp, idx, exitProg);
     startLoop();
   }
 
@@ -809,8 +799,8 @@ export function initHeroOnama() {
 
   function onHeroResize() {
     const sz = getHeroStageSize();
-    const curDpr = Math.min(2, window.devicePixelRatio || 1);
     const isMob = sz.w <= 768;
+    const curDpr = Math.min(isMob ? 1.5 : 2, window.devicePixelRatio || 1);
     const widthChanged = Math.abs(sz.w - lastHeroWidth) > 1;
     const dprChanged = Math.abs(curDpr - lastHeroDpr) > 0.001;
     const heightChanged = isMob ? Math.abs(sz.h - lastHeroHeight) > 100 : Math.abs(sz.h - lastHeroHeight) > 1;
@@ -843,10 +833,9 @@ export function initHeroOnama() {
     F[2].p = t('onama.f2.p', 'Znaju šta prodaje i zašto. Paze da sve što napravimo ima poslovni smisao.');
     F[3].h = t('onama.f3.h', 'Sistem. I ostaje vaš.');
     F[3].p = t('onama.f3.p', 'Ne iznajmljujemo vam sajt. Gradimo ga za vas, i ključevi ostaju kod vas.');
-    if (cur >= 0 && cur < F.length) {
-      say('h', F[cur].h, 20);
-      say('p', F[cur].p, 40);
-    }
+    if (th) th._sdKey = '';
+    if (tp) tp._sdKey = '';
+    startLoop();
   });
 
   const fr = document.fonts && document.fonts.load

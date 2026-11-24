@@ -19,8 +19,9 @@ export function createLandingLaptop({
   let isGLTF = false;
   let currentLidAngle = initialLidAngle;
 
-  const R3 = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-  R3.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  const isMob = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const R3 = new THREE.WebGLRenderer({ antialias: !isMob, alpha: true, powerPreference: 'high-performance' });
+  R3.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMob ? 1.5 : 2));
   host.appendChild(R3.domElement);
   R3.outputColorSpace = THREE.SRGBColorSpace;
 

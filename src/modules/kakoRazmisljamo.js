@@ -10,6 +10,7 @@
  */
 
 import { t } from './i18n.js';
+import { renderScrollDecode, renderRichScrollDecode } from './scrollDecode.js';
 
 export function initKakoRazmisljamo() {
   const section = document.getElementById('kako-razmisljamo');
@@ -172,13 +173,10 @@ export function initKakoRazmisljamo() {
     layout();
   }, { once: true });
 
-  // Decode text engine
-  const GL = 'ABCDEFGHIJKLMNOPRSTUVZŠĐČĆŽ0123456789#%/+<>';
-  const L = [];
-  W.forEach((o) => {
-    L.push({ el: o.t, ms: 55, t: '', h: '', st: 0 });
-    L.push({ el: o.q, ms: 30, t: '', h: '', st: 0 });
-  });
+  // Scroll-synchronized decode text engine
+  function cl(x) {
+    return Math.max(0, Math.min(1, x));
+  }
 
   const headEl = section.querySelector('.kr-head');
   const tagEl = headEl ? headEl.querySelector('.kr-tag') : null;
@@ -206,51 +204,7 @@ export function initKakoRazmisljamo() {
     return { tag: tagTxt, h1: rawH, h2: '', sub: subTxt };
   }
 
-  L.push({ el: tagEl, ms: 32, t: '', h: '', st: 0 });
-  L.push({ el: h1Span, ms: 42, t: '', h: '', st: 0 });
-  L.push({ el: h2Span, ms: 42, t: '', h: '', st: 0 });
-  L.push({ el: subEl, ms: 22, t: '', h: '', st: 0 });
-
-  let headOn = false;
-  [0].forEach(() => {
-  });
-
-  function esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
-  }
-
-  function say(j, t, d) {
-    L[j].t = t;
-    L[j].st = performance.now() + d;
-  }
-
-  function text(now) {
-    L.forEach((l) => {
-      if (!l.el) return;
-      if (!l.t) {
-        if (l.h !== '') {
-          l.el.innerHTML = '';
-          l.h = '';
-        }
-        return;
-      }
-      const n = l.t.length;
-      const k = reduce ? 1 : Math.min(1, Math.max(0, (now - l.st) / (n * l.ms)));
-      const d = Math.floor(k * n);
-      const nz = (k <= 0 || k >= 1) ? 0 : Math.min(4, n - d);
-      let z = '';
-      for (let j = 0; j < nz; j++) {
-        const ch = l.t[d + j];
-        z += ch === ' ' ? ' ' : GL[(Math.random() * GL.length) | 0];
-      }
-      const h = esc(l.t.slice(0, d)) + '<span class="noise">' + esc(z) + '</span><span class="rest">' + esc(l.t.slice(d + nz)) + '</span>';
-      if (h !== l.h) {
-        l.el.innerHTML = h;
-        l.h = h;
-      }
-    });
-  }
-
+  let cachedHead = getHeadTexts();
   let cur = -2;
   let inView = false;
   let rafId = 0;
@@ -260,6 +214,10 @@ export function initKakoRazmisljamo() {
       rafId = requestAnimationFrame(frame);
     }
   }
+
+  window.addEventListener('scroll', () => {
+    if (inView) startLoop();
+  }, { passive: true });
 
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver((entries) => {
@@ -271,7 +229,7 @@ export function initKakoRazmisljamo() {
     inView = true;
   }
 
-  function frame(now) {
+  function frame() {
     rafId = 0;
     const r = track.getBoundingClientRect();
     const tot = (trackH || track.offsetHeight) - window.innerHeight;
@@ -285,60 +243,69 @@ export function initKakoRazmisljamo() {
     const riseDist = window.innerHeight;
     const totAnim = Math.max(1, tot - riseDist);
     // P only advances once section has reached the top of the viewport (r.top <= 0)
-    let P = r.top <= 0 ? Math.max(0, Math.min(1, -r.top / totAnim)) : 0;
+    const P = r.top <= 0 ? Math.max(0, Math.min(1, -r.top / totAnim)) : 0;
 
     // Sheet rise entrance: 0 while section top is below viewport, 1 when it reaches top of screen
     const up = Math.max(0, Math.min(1, 1 - r.top / window.innerHeight));
     track.style.setProperty('--in', '1');
 
     const isRisingOrPinned = r.top < window.innerHeight * 0.92;
-    if (isRisingOrPinned && !headOn) {
-      headOn = true;
-      const ht = getHeadTexts();
-      say(14, ht.tag, 0);
-      say(15, ht.h1, 80);
-      const h1Delay = 80 + ht.h1.length * 42 * 0.6;
-      say(16, ht.h2, h1Delay);
-      say(17, ht.sub, h1Delay + ht.h2.length * 42 * 0.6);
-    } else if (!isRisingOrPinned && headOn) {
-      headOn = false;
-      L[14].t = '';
-      L[15].t = '';
-      L[16].t = '';
-      L[17].t = '';
+    if (!isRisingOrPinned) {
+      renderScrollDecode(tagEl, '', 0);
+      renderScrollDecode(h1Span, '', 0);
+      renderScrollDecode(h2Span, '', 0);
+      renderScrollDecode(subEl, '', 0);
+    } else {
+      const qTag = r.top <= 0 ? 1 : cl((up - 0.10) / 0.25);
+      const qH1 = r.top <= 0 ? 1 : cl((up - 0.22) / 0.30);
+      const qH2 = r.top <= 0 ? 1 : cl((up - 0.42) / 0.28);
+      const qSub = r.top <= 0 ? 1 : cl((up - 0.56) / 0.36);
+      renderScrollDecode(tagEl, cachedHead.tag, qTag);
+      renderScrollDecode(h1Span, cachedHead.h1, qH1);
+      renderScrollDecode(h2Span, cachedHead.h2, qH2);
+      renderScrollDecode(subEl, cachedHead.sub, qSub);
     }
+
     const steps = r.top <= 0 ? (P * 8.0) : (isRisingOrPinned ? 0 : -1);
     const act = isRisingOrPinned ? Math.max(0, Math.min(6, Math.floor(steps))) : -1;
 
     if (act !== cur) {
       W.forEach((o, i) => {
         const shown = i <= act;
-        if (shown && !o.on) {
-          o.on = true;
-          say(i * 2, o.word, 0);
-        }
-        if (!shown && o.on) {
-          o.on = false;
-          L[i * 2].t = '';
-          L[i * 2 + 1].t = '';
-        }
+        o.on = shown;
         o.el.style.opacity = shown ? '1' : '0';
         o.el.classList.toggle('act', i === act);
         o.el.classList.toggle('seen', i < act);
       });
-
-      if (act >= 0) {
-        say(act * 2 + 1, W[act].ques, act === cur + 1 ? W[act].word.length * 55 * 0.6 : 0);
-      }
-      W.forEach((o, i) => {
-        if (i !== act && i <= act) L[i * 2 + 1].t = '';
-      });
-
       Array.from(dots.children).forEach((d, i) => {
         d.classList.toggle('on', i <= act);
       });
       cur = act;
     }
+
+    // Scroll-synchronized decode for each of the 7 staircase steps & questions
+    W.forEach((o, i) => {
+      if (i > act || act < 0) {
+        renderScrollDecode(o.t, '', 0);
+        renderScrollDecode(o.q, '', 0);
+      } else if (i < act) {
+        renderScrollDecode(o.t, o.word, 1);
+        renderScrollDecode(o.q, '', 0);
+      } else {
+        let qWord = 1;
+        let qQues = 1;
+        if (i === 0) {
+          qWord = r.top <= 0 ? 1 : cl((up - 0.55) / 0.40);
+          qQues = r.top <= 0 ? cl(steps / 0.48) : 0;
+        } else {
+          const local = cl(steps - i);
+          qWord = cl(local / 0.32);
+          qQues = cl((local - 0.16) / 0.42);
+        }
+        renderScrollDecode(o.t, o.word, qWord);
+        renderScrollDecode(o.q, o.ques, qQues);
+      }
+    });
 
     // Staircase line growth
     const sl = stairLen;
@@ -362,11 +329,10 @@ export function initKakoRazmisljamo() {
       tip.style.opacity = '0';
     }
 
-    // Ending text opacity
+    // Ending text opacity + scroll-synchronized decode
+    const endProg = Math.max(0, Math.min(1, (steps - 6.85) / 0.65));
     endEl.style.setProperty('--e', Math.max(0, Math.min(1, (steps - 7) / 0.6)).toFixed(3));
-
-    text(now);
-    startLoop();
+    renderRichScrollDecode(endEl, endProg);
   }
 
   layout();
@@ -375,23 +341,22 @@ export function initKakoRazmisljamo() {
   }
 
   window.addEventListener('bulevar:langchange', () => {
-    const fresh = getSteps();
-    if (headOn) {
-      const ht = getHeadTexts();
-      say(14, ht.tag, 0);
-      say(15, ht.h1, 60);
-      const h1Delay = 60 + ht.h1.length * 42 * 0.5;
-      say(16, ht.h2, h1Delay);
-      say(17, ht.sub, h1Delay + ht.h2.length * 42 * 0.5);
+    cachedHead = getHeadTexts();
+    if (tagEl) tagEl._sdKey = '';
+    if (h1Span) h1Span._sdKey = '';
+    if (h2Span) h2Span._sdKey = '';
+    if (subEl) subEl._sdKey = '';
+    if (endEl) {
+      delete endEl._sdOrigHtml;
+      delete endEl._sdRich;
     }
+    const fresh = getSteps();
     fresh.forEach((s, i) => {
       if (W[i]) {
         W[i].word = s[0];
         W[i].ques = s[1];
-        if (W[i].on) {
-          say(i * 2, s[0], 0);
-          say(i * 2 + 1, s[1], 10);
-        }
+        if (W[i].t) W[i].t._sdKey = '';
+        if (W[i].q) W[i].q._sdKey = '';
       }
     });
     startLoop();
