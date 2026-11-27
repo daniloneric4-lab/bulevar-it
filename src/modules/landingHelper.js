@@ -254,8 +254,13 @@ function setupQuestionnaireModal(currentParams) {
         if (window.$zoho && $zoho.salesiq && $zoho.salesiq.visitor) {
           if (payload.ime) $zoho.salesiq.visitor.name(payload.ime);
           if (payload.email) $zoho.salesiq.visitor.email(payload.email);
+          const nazivBiznisa = payload.firma;
+          $zoho.salesiq.visitor.info(
+            nazivBiznisa
+              ? { 'Cilj': izabraniCilj || 'nije izabran', 'Company': nazivBiznisa }
+              : { 'Cilj': izabraniCilj || 'nije izabran' }
+          );
           if (payload.telefon) $zoho.salesiq.visitor.contactnumber(payload.telefon);
-          $zoho.salesiq.visitor.info({ 'Cilj': izabraniCilj || 'nije izabran' });
         }
 
         if (successBanner) {
