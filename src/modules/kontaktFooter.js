@@ -314,8 +314,13 @@ function initContactForm() {
     if (window.$zoho && $zoho.salesiq && $zoho.salesiq.visitor) {
       if (data.ime) $zoho.salesiq.visitor.name(data.ime);
       if (data.email) $zoho.salesiq.visitor.email(data.email);
+      const nazivBiznisa = data.firma;
+      $zoho.salesiq.visitor.info(
+        nazivBiznisa
+          ? { 'Cilj': izabraniCilj || 'nije izabran', 'Company': nazivBiznisa }
+          : { 'Cilj': izabraniCilj || 'nije izabran' }
+      );
       if (data.telefon) $zoho.salesiq.visitor.contactnumber(data.telefon);
-      $zoho.salesiq.visitor.info({ 'Cilj': izabraniCilj || 'nije izabran' });
     }
 
     const doneP = document.getElementById('doneP');
