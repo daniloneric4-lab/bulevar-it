@@ -1067,7 +1067,7 @@
     (function() {
       function isZohoNode(el) {
         if (!el || el.nodeType !== 1) return false;
-        var id = el.id || '';
+        var id = typeof el.id === 'string' ? el.id : ((el.getAttribute && el.getAttribute('id')) || '');
         var cls = typeof el.className === 'string' ? el.className : '';
         return id.indexOf('zsiq') !== -1 || id.indexOf('siq') !== -1 || cls.indexOf('zsiq') !== -1 || cls.indexOf('siq') !== -1;
       }
